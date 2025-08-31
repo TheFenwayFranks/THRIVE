@@ -341,6 +341,7 @@ export default function EmergencyEnhanced() {
   };
 
   const quickMoodCheckin = () => {
+    console.log('😊 Quick mood check-in button pressed');
     setShowMoodTracker(true);
     setCompletedWorkoutData({ 
       difficulty: 'gentle', 
@@ -348,6 +349,7 @@ export default function EmergencyEnhanced() {
       workoutName: 'Quick Mood Check',
       workoutDuration: 0
     }); // Mock data for mood-only check
+    console.log('😊 Mood tracker modal should be showing');
   };
 
   const testWorkoutFlow = () => {
@@ -392,7 +394,9 @@ export default function EmergencyEnhanced() {
 
   const showCommunityView = () => {
     console.log('🏟️ Navigating to Community Feed');
+    console.log('🏟️ Current state before community nav:', { currentView, selectedDifficulty, isWorkoutActive });
     setCurrentView('community');
+    console.log('🏟️ Community view set successfully');
   };
 
   const getMotivationalMessage = () => {
@@ -468,8 +472,10 @@ export default function EmergencyEnhanced() {
   };
 
   const startMorningFlow = () => {
-    console.log('🌅 Manually starting morning flow');
+    console.log('🌅 Morning Flow button pressed');
+    console.log('🌅 Current morning flow state:', { showMorningFlow, hasSeenMorningFlowToday });
     setShowMorningFlow(true);
+    console.log('🌅 Morning flow modal should be showing');
   };
 
   const handleReset = () => {

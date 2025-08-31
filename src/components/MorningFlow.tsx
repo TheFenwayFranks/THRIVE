@@ -72,6 +72,8 @@ export default function MorningFlow({ visible, onComplete, userStats }: MorningF
   const [isLoadingWeather, setIsLoadingWeather] = useState(false);
   const [weatherError, setWeatherError] = useState<string | null>(null);
   const [useManualWeather, setUseManualWeather] = useState(false);
+  const [weatherTimeout, setWeatherTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [autoAdvanceEnabled, setAutoAdvanceEnabled] = useState(true);
   
   // Calculate progress proximity
   const getProgressProximity = () => {
@@ -122,6 +124,14 @@ export default function MorningFlow({ visible, onComplete, userStats }: MorningF
         // Load weather data when reaching weather screen (screen 3)
         if (nextScreenIndex === 3 && !weatherData && !useManualWeather) {
           loadWeatherData();
+          // Set 5-second timeout to automatically continue if weather fails
+          const timeout = setTimeout(() => {
+            console.log('⏰ Weather loading timeout - proceeding with fallback');
+            setIsLoadingWeather(false);
+            setUseManualWeather(true);
+            setWeatherError('Weather service timeout');
+          }, 5000);
+          setWeatherTimeout(timeout);
         }
         
         Animated.timing(fadeAnim, {
@@ -137,7 +147,28 @@ export default function MorningFlow({ visible, onComplete, userStats }: MorningF
 
   const skipToWorkouts = () => {
     console.log('🏃‍♂️ User skipped to workouts from morning flow');
+    if (weatherTimeout) {
+      clearTimeout(weatherTimeout);
+      setWeatherTimeout(null);
+    }
     completeMorningFlow();
+  };
+
+  const skipWeather = () => {
+    console.log('🌤️ User skipped weather loading');
+    if (weatherTimeout) {
+      clearTimeout(weatherTimeout);
+      setWeatherTimeout(null);
+    }
+    setIsLoadingWeather(false);
+    setUseManualWeather(true);
+    setWeatherError(null);
+  };
+
+  const continueWithoutWeather = () => {
+    console.log('🚀 Continuing without weather data');
+    setAutoAdvanceEnabled(false);
+    nextScreen();
   };
 
   const completeMorningFlow = async () => {
@@ -168,7 +199,7 @@ export default function MorningFlow({ visible, onComplete, userStats }: MorningF
     onComplete();
   };
 
-  // Load native weather data
+  // Load native weather data with timeout protection
   const loadWeatherData = async () => {
     setIsLoadingWeather(true);
     setWeatherError(null);
@@ -177,16 +208,22 @@ export default function MorningFlow({ visible, onComplete, userStats }: MorningF
       console.log('🌤️ Loading native weather data...');
       const weather = await WeatherService.getCompleteWeatherData();
       
-      if (weather) {
+      if (weather && !weatherTimeout) {
         console.log('✅ Weather data loaded successfully:', weather);
+        if (weatherTimeout) {
+          clearTimeout(weatherTimeout);
+          setWeatherTimeout(null);
+        }
         setWeatherData(weather);
         setSelectedWeather(weather.motivationKey);
-        // Auto-advance after successful weather load
-        setTimeout(() => {
-          nextScreen();
-        }, 2000);
+        // Auto-advance after successful weather load (only if enabled)
+        if (autoAdvanceEnabled) {
+          setTimeout(() => {
+            nextScreen();
+          }, 1500);
+        }
       } else {
-        console.log('⚠️ Could not load weather data, falling back to manual selection');
+        console.log('⚠️ Could not load weather data, using fallback');
         setWeatherError('Could not access weather data');
         setUseManualWeather(true);
       }
@@ -291,7 +328,7 @@ export default function MorningFlow({ visible, onComplete, userStats }: MorningF
         return (
           <Animated.View style={[styles.screenContainer, { opacity: fadeAnim }]}>
             {isLoadingWeather ? (
-              // Loading Weather
+              // Loading Weather with BYPASS OPTIONS
               <>
                 <Text style={styles.weatherTitle}>Getting your weather... 🌤️</Text>
                 <Text style={styles.weatherSubtitle}>
@@ -301,6 +338,18 @@ export default function MorningFlow({ visible, onComplete, userStats }: MorningF
                 <View style={styles.weatherLoadingContainer}>
                   <ActivityIndicator size="large" color="#10B981" />
                   <Text style={styles.loadingText}>Accessing weather data...</Text>
+                  <Text style={styles.timeoutText}>Auto-continuing in 5 seconds...</Text>
+                </View>
+                
+                {/* BYPASS BUTTONS - CRITICAL FIX */}
+                <View style={styles.bypassContainer}>
+                  <TouchableOpacity style={styles.skipWeatherButton} onPress={skipWeather}>
+                    <Text style={styles.skipWeatherButtonText}>Skip Weather</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity style={styles.continueAnywayButton} onPress={continueWithoutWeather}>
+                    <Text style={styles.continueAnywayButtonText}>Continue ➜</Text>
+                  </TouchableOpacity>
                 </View>
               </>
             ) : weatherData ? (
@@ -340,22 +389,35 @@ export default function MorningFlow({ visible, onComplete, userStats }: MorningF
                 </TouchableOpacity>
               </>
             ) : (
-              // Generic motivation if weather fails
+              // ENHANCED FALLBACK - Always provides way to continue
               <>
                 <Text style={styles.weatherTitle}>Good morning! 🌅</Text>
                 
                 <View style={styles.weatherMotivationContainer}>
                   <Text style={styles.weatherMotivationText}>
-                    Every day is a great day to THRIVE! 🌟
+                    Ready for a great workout day! 🌟
                   </Text>
                 </View>
                 
                 <Text style={styles.weatherSubtitle}>
-                  Your movement matters, regardless of the weather
+                  Your movement matters, every single day
                 </Text>
+                
+                {weatherError && (
+                  <View style={styles.weatherSummary}>
+                    <Text style={styles.weatherSummaryText}>
+                      Weather: {weatherError} - No problem!
+                    </Text>
+                  </View>
+                )}
                 
                 <TouchableOpacity style={styles.continueButton} onPress={nextScreen}>
                   <Text style={styles.continueButtonText}>Ready to THRIVE</Text>
+                </TouchableOpacity>
+                
+                {/* Retry option available but not required */}
+                <TouchableOpacity style={styles.retryButton} onPress={retryWeatherLoad}>
+                  <Text style={styles.retryButtonText}>Try Weather Again (Optional)</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -800,5 +862,44 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontSize: 16,
     marginBottom: 8,
     textAlign: 'left',
+  },
+  
+  // CRITICAL FIX: Bypass Button Styles
+  bypassContainer: {
+    flexDirection: 'row',
+    gap: 15,
+    marginTop: 30,
+    alignItems: 'center',
+  },
+  skipWeatherButton: {
+    backgroundColor: '#374151',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#6B7280',
+  },
+  skipWeatherButtonText: {
+    color: '#D1D5DB',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  continueAnywayButton: {
+    backgroundColor: theme.colors.success,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  continueAnywayButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  timeoutText: {
+    color: '#94A3B8',
+    fontSize: 12,
+    marginTop: 12,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });
