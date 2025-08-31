@@ -16,6 +16,8 @@ import VideoPlayerPlaceholder from './src/components/VideoPlayerPlaceholder';
 import MorningFlow from './src/components/MorningFlow';
 import SettingsModal from './src/components/SettingsModal';
 import CommunityFeed from './src/components/CommunityFeed';
+import BottomTabs, { TabName } from './src/components/BottomTabs';
+import StatsTab from './src/components/StatsTab';
 
 // ENHANCED THRIVE DASHBOARD - Full ADHD-Optimized Interface
 // Includes: Quick Access + Dashboard + Smart Shortcuts + Minimal Navigation
@@ -86,8 +88,8 @@ export default function EmergencyEnhanced() {
     workoutDuration?: number
   } | null>(null);
 
-  // Dashboard states
-  const [currentView, setCurrentView] = useState<'dashboard' | 'workout' | 'timer' | 'community'>('dashboard');
+  // Dashboard states - UPDATED: Bottom tab navigation
+  const [activeTab, setActiveTab] = useState<TabName>('home');
   const [recentWorkouts, setRecentWorkouts] = useState<any[]>([]);
   const [dailyMood, setDailyMood] = useState<number | null>(null);
   const [todayGoal, setTodayGoal] = useState({ current: 0, target: 50 }); // XP goal
@@ -234,7 +236,7 @@ export default function EmergencyEnhanced() {
     setIsWorkoutActive(false);
     setCurrentWorkout(null);
     setTimeLeft(0);
-    setCurrentView('dashboard');
+    setActiveTab('home');
     setSelectedDifficulty(null);
   };
 
@@ -306,8 +308,8 @@ export default function EmergencyEnhanced() {
     setCurrentWorkout(null);
     setTimeLeft(0);
     
-    // Return to dashboard after workout completion
-    setCurrentView('dashboard');
+    // Return to home tab after workout completion
+    setActiveTab('home');
     setSelectedDifficulty(null);
 
     // Show celebration
@@ -333,11 +335,11 @@ export default function EmergencyEnhanced() {
     console.log('🏠 Returning to dashboard after mood tracking');
   };
 
-  // Quick access functions
+  // Quick access functions - FIXED: Inline display instead of navigation
   const quickStartWorkout = (difficulty: 'gentle' | 'steady' | 'beast') => {
     console.log(`🚀 Quick start ${difficulty} workout`);
     setSelectedDifficulty(difficulty);
-    setCurrentView('workout');
+    // Stay on dashboard, show workouts inline
   };
 
   const quickMoodCheckin = () => {
@@ -385,7 +387,7 @@ export default function EmergencyEnhanced() {
   };
 
   const backToDashboard = () => {
-    setCurrentView('dashboard');
+    setActiveTab('home');
     setSelectedDifficulty(null);
     if (isWorkoutActive) {
       cancelWorkout();
@@ -394,9 +396,16 @@ export default function EmergencyEnhanced() {
 
   const showCommunityView = () => {
     console.log('🏟️ Navigating to Community Feed');
-    console.log('🏟️ Current state before community nav:', { currentView, selectedDifficulty, isWorkoutActive });
-    setCurrentView('community');
-    console.log('🏟️ Community view set successfully');
+    setActiveTab('community');
+  };
+
+  const handleTabPress = (tab: TabName) => {
+    console.log('📱 Tab pressed:', tab);
+    setActiveTab(tab);
+    // Clear any selected difficulty when switching tabs
+    if (tab !== 'home') {
+      setSelectedDifficulty(null);
+    }
   };
 
   const getMotivationalMessage = () => {
@@ -498,6 +507,16 @@ export default function EmergencyEnhanced() {
       case 'steady': return '#3B82F6';
       case 'beast': return '#EF4444';
       default: return '#6B7280';
+    }
+  };
+
+  // MISSING FUNCTION - ADDED TO FIX CRASHES
+  const getDifficultyEmoji = (difficulty: string) => {
+    switch (difficulty) {
+      case 'gentle': return '🌱';
+      case 'steady': return '🚶';
+      case 'beast': return '🔥';
+      default: return '💪';
     }
   };
 
@@ -743,7 +762,8 @@ export default function EmergencyEnhanced() {
     <View style={styles.dashboardContainer}>
       {renderQuickStats()}
       {renderQuickActions()}
-      {renderHomeFeed()}
+      {selectedDifficulty && renderWorkoutList()}
+      {!selectedDifficulty && renderHomeFeed()}
     </View>
   );
 
@@ -761,25 +781,36 @@ export default function EmergencyEnhanced() {
     if (!workouts || workouts.length === 0) {
       console.error('❌ No workouts found for difficulty:', selectedDifficulty);
       return (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>No workouts available</Text>
+        <View>
+          <TouchableOpacity style={styles.backButton} onPress={() => setSelectedDifficulty(null)}>
+            <Text style={styles.backButtonText}>← Back to Dashboard</Text>
+          </TouchableOpacity>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>No workouts available</Text>
+          </View>
         </View>
       );
     }
 
     return (
-      <View style={styles.workoutContainer}>
-        <View style={styles.workoutHeader}>
-          <Text style={styles.workoutTitle}>
-            {getDifficultyEmoji(selectedDifficulty)} {selectedDifficulty.charAt(0).toUpperCase() + selectedDifficulty.slice(1)} Workouts
-          </Text>
-          <TouchableOpacity 
-            style={styles.resetButton}
-            onPress={handleReset}
-          >
-            <Text style={styles.resetButtonText}>Change Level</Text>
-          </TouchableOpacity>
-        </View>
+      <View>
+        {/* Back to Dashboard Button */}
+        <TouchableOpacity style={styles.backButton} onPress={() => setSelectedDifficulty(null)}>
+          <Text style={styles.backButtonText}>← Back to Dashboard</Text>
+        </TouchableOpacity>
+        
+        <View style={styles.workoutContainer}>
+          <View style={styles.workoutHeader}>
+            <Text style={styles.workoutTitle}>
+              {getDifficultyEmoji(selectedDifficulty)} {selectedDifficulty.charAt(0).toUpperCase() + selectedDifficulty.slice(1)} Workouts
+            </Text>
+            <TouchableOpacity 
+              style={styles.resetButton}
+              onPress={handleReset}
+            >
+              <Text style={styles.resetButtonText}>Change Level</Text>
+            </TouchableOpacity>
+          </View>
 
         {workouts.map((workout) => {
           const isCompleted = completedWorkouts.includes(workout.id);
@@ -843,10 +874,11 @@ export default function EmergencyEnhanced() {
           );
         })}
 
-        <View style={styles.progressSummary}>
-          <Text style={styles.progressText}>
-            Completed: {completedWorkouts.length} / {workouts.length} workouts
-          </Text>
+          <View style={styles.progressSummary}>
+            <Text style={styles.progressText}>
+              Completed: {completedWorkouts.length} / {workouts.length} workouts
+            </Text>
+          </View>
         </View>
       </View>
     );
@@ -869,9 +901,6 @@ export default function EmergencyEnhanced() {
               <TouchableOpacity style={styles.professionalButton} onPress={quickMoodCheckin}>
                 <Text style={styles.professionalButtonText}>Check-in</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.professionalButton} onPress={showCommunityView}>
-                <Text style={styles.professionalButtonText}>Community</Text>
-              </TouchableOpacity>
               <TouchableOpacity style={styles.professionalButton} onPress={() => setShowSettings(true)}>
                 <Text style={styles.professionalButtonText}>Settings</Text>
               </TouchableOpacity>
@@ -882,35 +911,22 @@ export default function EmergencyEnhanced() {
           </Text>
         </View>
 
-        {/* Main Content based on current view */}
+        {/* Main Content based on active tab */}
         {(() => {
-          console.log('🎨 Rendering main content, currentView:', currentView, 'selectedDifficulty:', selectedDifficulty);
+          console.log('🎨 Rendering main content, activeTab:', activeTab, 'selectedDifficulty:', selectedDifficulty);
           
-          if (currentView === 'dashboard') {
-            return renderDashboard();
-          } else if (currentView === 'workout' && selectedDifficulty) {
-            return (
-              <View>
-                {/* Back to Dashboard Button */}
-                <TouchableOpacity style={styles.backButton} onPress={backToDashboard}>
-                  <Text style={styles.backButtonText}>← Back to Dashboard</Text>
-                </TouchableOpacity>
-                {renderWorkoutList()}
-              </View>
-            );
-          } else if (currentView === 'community') {
-            return (
-              <View>
-                {/* Back to Dashboard Button */}
-                <TouchableOpacity style={styles.backButton} onPress={backToDashboard}>
-                  <Text style={styles.backButtonText}>← Back to Dashboard</Text>
-                </TouchableOpacity>
-                <CommunityFeed userStats={userStats} />
-              </View>
-            );
-          } else {
-            // Fallback to dashboard
-            return renderDashboard();
+          switch (activeTab) {
+            case 'home':
+              return renderDashboard();
+              
+            case 'community':
+              return <CommunityFeed userStats={userStats} />;
+              
+            case 'stats':
+              return <StatsTab userStats={userStats} />;
+              
+            default:
+              return renderDashboard();
           }
         })()}
 
@@ -979,6 +995,12 @@ export default function EmergencyEnhanced() {
         visible={showSettings}
         onClose={() => setShowSettings(false)}
       />
+
+      {/* Bottom Navigation Tabs */}
+      <BottomTabs 
+        activeTab={activeTab} 
+        onTabPress={handleTabPress} 
+      />
     </SafeAreaView>
   );
 }
@@ -991,6 +1013,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   content: {
     padding: 20,
+    paddingBottom: 100, // Space for bottom tabs
   },
   enhancedHeader: {
     backgroundColor: theme.colors.card,
