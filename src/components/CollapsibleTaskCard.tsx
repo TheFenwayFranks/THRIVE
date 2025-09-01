@@ -17,6 +17,24 @@ const addAnimationStyles = () => {
       }
     }
     
+    @keyframes timerPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+      }
+      70% {
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
+    
+    @keyframes timerTextGlow {
+      0% { text-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+      50% { text-shadow: 0 0 10px rgba(16, 185, 129, 0.6); }
+      100% { text-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+    }
+    
     .task-header-clickable:hover {
       background-color: #F9FAFB;
     }
@@ -28,6 +46,23 @@ const addAnimationStyles = () => {
     
     .action-button:active {
       transform: translateY(0);
+    }
+    
+    .timer-control-button {
+      transition: all 0.3s ease-in-out;
+    }
+    
+    .timer-control-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .timer-running {
+      animation: timerPulse 2s infinite;
+    }
+    
+    .timer-text-running {
+      animation: timerTextGlow 2s ease-in-out infinite;
     }
     
     .task-card:hover {
@@ -53,6 +88,9 @@ interface CollapsibleTaskCardProps {
   onStartActivity: (activity: any, workoutId: number) => void;
   onShowDetails: (activity: any) => void;
   onShowDemo: (activityName: string) => void;
+  onPauseResumeTimer?: () => void;
+  onStopTimer?: () => void;
+  onCompleteActivity?: () => void;
   activeTimer?: {
     timeLeft: number;
     isRunning: boolean;
@@ -68,6 +106,9 @@ const CollapsibleTaskCard: React.FC<CollapsibleTaskCardProps> = ({
   onStartActivity,
   onShowDetails,
   onShowDemo,
+  onPauseResumeTimer,
+  onStopTimer,
+  onCompleteActivity,
   activeTimer
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -187,15 +228,39 @@ const CollapsibleTaskCard: React.FC<CollapsibleTaskCardProps> = ({
           </div>
         </div>
 
-        {/* Expand/Collapse Indicator */}
+        {/* Timer Controls or Expand Indicator */}
         <div style={styles.expandIndicator}>
-          <span style={{
-            ...styles.expandIcon,
-            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.3s ease-in-out'
-          }}>
-            ▼
-          </span>
+          {isActive && activeTimer ? (
+            // Quick timer controls when active
+            <div style={styles.quickTimerControls}>
+              <button
+                style={{
+                  ...styles.quickTimerButton,
+                  backgroundColor: activeTimer.isRunning ? '#F59E0B' : '#10B981'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent card expand/collapse
+                  onPauseResumeTimer?.();
+                }}
+              >
+                <span style={styles.quickTimerButtonText}>
+                  {activeTimer.isRunning ? '⏸️' : '▶️'}
+                </span>
+              </button>
+              <span style={styles.quickTimerText}>
+                {formatTime(activeTimer.timeLeft)}
+              </span>
+            </div>
+          ) : (
+            // Expand/collapse arrow when not active
+            <span style={{
+              ...styles.expandIcon,
+              transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.3s ease-in-out'
+            }}>
+              ▼
+            </span>
+          )}
         </div>
       </div>
 
@@ -214,19 +279,35 @@ const CollapsibleTaskCard: React.FC<CollapsibleTaskCardProps> = ({
 
           {/* Active Timer Display */}
           {isActive && activeTimer && (
-            <div style={styles.timerContainer}>
+            <div 
+              style={{
+                ...styles.timerContainer,
+                ...(activeTimer.isRunning && styles.timerContainerRunning)
+              }}
+              className={activeTimer.isRunning ? 'timer-running' : ''}
+            >
               <div style={styles.timerDisplay}>
-                <span style={styles.timerText}>
+                <span 
+                  style={{
+                    ...styles.timerText,
+                    ...(activeTimer.isRunning && styles.timerTextRunning)
+                  }}
+                  className={activeTimer.isRunning ? 'timer-text-running' : ''}
+                >
                   {formatTime(activeTimer.timeLeft)}
                 </span>
-                <span style={styles.timerLabel}>
-                  {activeTimer.isRunning ? 'Running' : 'Paused'}
+                <span style={{
+                  ...styles.timerLabel,
+                  color: activeTimer.isRunning ? '#10B981' : '#F59E0B'
+                }}>
+                  {activeTimer.isRunning ? '⏳ Running' : '⏸️ Paused'}
                 </span>
               </div>
               <div style={styles.timerProgress}>
                 <div 
                   style={{
                     ...styles.timerProgressBar,
+                    backgroundColor: activeTimer.isRunning ? '#10B981' : '#F59E0B',
                     width: `${((activity.duration - activeTimer.timeLeft) / activity.duration) * 100}%`
                   }} 
                 />
@@ -236,7 +317,41 @@ const CollapsibleTaskCard: React.FC<CollapsibleTaskCardProps> = ({
 
           {/* Action Buttons */}
           <div style={styles.taskActions}>
-            {!isCompleted && !isActive && (
+            {/* DYNAMIC TIMER CONTROLS */}
+            {isActive && activeTimer ? (
+              // Timer is running or paused - show pause/resume and stop buttons
+              <>
+                <button 
+                  style={{
+                    ...styles.actionButton, 
+                    ...(activeTimer.isRunning ? styles.pauseButton : styles.resumeButton)
+                  }}
+                  onClick={onPauseResumeTimer}
+                  className="action-button timer-control-button"
+                >
+                  <span style={activeTimer.isRunning ? styles.pauseButtonText : styles.resumeButtonText}>
+                    {activeTimer.isRunning ? '⏸️ Pause' : '▶️ Resume'}
+                  </span>
+                </button>
+                
+                <button 
+                  style={{...styles.actionButton, ...styles.stopButton}}
+                  onClick={onStopTimer}
+                  className="action-button stop-button"
+                >
+                  <span style={styles.stopButtonText}>⏹️ Stop</span>
+                </button>
+                
+                <button 
+                  style={{...styles.actionButton, ...styles.completeButton}}
+                  onClick={onCompleteActivity}
+                  className="action-button complete-button"
+                >
+                  <span style={styles.completeButtonText}>✅ Complete</span>
+                </button>
+              </>
+            ) : !isCompleted ? (
+              // Timer not running - show start button
               <button 
                 style={{...styles.actionButton, ...styles.startButton}}
                 onClick={() => onStartActivity(activity, workoutId)}
@@ -244,8 +359,9 @@ const CollapsibleTaskCard: React.FC<CollapsibleTaskCardProps> = ({
               >
                 <span style={styles.startButtonText}>▶️ Start</span>
               </button>
-            )}
+            ) : null}
 
+            {/* ALWAYS AVAILABLE BUTTONS */}
             <button 
               style={{...styles.actionButton, ...styles.detailsButton}}
               onClick={() => onShowDetails(activity)}
@@ -372,7 +488,8 @@ const styles = {
 
   // Expand Indicator
   expandIndicator: {
-    width: '24px',
+    width: 'auto',
+    minWidth: '24px',
     height: '24px',
     display: 'flex',
     alignItems: 'center',
@@ -383,6 +500,35 @@ const styles = {
     fontSize: '12px',
     color: '#6B7280',
     userSelect: 'none' as const,
+  },
+
+  // Quick Timer Controls (in collapsed header)
+  quickTimerControls: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  },
+  quickTimerButton: {
+    width: '32px',
+    height: '32px',
+    border: 'none',
+    borderRadius: '16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease-in-out',
+    fontSize: '14px',
+  },
+  quickTimerButtonText: {
+    color: '#FFFFFF',
+    fontSize: '12px',
+  },
+  quickTimerText: {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#374151',
+    fontFamily: 'monospace',
   },
 
   // Expanded Content
@@ -409,6 +555,13 @@ const styles = {
     borderRadius: '8px',
     padding: '12px',
     marginBottom: '16px',
+    border: '2px solid transparent',
+    transition: 'all 0.3s ease-in-out',
+  },
+  timerContainerRunning: {
+    backgroundColor: '#F0FDF4',
+    borderColor: '#10B981',
+    boxShadow: '0 0 0 1px rgba(16, 185, 129, 0.1)',
   },
   timerDisplay: {
     display: 'flex',
@@ -421,6 +574,10 @@ const styles = {
     fontSize: '24px',
     fontWeight: '700',
     color: '#F59E0B',
+    transition: 'color 0.3s ease-in-out',
+  },
+  timerTextRunning: {
+    color: '#10B981',
   },
   timerLabel: {
     fontSize: '12px',
@@ -463,6 +620,18 @@ const styles = {
   startButton: {
     backgroundColor: '#10B981',
   },
+  pauseButton: {
+    backgroundColor: '#F59E0B', // Orange for pause
+  },
+  resumeButton: {
+    backgroundColor: '#10B981', // Green for resume (same as start)
+  },
+  stopButton: {
+    backgroundColor: '#EF4444', // Red for stop
+  },
+  completeButton: {
+    backgroundColor: '#059669', // Dark green for complete
+  },
   detailsButton: {
     backgroundColor: '#3B82F6',
   },
@@ -470,6 +639,18 @@ const styles = {
     backgroundColor: '#8B5CF6',
   },
   startButtonText: {
+    color: '#FFFFFF',
+  },
+  pauseButtonText: {
+    color: '#FFFFFF',
+  },
+  resumeButtonText: {
+    color: '#FFFFFF',
+  },
+  stopButtonText: {
+    color: '#FFFFFF',
+  },
+  completeButtonText: {
     color: '#FFFFFF',
   },
   detailsButtonText: {

@@ -236,7 +236,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   // Menu Panel
   menuPanel: {
     width: Math.min(320, width * 0.85),
-    background: 'linear-gradient(180deg, #fafafa 0%, #f0f9f0 100%)',
+    backgroundImage: 'linear-gradient(180deg, #fafafa 0%, #f0f9f0 100%)',
     backgroundColor: '#f0f9f0', // Fallback for React Native
     height: '100%',
     position: 'absolute',
@@ -372,7 +372,7 @@ const createStyles = (theme: any) => StyleSheet.create({
 
   // 🌱 THRIVE BRANDING STYLES FOR HAMBURGER MENU
   thriveMenuBackground: {
-    background: 'linear-gradient(180deg, #fafafa 0%, #f0f9f0 100%)',
+    backgroundImage: 'linear-gradient(180deg, #fafafa 0%, #f0f9f0 100%)',
     backgroundColor: '#f0f9f0',
   },
   

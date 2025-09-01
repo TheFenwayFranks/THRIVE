@@ -2201,7 +2201,7 @@ export default function EmergencyEnhanced() {
                   // Prepare active timer data for CollapsibleTaskCard
                   const activeTimerData = (isActive && activeInlineTimer) ? {
                     timeLeft: activeInlineTimer.timeLeft,
-                    isRunning: true // Assuming timer is running when active
+                    isRunning: activeInlineTimer.isRunning // Use actual running state
                   } : null;
                   
                   return (
@@ -2215,6 +2215,9 @@ export default function EmergencyEnhanced() {
                       onStartActivity={startInlineActivity}
                       onShowDetails={showExerciseDetails}
                       onShowDemo={showVideoDemo}
+                      onPauseResumeTimer={toggleInlineTimer}
+                      onStopTimer={stopInlineActivity}
+                      onCompleteActivity={completeInlineActivity}
                       activeTimer={activeTimerData}
                     />
                   );
@@ -5760,7 +5763,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   
   // Main Background
   thriveMainBackground: {
-    background: 'linear-gradient(180deg, #fafafa 0%, #f0f9f0 100%)',
+    backgroundImage: 'linear-gradient(180deg, #fafafa 0%, #f0f9f0 100%)',
   },
 
   // Typography System
@@ -5817,7 +5820,7 @@ const createStyles = (theme: any) => StyleSheet.create({
 
   // Button System
   thriveButtonPrimary: {
-    background: 'linear-gradient(135deg, #4CAF50, #66BB6A)',
+    backgroundImage: 'linear-gradient(135deg, #4CAF50, #66BB6A)',
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 24,
@@ -5920,7 +5923,7 @@ const createStyles = (theme: any) => StyleSheet.create({
   
   thriveProgressBar: {
     height: '100%',
-    background: 'linear-gradient(135deg, #4CAF50, #66BB6A)',
+    backgroundImage: 'linear-gradient(135deg, #4CAF50, #66BB6A)',
     borderRadius: 6,
     minWidth: 4,
   },
