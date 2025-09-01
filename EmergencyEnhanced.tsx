@@ -21,6 +21,8 @@ import StatsTab from './src/components/StatsTab';
 import SwipeNavigation, { PageName } from './src/components/PureSwipeNavigation';
 import HamburgerMenu from './src/components/HamburgerMenu';
 import OnboardingFlow from './src/components/OnboardingFlow';
+import MinimalOnboarding from './minimal-onboarding-test';
+import WebOnboarding from './web-onboarding';
 
 // ENHANCED THRIVE DASHBOARD - Full ADHD-Optimized Interface
 // Includes: Quick Access + Dashboard + Smart Shortcuts + Minimal Navigation
@@ -301,8 +303,8 @@ export default function EmergencyEnhanced() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [currentDetailActivity, setCurrentDetailActivity] = useState<any>(null);
 
-  // ONBOARDING FLOW STATE
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  // ONBOARDING FLOW STATE - FORCE SHOW FOR TESTING
+  const [showOnboarding, setShowOnboarding] = useState(true);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
 
@@ -2659,10 +2661,17 @@ export default function EmergencyEnhanced() {
         </View>
       </Modal>
 
-      {/* Onboarding Flow Modal */}
-      <OnboardingFlow
+      {/* Onboarding Flow Modal - TESTING WEB VERSION */}
+      <WebOnboarding
         visible={showOnboarding}
-        onComplete={handleOnboardingComplete}
+        onComplete={(profile) => {
+          console.log('🎉 ONBOARDING COMPLETED:', profile);
+          setUserProfile(profile);
+          setShowOnboarding(false);
+          setIsFirstTimeUser(false);
+          // Save to storage if needed
+          // StorageService.saveUserProfile(profile);
+        }}
       />
 
     </SafeAreaView>

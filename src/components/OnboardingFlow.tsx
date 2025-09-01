@@ -27,6 +27,7 @@ interface UserProfile {
 }
 
 export default function OnboardingFlow({ visible, onComplete }: OnboardingFlowProps) {
+  console.log('🚀 ONBOARDING COMPONENT CALLED:', { visible });
   const { theme } = useTheme();
   const styles = createStyles(theme);
   
@@ -549,12 +550,15 @@ export default function OnboardingFlow({ visible, onComplete }: OnboardingFlowPr
     }
   };
 
+  // TEMPORARY: Render directly without Modal for debugging
+  if (!visible) {
+    console.log('🚀 ONBOARDING: Not visible, returning null');
+    return null;
+  }
+  
+  console.log('🚀 ONBOARDING: Rendering with step:', currentStep);
+  
   return (
-    <Modal
-      visible={visible}
-      animationType="fade"
-      transparent={false}
-    >
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* Progress Indicator */}
@@ -598,13 +602,17 @@ export default function OnboardingFlow({ visible, onComplete }: OnboardingFlowPr
           </TouchableOpacity>
         </View>
       </View>
-    </Modal>
   );
 }
 
 const createStyles = (theme: any) => StyleSheet.create({
   container: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9999,
     backgroundColor: '#f0f9f0', // THRIVE background
   },
   scrollContent: {
