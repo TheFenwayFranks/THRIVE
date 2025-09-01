@@ -479,44 +479,136 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
         
         {step === 3 && (
           <div>
-            <h2 style={{ color: '#16A34A', marginBottom: '20px' }}>🎉 You're all set!</h2>
-            <p style={{ fontSize: '16px', marginBottom: '20px', color: '#666' }}>
+            <h2 style={{ color: '#16A34A', marginBottom: '12px' }}>🎉 You're all set!</h2>
+            <p style={{ fontSize: '16px', marginBottom: '30px', color: '#666' }}>
               Welcome to your personalized THRIVE experience
             </p>
             
+            {/* Selected Goals Summary */}
+            <div style={{
+              backgroundColor: '#F0FDF4',
+              borderRadius: '12px',
+              padding: '20px',
+              marginBottom: '20px',
+              border: '2px solid #16A34A'
+            }}>
+              <h3 style={{ 
+                fontSize: '18px', 
+                fontWeight: 'bold', 
+                color: '#16A34A', 
+                margin: '0 0 15px 0',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                🎯 Your Wellness Goals
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {userProfile.goals.map((goalId, index) => {
+                  const goalLabels: {[key: string]: {label: string, emoji: string}} = {
+                    'daily-movement': { label: 'Move my body daily', emoji: '🚶‍♀️' },
+                    'stress-relief': { label: 'Reduce daily stress', emoji: '🧘‍♀️' },
+                    'energy-boost': { label: 'Increase energy levels', emoji: '⚡' },
+                    'better-sleep': { label: 'Improve sleep quality', emoji: '😴' },
+                    'mood-stability': { label: 'Stabilize my mood', emoji: '💚' },
+                    'build-routine': { label: 'Build consistent routines', emoji: '📅' }
+                  };
+                  const goal = goalLabels[goalId];
+                  return (
+                    <div key={goalId} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '8px 0',
+                      color: '#16A34A'
+                    }}>
+                      <span style={{ fontSize: '18px', marginRight: '10px' }}>{goal.emoji}</span>
+                      <span style={{ fontSize: '16px', fontWeight: '500' }}>{goal.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Selected Pathway Summary */}
             <div style={{
               backgroundColor: 'white',
               borderRadius: '12px',
               padding: '20px',
               marginBottom: '30px',
-              textAlign: 'left',
-              border: '1px solid #E5E7EB'
+              border: '2px solid #16A34A'
             }}>
-              <p style={{ fontSize: '16px', fontWeight: 'bold', color: '#333', marginBottom: '12px' }}>
-                Your Profile:
-              </p>
-              <p style={{ margin: '6px 0', color: '#666' }}>
-                👤 Name: THRIVE User
-              </p>
-              <p style={{ margin: '6px 0', color: '#666' }}>
-                🎯 Goals: {userProfile.goals.length} selected
-                <br/>
-                <small style={{ color: '#999', marginLeft: '20px' }}>
-                  {userProfile.goals.map(g => g.replace('-', ' ')).join(', ')}
-                </small>
-              </p>
-              <p style={{ margin: '6px 0', color: '#666' }}>
-                🚀 Journey: {userProfile.pathway.charAt(0).toUpperCase() + userProfile.pathway.slice(1)} Path
-              </p>
-              <p style={{ margin: '6px 0', color: '#666' }}>
-                💫 Style: Gentle motivation
-              </p>
-              <p style={{ margin: '6px 0', color: '#666' }}>
-                🌅 Morning Flow: Optional
-              </p>
+              <h3 style={{ 
+                fontSize: '18px', 
+                fontWeight: 'bold', 
+                color: '#16A34A', 
+                margin: '0 0 15px 0',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                🚀 Your THRIVE Journey
+              </h3>
+              {(() => {
+                const pathwayInfo: {[key: string]: {title: string, emoji: string, tagline: string, description: string}} = {
+                  'wellness': {
+                    title: 'Wellness Journey',
+                    emoji: '🌱',
+                    tagline: 'Every step is progress',
+                    description: 'Focusing on mental health through gentle movement'
+                  },
+                  'fitness': {
+                    title: 'Fitness Journey', 
+                    emoji: '💪',
+                    tagline: 'Building strength inside and out',
+                    description: 'Building healthy habits and staying consistently active'
+                  },
+                  'performance': {
+                    title: 'Performance Journey',
+                    emoji: '🏃‍♂️',
+                    tagline: 'Excellence in body and mind', 
+                    description: 'Optimizing both physical and mental performance'
+                  }
+                };
+                const pathway = pathwayInfo[userProfile.pathway];
+                return (
+                  <div>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginBottom: '10px'
+                    }}>
+                      <span style={{ fontSize: '28px', marginRight: '15px' }}>{pathway.emoji}</span>
+                      <div>
+                        <h4 style={{ 
+                          fontSize: '20px', 
+                          fontWeight: 'bold', 
+                          color: '#16A34A',
+                          margin: 0
+                        }}>
+                          {pathway.title}
+                        </h4>
+                        <p style={{ 
+                          fontSize: '14px', 
+                          color: '#16A34A', 
+                          fontStyle: 'italic',
+                          margin: '2px 0 0 0'
+                        }}>
+                          "{pathway.tagline}"
+                        </p>
+                      </div>
+                    </div>
+                    <p style={{ 
+                      fontSize: '16px', 
+                      color: '#666',
+                      margin: 0,
+                      lineHeight: '1.4'
+                    }}>
+                      {pathway.description}
+                    </p>
+                  </div>
+                );
+              })()}
             </div>
             
-            <p style={{ fontSize: '16px', marginBottom: '30px', color: '#333', textAlign: 'center', lineHeight: '1.5' }}>
+            <p style={{ fontSize: '18px', marginBottom: '30px', color: '#333', textAlign: 'center', lineHeight: '1.5' }}>
               Ready to start your wellness journey? Let's THRIVE together! 💚
             </p>
             
