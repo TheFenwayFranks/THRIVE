@@ -68,6 +68,25 @@ const addAnimationStyles = () => {
     .task-card:hover {
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+    
+    .more-dropdown-item:hover {
+      background-color: #F3F4F6;
+    }
+    
+    .more-dropdown-enter {
+      animation: dropdownSlide 0.2s ease-out;
+    }
+    
+    @keyframes dropdownSlide {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   `;
   document.head.appendChild(styleSheet);
 };
@@ -112,6 +131,7 @@ const CollapsibleTaskCard: React.FC<CollapsibleTaskCardProps> = ({
   activeTimer
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showMoreDropdown, setShowMoreDropdown] = useState(false);
   
   // Add CSS animations on first render
   useEffect(() => {
@@ -120,6 +140,23 @@ const CollapsibleTaskCard: React.FC<CollapsibleTaskCardProps> = ({
       stylesAdded = true;
     }
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showMoreDropdown) {
+        setShowMoreDropdown(false);
+      }
+    };
+
+    if (showMoreDropdown) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showMoreDropdown]);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -315,12 +352,12 @@ const CollapsibleTaskCard: React.FC<CollapsibleTaskCardProps> = ({
             </div>
           )}
 
-          {/* Action Buttons */}
+          {/* SIMPLIFIED ACTION BUTTONS - MOBILE OPTIMIZED */}
           <div style={styles.taskActions}>
-            {/* DYNAMIC TIMER CONTROLS */}
             {isActive && activeTimer ? (
-              // Timer is running or paused - show pause/resume and stop buttons
+              // ACTIVE TIMER: Show only 3 essential buttons
               <>
+                {/* PRIMARY: Play/Pause Button */}
                 <button 
                   style={{
                     ...styles.actionButton, 
@@ -334,6 +371,7 @@ const CollapsibleTaskCard: React.FC<CollapsibleTaskCardProps> = ({
                   </span>
                 </button>
                 
+                {/* PRIMARY: Stop Button */}
                 <button 
                   style={{...styles.actionButton, ...styles.stopButton}}
                   onClick={onStopTimer}
@@ -342,6 +380,7 @@ const CollapsibleTaskCard: React.FC<CollapsibleTaskCardProps> = ({
                   <span style={styles.stopButtonText}>⏹️ Stop</span>
                 </button>
                 
+                {/* PRIMARY: Complete Button */}
                 <button 
                   style={{...styles.actionButton, ...styles.completeButton}}
                   onClick={onCompleteActivity}
@@ -351,32 +390,92 @@ const CollapsibleTaskCard: React.FC<CollapsibleTaskCardProps> = ({
                 </button>
               </>
             ) : !isCompleted ? (
-              // Timer not running - show start button
-              <button 
-                style={{...styles.actionButton, ...styles.startButton}}
-                onClick={() => onStartActivity(activity, workoutId)}
-                className="action-button start-button"
-              >
-                <span style={styles.startButtonText}>▶️ Start</span>
-              </button>
-            ) : null}
-
-            {/* ALWAYS AVAILABLE BUTTONS */}
-            <button 
-              style={{...styles.actionButton, ...styles.detailsButton}}
-              onClick={() => onShowDetails(activity)}
-              className="action-button details-button"
-            >
-              <span style={styles.detailsButtonText}>📋 Details</span>
-            </button>
-
-            <button 
-              style={{...styles.actionButton, ...styles.demoButton}}
-              onClick={() => onShowDemo(activity.name)}
-              className="action-button demo-button"
-            >
-              <span style={styles.demoButtonText}>🎥 Demo</span>
-            </button>
+              // INACTIVE TIMER: Show Start + More buttons
+              <>
+                {/* PRIMARY: Start Button */}
+                <button 
+                  style={{...styles.actionButton, ...styles.startButton}}
+                  onClick={() => onStartActivity(activity, workoutId)}
+                  className="action-button start-button"
+                >
+                  <span style={styles.startButtonText}>▶️ Start</span>
+                </button>
+                
+                {/* SECONDARY: More Button with Dropdown */}
+                <div style={styles.moreButtonContainer}>
+                  <button 
+                    style={{...styles.actionButton, ...styles.moreButton}}
+                    onClick={() => setShowMoreDropdown(!showMoreDropdown)}
+                    className="action-button more-button"
+                  >
+                    <span style={styles.moreButtonText}>⋯ More</span>
+                  </button>
+                  
+                  {/* More Dropdown Menu */}
+                  {showMoreDropdown && (
+                    <div style={styles.moreDropdown} className="more-dropdown-enter">
+                      <button 
+                        style={styles.dropdownItem}
+                        className="more-dropdown-item"
+                        onClick={() => {
+                          onShowDetails(activity);
+                          setShowMoreDropdown(false);
+                        }}
+                      >
+                        <span>📋 Details</span>
+                      </button>
+                      <button 
+                        style={styles.dropdownItem}
+                        className="more-dropdown-item"
+                        onClick={() => {
+                          onShowDemo(activity.name);
+                          setShowMoreDropdown(false);
+                        }}
+                      >
+                        <span>🎥 Demo</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              // COMPLETED: Show only More button for review
+              <div style={styles.moreButtonContainer}>
+                <button 
+                  style={{...styles.actionButton, ...styles.moreButton}}
+                  onClick={() => setShowMoreDropdown(!showMoreDropdown)}
+                  className="action-button more-button"
+                >
+                  <span style={styles.moreButtonText}>⋯ More</span>
+                </button>
+                
+                {/* Completed Task Dropdown */}
+                {showMoreDropdown && (
+                  <div style={styles.moreDropdown} className="more-dropdown-enter">
+                    <button 
+                      style={styles.dropdownItem}
+                      className="more-dropdown-item"
+                      onClick={() => {
+                        onShowDetails(activity);
+                        setShowMoreDropdown(false);
+                      }}
+                    >
+                      <span>📋 Review Details</span>
+                    </button>
+                    <button 
+                      style={styles.dropdownItem}
+                      className="more-dropdown-item"
+                      onClick={() => {
+                        onShowDemo(activity.name);
+                        setShowMoreDropdown(false);
+                      }}
+                    >
+                      <span>🎥 Watch Demo</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Task Progress Info */}
@@ -596,26 +695,28 @@ const styles = {
     transition: 'width 0.3s ease-in-out',
   },
 
-  // Action Buttons
+  // Action Buttons - Mobile Optimized
   taskActions: {
     display: 'flex',
     flexDirection: 'row' as const,
-    gap: '8px',
+    gap: '12px', // Increased gap for better mobile spacing
     marginBottom: '12px',
+    alignItems: 'stretch', // Ensure equal height
   },
   actionButton: {
     flex: 1,
-    padding: '10px 12px',
+    padding: '12px 16px', // Increased padding for better mobile touch
     borderRadius: '8px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: '40px',
+    minHeight: '48px', // Increased to 48px for better mobile accessibility
     border: 'none',
     cursor: 'pointer',
     transition: 'all 0.2s ease-in-out',
-    fontSize: '13px',
+    fontSize: '14px', // Slightly larger text
     fontWeight: '600',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Added subtle shadow
   },
   startButton: {
     backgroundColor: '#10B981',
@@ -638,6 +739,9 @@ const styles = {
   demoButton: {
     backgroundColor: '#8B5CF6',
   },
+  moreButton: {
+    backgroundColor: '#6B7280', // Gray color for secondary action
+  },
   startButtonText: {
     color: '#FFFFFF',
   },
@@ -658,6 +762,43 @@ const styles = {
   },
   demoButtonText: {
     color: '#FFFFFF',
+  },
+  moreButtonText: {
+    color: '#FFFFFF',
+  },
+
+  // More Button Dropdown Container
+  moreButtonContainer: {
+    position: 'relative' as const,
+    flex: 1,
+  },
+  moreDropdown: {
+    position: 'absolute' as const,
+    top: '100%',
+    right: 0,
+    left: 0,
+    backgroundColor: '#FFFFFF',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    border: '1px solid #E5E7EB',
+    zIndex: 1000,
+    marginTop: '4px',
+    overflow: 'hidden',
+  },
+  dropdownItem: {
+    width: '100%',
+    padding: '12px 16px',
+    border: 'none',
+    backgroundColor: 'transparent',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: '#374151',
+    transition: 'background-color 0.2s ease-in-out',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    minHeight: '44px', // Mobile touch target
   },
 
   // Progress Info

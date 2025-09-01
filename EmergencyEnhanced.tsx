@@ -307,8 +307,7 @@ export default function EmergencyEnhanced() {
   const [onboardingState, setOnboardingState] = useState<OnboardingState | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   
-  // EMERGENCY DEBUG STATE
-  const [onboardingDebug, setOnboardingDebug] = useState<string[]>([]);
+  // Removed debug state - no longer needed
   
   // EMERGENCY STATE MONITORING
   useEffect(() => {
@@ -379,10 +378,8 @@ export default function EmergencyEnhanced() {
     console.log('🚨 EMERGENCY INIT: Starting clean onboarding state');
     
     try {
-      // First, debug any conflicts
+      // Clean any potential conflicts automatically
       const conflicts = await OnboardingManager.debugConflicts();
-      setOnboardingDebug(conflicts.recommendations);
-      
       console.log('🔍 CONFLICT CHECK:', conflicts);
       
       // Initialize clean state
@@ -2636,24 +2633,7 @@ export default function EmergencyEnhanced() {
         onComplete={handleOnboardingComplete}
       />
       
-      {/* EMERGENCY DEBUG INFO */}
-      {onboardingDebug.length > 0 && __DEV__ && (
-        <View style={{
-          position: 'absolute',
-          top: 100,
-          left: 10,
-          right: 10,
-          backgroundColor: 'rgba(255,0,0,0.1)',
-          padding: 10,
-          borderRadius: 5,
-          zIndex: 999
-        }}>
-          <Text style={{ fontSize: 12, color: 'red' }}>🚨 ONBOARDING DEBUG:</Text>
-          {onboardingDebug.map((msg, i) => (
-            <Text key={i} style={{ fontSize: 10, color: 'red' }}>• {msg}</Text>
-          ))}
-        </View>
-      )}
+      {/* Debug banner removed - clean UI */}
 
     </SafeAreaView>
   );
