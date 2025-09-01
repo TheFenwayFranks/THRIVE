@@ -22,6 +22,7 @@ import SwipeNavigation, { PageName } from './src/components/PureSwipeNavigation'
 import HamburgerMenu from './src/components/HamburgerMenu';
 import WebOnboarding from './web-onboarding';
 import { OnboardingManager, OnboardingState } from './src/services/OnboardingManager';
+import CollapsibleTaskCard from './src/components/CollapsibleTaskCard';
 
 // ENHANCED THRIVE DASHBOARD - Full ADHD-Optimized Interface
 // Includes: Quick Access + Dashboard + Smart Shortcuts + Minimal Navigation
@@ -2197,119 +2198,25 @@ export default function EmergencyEnhanced() {
                   // FLEXIBLE TASK SYSTEM: Show all tasks, allow any order completion
                   const completedCount = getCompletedActivitiesCount(workout);
                   
+                  // Prepare active timer data for CollapsibleTaskCard
+                  const activeTimerData = (isActive && activeInlineTimer) ? {
+                    timeLeft: activeInlineTimer.timeLeft,
+                    isRunning: true // Assuming timer is running when active
+                  } : null;
+                  
                   return (
-                    <View 
-                      key={activity.id} 
-                      style={[
-                        isCompleted ? styles.freshActivityCardCompact : styles.freshActivityCard,
-                        isCompleted && styles.freshActivityCardCompleted,
-                        isActive && styles.freshActivityCardActive
-                      ]}
-                    >
-                      {/* COMPACT HEADER FOR COMPLETED TASKS */}
-                      {isCompleted ? (
-                        <View style={styles.freshCompactHeader}>
-                          <Text style={styles.freshCompactTaskName}>
-                            ✅ {activity.name}
-                          </Text>
-                          <Text style={styles.freshCompactDuration}>
-                            {Math.floor(activity.duration / 60)}:{(activity.duration % 60).toString().padStart(2, '0')}
-                          </Text>
-                        </View>
-                      ) : (
-                        /* FULL HEADER FOR CURRENT TASK */
-                        <View style={styles.freshActivityHeader}>
-                          <View style={styles.freshActivityInfo}>
-                            <Text style={styles.freshActivityName}>
-                              TASK {index + 1}: {activity.name}
-                            </Text>
-                            {!isActive && (
-                              <Text style={styles.freshActivityDuration}>
-                                Duration: {Math.floor(activity.duration / 60)}:{(activity.duration % 60).toString().padStart(2, '0')} minutes
-                              </Text>
-                            )}
-                          </View>
-                          
-                          {/* Task Status Icon */}
-                          <View style={[
-                            styles.freshTaskStatusIcon,
-                            !isCompleted && styles.freshTaskStatusIconAvailable
-                          ]}>
-                            <Text style={styles.freshTaskStatusText}>
-                              {index + 1}
-                            </Text>
-                          </View>
-                        </View>
-                      )}
-
-                      {/* INLINE TIMER AND CONTROLS - Only for current task */}
-                      {!isCompleted && isActive && activeInlineTimer && (
-                        <View style={styles.freshInlineTimer}>
-                          <Text style={styles.freshTimerDisplay}>
-                            {Math.floor(activeInlineTimer.timeLeft / 60)}:{(activeInlineTimer.timeLeft % 60).toString().padStart(2, '0')}
-                          </Text>
-                          <Text style={styles.freshTimerLabel}>Time Remaining</Text>
-                          
-                          <View style={styles.freshTimerControls}>
-                            <TouchableOpacity 
-                              style={styles.freshTimerButton}
-                              onPress={() => stopInlineActivity()}
-                            >
-                              <Text style={styles.freshTimerButtonText}>⏸️ Pause</Text>
-                            </TouchableOpacity>
-                            
-                            <TouchableOpacity 
-                              style={[styles.freshTimerButton, styles.freshCompleteButton]}
-                              onPress={() => completeInlineActivity()}
-                            >
-                              <Text style={styles.freshTimerButtonText}>✓ Complete</Text>
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                      )}
-
-                      {/* START BUTTON AND VIDEO/DETAILS DEMO (for any incomplete task when not active) */}
-                      {!isCompleted && !isActive && (
-                        <>
-
-                          
-                          {/* Action Buttons Row */}
-                          <View style={styles.freshActionButtonsRow}>
-                            <TouchableOpacity 
-                              style={styles.freshStartButton}
-                              onPress={() => startInlineActivity(activity, workout.id)}
-                            >
-                              <Text style={styles.freshStartButtonText}>
-                                ▶️ Start
-                              </Text>
-                            </TouchableOpacity>
-                            
-                            <TouchableOpacity 
-                              style={styles.freshDetailsButton}
-                              onPress={() => showExerciseDetails(activity)}
-                            >
-                              <Text style={styles.freshDetailsButtonText}>
-                                📋 Details
-                              </Text>
-                            </TouchableOpacity>
-                            
-                            <TouchableOpacity 
-                              style={styles.freshDemoButton}
-                              onPress={() => showVideoDemo(activity.name)}
-                            >
-                              <Text style={styles.freshDemoButtonText}>
-                                🎥 Demo
-                              </Text>
-                            </TouchableOpacity>
-                          </View>
-                        </>
-                      )}
-
-                      {/* SEPARATOR AFTER LAST COMPLETED TASK */}
-                      {isCompleted && index === getCompletedActivitiesCount(workout) - 1 && getCompletedActivitiesCount(workout) > 0 && (
-                        <View style={styles.freshTaskSeparator} />
-                      )}
-                    </View>
+                    <CollapsibleTaskCard
+                      key={activity.id}
+                      activity={activity}
+                      workoutId={workout.id}
+                      index={index}
+                      isCompleted={isCompleted}
+                      isActive={isActive}
+                      onStartActivity={startInlineActivity}
+                      onShowDetails={showExerciseDetails}
+                      onShowDemo={showVideoDemo}
+                      activeTimer={activeTimerData}
+                    />
                   );
                 })}
 
