@@ -44,40 +44,40 @@ export interface Theme {
   colors: ThemeColors;
 }
 
-// Light Theme - Clean whites and light grays with THRIVE green
+// Light Theme - Premium clean whites with enhanced THRIVE green system
 const lightTheme: Theme = {
   isDark: false,
   colors: {
-    // Background colors
-    background: '#FFFFFF',
-    surface: '#F9FAFB',
-    card: '#FFFFFF',
+    // Background colors - Premium white system
+    background: '#FFFFFF', // Pure clean white
+    surface: '#F8F9FA', // Soft light gray for secondary surfaces
+    card: '#FFFFFF', // Pure white cards with shadows
     
-    // Text colors
-    text: '#1F2937',
-    textSecondary: '#6B7280',
-    textMuted: '#9CA3AF',
+    // Text colors - Enhanced hierarchy for perfect readability
+    text: '#1A1A1A', // Rich dark gray for primary text
+    textSecondary: '#666666', // Medium gray for secondary text
+    textMuted: '#999999', // Light gray for subtle text
     
-    // THRIVE brand colors
-    primary: '#16A34A',
-    primaryLight: '#22C55E',
-    primaryDark: '#15803D',
+    // THRIVE brand colors - Consistent with dark theme intensity
+    primary: '#4CAF50', // Matching the premium green from dark theme
+    primaryLight: '#66BB6A', // Light variant for gradients
+    primaryDark: '#388E3C', // Darker shade for depth
     
-    // Status colors
-    success: '#10B981',
-    warning: '#F59E0B',
-    error: '#EF4444',
-    info: '#3B82F6',
+    // Status colors - Enhanced for light theme visibility
+    success: '#4CAF50', // Matching primary green for consistency
+    warning: '#FF9800', // Vibrant orange for warnings
+    error: '#F44336', // Clear red for errors
+    info: '#2196F3', // Clear blue for information
     
-    // UI element colors
-    border: '#E5E7EB',
-    shadow: '#00000010',
-    overlay: 'rgba(0, 0, 0, 0.5)',
+    // UI element colors - Enhanced for premium feel
+    border: '#E0E0E0', // Subtle but visible borders
+    shadow: '#00000015', // Slightly deeper shadows for depth
+    overlay: 'rgba(0, 0, 0, 0.6)', // Slightly more opaque overlays
     
-    // Difficulty colors
-    gentle: '#10B981',
-    steady: '#059669', // Changed from blue to darker green
-    beast: '#EF4444',
+    // Difficulty colors - Consistent with enhanced dark theme
+    gentle: '#4CAF50', // Matching primary green
+    steady: '#00BCD4', // Cyan for steady (same as dark theme)
+    beast: '#FF5722', // Vibrant orange-red (same as dark theme)
     
     // Special colors
     celebration: '#F59E0B',
@@ -85,40 +85,40 @@ const lightTheme: Theme = {
   }
 };
 
-// Dark Theme - Deep blacks and dark grays with consistent THRIVE green
+// Dark Theme - Premium deep blacks with enhanced THRIVE green accents
 const darkTheme: Theme = {
   isDark: true,
   colors: {
-    // Background colors
-    background: '#0F0F0F',
-    surface: '#1A1A1A',
-    card: '#2D2D2D',
+    // Background colors - Enhanced for premium feel
+    background: '#0A0A0A', // Deeper black for premium feel
+    surface: '#141414', // Darker surface with subtle contrast
+    card: '#1F1F1F', // Refined card color with better contrast
     
-    // Text colors
-    text: '#FFFFFF',
-    textSecondary: '#D1D5DB',
-    textMuted: '#9CA3AF',
+    // Text colors - Optimized for dark background readability
+    text: '#FFFFFF', // Pure white for maximum contrast
+    textSecondary: '#E5E7EB', // Slightly brighter secondary text
+    textMuted: '#9CA3AF', // Maintains good contrast
     
-    // THRIVE brand colors (slightly brighter for dark backgrounds)
-    primary: '#22C55E',
-    primaryLight: '#4ADE80',
-    primaryDark: '#16A34A',
+    // THRIVE brand colors - Enhanced for dark theme visibility and glow effects
+    primary: '#00E676', // Brighter, more vibrant green for dark backgrounds
+    primaryLight: '#4ADE80', // Maintained for gradients
+    primaryDark: '#00C853', // Darker shade for depth
     
-    // Status colors (adjusted for dark theme visibility)
-    success: '#22C55E',
-    warning: '#FBBF24',
-    error: '#F87171',
-    info: '#60A5FA',
+    // Status colors (enhanced for dark theme visibility)
+    success: '#00E676', // Matching primary green for consistency
+    warning: '#FFC107', // Brighter warning yellow
+    error: '#FF5252', // Brighter error red
+    info: '#03DAC6', // Teal info color for better contrast
     
-    // UI element colors
-    border: '#374151',
-    shadow: '#00000040',
-    overlay: 'rgba(0, 0, 0, 0.8)',
+    // UI element colors - Enhanced for depth and glow effects
+    border: '#2A2A2A', // Subtle border for cards
+    shadow: '#00000060', // Deeper shadows for premium depth
+    overlay: 'rgba(0, 0, 0, 0.85)', // Slightly more opaque overlays
     
-    // Difficulty colors (brightened for dark theme)
-    gentle: '#22C55E',
-    steady: '#10B981', // Changed from blue to green for consistency
-    beast: '#F87171',
+    // Difficulty colors (enhanced for dark theme with glow effects)
+    gentle: '#00E676', // Matching primary green
+    steady: '#26C6DA', // Cyan for steady (better contrast)
+    beast: '#FF5722', // More vibrant orange-red for beast mode
     
     // Special colors
     celebration: '#FBBF24',

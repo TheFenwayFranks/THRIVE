@@ -344,7 +344,19 @@ export default function EmergencyEnhanced() {
     totalCount: 0
   });
 
-  // EMERGENCY INLINE TIMER - NO NAVIGATION
+  // MULTIPLE TIMER SUPPORT - Each activity can have independent timer
+  const [activeTimers, setActiveTimers] = useState<{
+    [activityId: string]: {
+      activityId: string;
+      activityName: string;
+      workoutId: number;
+      duration: number;
+      timeLeft: number;
+      isRunning: boolean;
+    }
+  }>({});
+
+  // Legacy single timer (for backwards compatibility, will be deprecated)
   const [activeInlineTimer, setActiveInlineTimer] = useState<{
     activityId: string;
     activityName: string;
@@ -440,7 +452,35 @@ export default function EmergencyEnhanced() {
     }
   };
 
-  // EMERGENCY INLINE TIMER EFFECT
+  // MULTIPLE TIMERS EFFECT - Handles all active timers simultaneously
+  useEffect(() => {
+    const timerRefs: NodeJS.Timeout[] = [];
+    
+    // Update all running timers
+    Object.values(activeTimers).forEach(timer => {
+      if (timer.isRunning && timer.timeLeft > 0) {
+        const timerRef = setTimeout(() => {
+          setActiveTimers(prev => ({
+            ...prev,
+            [timer.activityId]: {
+              ...timer,
+              timeLeft: timer.timeLeft - 1
+            }
+          }));
+        }, 1000);
+        timerRefs.push(timerRef);
+      } else if (timer.timeLeft === 0 && timer.isRunning) {
+        // Complete activity when timer reaches 0
+        completeInlineActivity();
+      }
+    });
+    
+    return () => {
+      timerRefs.forEach(ref => clearTimeout(ref));
+    };
+  }, [activeTimers]);
+
+  // EMERGENCY INLINE TIMER EFFECT (Legacy - Single Timer)
   useEffect(() => {
     let inlineTimerRef: NodeJS.Timeout;
     
@@ -650,9 +690,24 @@ export default function EmergencyEnhanced() {
     );
   };
 
-  // NUCLEAR REBUILD: INLINE TIMER FUNCTIONS
+  // MULTIPLE TIMER FUNCTIONS
   const startInlineActivity = (activity: any, workoutId: number) => {
-    console.log('🚨 INLINE TIMER: Starting activity:', activity.name);
+    console.log('🚨 MULTI-TIMER: Starting activity:', activity.name);
+    
+    // Add to multiple timers map
+    setActiveTimers(prev => ({
+      ...prev,
+      [activity.id]: {
+        activityId: activity.id,
+        activityName: activity.name,
+        workoutId: workoutId,
+        duration: activity.duration,
+        timeLeft: activity.duration,
+        isRunning: true
+      }
+    }));
+
+    // Legacy single timer (for backwards compatibility)
     setActiveInlineTimer({
       activityId: activity.id,
       activityName: activity.name,
@@ -681,8 +736,26 @@ export default function EmergencyEnhanced() {
     console.log('✅ INLINE TIMER: Activity completed and marked');
   };
 
-  const stopInlineActivity = () => {
-    setActiveInlineTimer(null);
+  const stopInlineActivity = (activityId?: string) => {
+    if (activityId) {
+      // Remove specific timer from multiple timers
+      setActiveTimers(prev => {
+        const newTimers = { ...prev };
+        delete newTimers[activityId];
+        return newTimers;
+      });
+      
+      // Legacy: If this was the active single timer, clear it
+      if (activeInlineTimer?.activityId === activityId) {
+        setActiveInlineTimer(null);
+      }
+    } else {
+      // Legacy: Stop the current active timer
+      setActiveInlineTimer(null);
+      
+      // Also clear all timers if no specific ID provided
+      setActiveTimers({});
+    }
   };
 
   // DEMO MODE HANDLERS
@@ -1288,16 +1361,44 @@ export default function EmergencyEnhanced() {
   };
 
   // PAUSE/RESUME INLINE TIMER
-  const toggleInlineTimer = () => {
-    if (!activeInlineTimer) return;
-    
-    setActiveInlineTimer(prev => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        isRunning: !prev.isRunning
-      };
-    });
+  const toggleInlineTimer = (activityId?: string) => {
+    if (activityId) {
+      // Toggle specific timer in multiple timers map
+      setActiveTimers(prev => {
+        const timer = prev[activityId];
+        if (!timer) return prev;
+        
+        return {
+          ...prev,
+          [activityId]: {
+            ...timer,
+            isRunning: !timer.isRunning
+          }
+        };
+      });
+      
+      // Legacy: Also update single timer if it matches
+      if (activeInlineTimer?.activityId === activityId) {
+        setActiveInlineTimer(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            isRunning: !prev.isRunning
+          };
+        });
+      }
+    } else {
+      // Legacy: Toggle the current active timer
+      if (!activeInlineTimer) return;
+      
+      setActiveInlineTimer(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          isRunning: !prev.isRunning
+        };
+      });
+    }
   };
 
   // 🔥 DIAGNOSTIC TEST STATES
@@ -1830,6 +1931,13 @@ export default function EmergencyEnhanced() {
                 console.error('🚨 CRASH: Stack trace:', error.stack);
               }
             }}
+            activeOpacity={0.85} // Smooth press feedback for premium feel
+            onPressIn={() => {
+              console.log('🎨 ANIMATION: Main start button pressed - premium feedback');
+            }}
+            onPressOut={() => {
+              console.log('🎨 ANIMATION: Main start button released');
+            }}
           >
             <Text style={styles.redesignedStartButtonText}>
               START {selectedIntensity.toUpperCase()}
@@ -2221,15 +2329,16 @@ export default function EmergencyEnhanced() {
                 {workout.activities.map((activity, index) => {
                   const activityKey = `${workout.id}-${activity.id}`;
                   const isCompleted = completedActivities[activityKey];
-                  const isActive = activeInlineTimer?.activityId === activity.id;
+                  const isActive = activeTimers[activity.id] || activeInlineTimer?.activityId === activity.id;
                   
                   // FLEXIBLE TASK SYSTEM: Show all tasks, allow any order completion
                   const completedCount = getCompletedActivitiesCount(workout);
                   
                   // Prepare active timer data for CollapsibleTaskCard
-                  const activeTimerData = (isActive && activeInlineTimer) ? {
-                    timeLeft: activeInlineTimer.timeLeft,
-                    isRunning: activeInlineTimer.isRunning // Use actual running state
+                  const currentTimer = activeTimers[activity.id] || (activeInlineTimer?.activityId === activity.id ? activeInlineTimer : null);
+                  const activeTimerData = currentTimer ? {
+                    timeLeft: currentTimer.timeLeft,
+                    isRunning: currentTimer.isRunning // Use actual running state
                   } : null;
                   
                   return (
@@ -2342,61 +2451,138 @@ export default function EmergencyEnhanced() {
                   {workout.description}
                 </Text>
 
-                {/* SIMPLE TEXT LIST - NO CARDS */}
+                {/* MOBILE-OPTIMIZED ACTIVITY LIST */}
                 {workout.activities && (
-                  <View>
-                    <Text>Activities:</Text>
+                  <View style={styles.activitiesContainer}>
+                    <Text style={styles.activitiesTitle}>Activities:</Text>
                     {workout.activities.map((activity, index) => {
                       const activityKey = `${workout.id}-${activity.id}`;
                       const isCompleted = completedActivities[activityKey];
-                      const isActive = activeInlineTimer?.activityId === activity.id;
+                      const isActive = activeTimers[activity.id] || activeInlineTimer?.activityId === activity.id;
+                      const currentTimer = activeTimers[activity.id] || (activeInlineTimer?.activityId === activity.id ? activeInlineTimer : null);
                       
                       return (
-                        <View key={activity.id} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 2 }}>
-                          <Text>• {activity.name} - {Math.floor(activity.duration / 60)}:{(activity.duration % 60).toString().padStart(2, '0')} </Text>
-                          <TouchableOpacity 
-                            onPress={() => {
-                              if (!isCompleted) {
-                                if (isActive) {
-                                  stopInlineActivity();
-                                } else {
-                                  startInlineActivity(activity, workout.id);
-                                }
-                              }
-                            }}
-                            disabled={isCompleted}
-                          >
-                            <Text>[{isCompleted ? 'DONE' : (isActive ? 'STOP' : 'START')}]</Text>
-                          </TouchableOpacity>
+                        <View key={activity.id} style={styles.mobileActivityRow}>
+                          {/* Activity Info - Takes most space but prevents overflow */}
+                          <View style={styles.mobileActivityInfo}>
+                            <Text style={styles.mobileActivityText} numberOfLines={2}>
+                              • {activity.name}
+                            </Text>
+                            
+                            {/* DYNAMIC TIMER DISPLAY - Shows time left when timer active */}
+                            {isActive && currentTimer ? (
+                              <View style={styles.timerDisplay}>
+                                <Text style={[
+                                  styles.timerDisplayText,
+                                  currentTimer.isRunning ? styles.timerDisplayRunning : styles.timerDisplayPaused
+                                ]}>
+                                  ⏱️ {Math.floor(currentTimer.timeLeft / 60)}:{(currentTimer.timeLeft % 60).toString().padStart(2, '0')} 
+                                  {currentTimer.isRunning ? ' (running)' : ' (paused)'}
+                                </Text>
+                              </View>
+                            ) : (
+                              <Text style={styles.mobileActivityDuration}>
+                                {Math.floor(activity.duration / 60)}:{(activity.duration % 60).toString().padStart(2, '0')}
+                              </Text>
+                            )}
+                          </View>
+                          
+                          {/* DYNAMIC TIMER BUTTON LAYOUT - Adapts based on timer state */}
+                          {!isActive && !isCompleted ? (
+                            // NO TIMER: Show single START button
+                            <TouchableOpacity 
+                              style={[styles.mobileActivityButton, styles.mobileActivityButtonDefault]}
+                              onPress={() => startInlineActivity(activity, workout.id)}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={[styles.mobileActivityButtonText]}>
+                                ▶️ START
+                              </Text>
+                            </TouchableOpacity>
+                          ) : isCompleted ? (
+                            // COMPLETED: Show DONE button
+                            <TouchableOpacity 
+                              style={[styles.mobileActivityButton, styles.mobileActivityButtonDisabled]}
+                              disabled={true}
+                            >
+                              <Text style={[styles.mobileActivityButtonText, styles.mobileActivityButtonTextDisabled]}>
+                                ✅ DONE
+                              </Text>
+                            </TouchableOpacity>
+                          ) : (
+                            // TIMER ACTIVE: Show dual buttons (Pause/Resume + Stop)
+                            <View style={styles.mobileTimerButtonGroup}>
+                              <TouchableOpacity 
+                                style={[
+                                  styles.mobileTimerButton,
+                                  activeTimers[activity.id]?.isRunning ? styles.mobileActivityButtonRunning : styles.mobileActivityButtonPaused
+                                ]}
+                                onPress={() => toggleInlineTimer(activity.id)}
+                                activeOpacity={0.7}
+                              >
+                                <Text style={[styles.mobileTimerButtonText]}>
+                                  {currentTimer?.isRunning ? '⏸️' : '▶️'}
+                                </Text>
+                              </TouchableOpacity>
+                              
+                              <TouchableOpacity 
+                                style={[styles.mobileTimerButton, styles.mobileStopButton]}
+                                onPress={() => stopInlineActivity(activity.id)}
+                                activeOpacity={0.7}
+                              >
+                                <Text style={[styles.mobileTimerButtonText]}>
+                                  ⏹️
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                          )}
                         </View>
                       );
                     })}
                   </View>
                 )}
               
-              {/* Video Demo Button */}
-              <TouchableOpacity 
-                style={styles.videoDemoButton}
-                onPress={() => showVideoDemo(workout)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.videoDemoText}>Show Demo</Text>
-                <Text style={styles.videoDemoSubtext}>(Coming Soon)</Text>
-              </TouchableOpacity>
             </View>
             
-            {/* INDIVIDUAL START BUTTON - Moved to workout header */}
-            <View style={styles.workoutCardFooter}>
+            {/* MOBILE-OPTIMIZED BUTTON LAYOUT - Max 3 primary actions */}
+            <View style={styles.mobileWorkoutActions}>
+              {/* PRIMARY ACTION: Start/Restart Button */}
               <TouchableOpacity 
                 style={[
-                  styles.individualWorkoutStartButton,
+                  styles.mobilePrimaryButton,
+                  styles.mobileStartButton,
                   { backgroundColor: getDifficultyColor(selectedDifficulty) }
                 ]}
                 onPress={() => startWorkout(workout)}
                 activeOpacity={0.7}
               >
-                <Text style={styles.individualWorkoutStartButtonText}>
-                  {completedWorkouts.includes(workout.id) ? '↻ Restart' : '▶ Start Workout'}
+                <Text style={styles.mobilePrimaryButtonText}>
+                  {completedWorkouts.includes(workout.id) ? '↻ Restart' : '▶ Start'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* SECONDARY ACTION: Demo Button */}
+              <TouchableOpacity 
+                style={[styles.mobilePrimaryButton, styles.mobileSecondaryButton]}
+                onPress={() => showVideoDemo(workout)}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.mobilePrimaryButtonText, styles.mobileSecondaryButtonText]}>
+                  📺 Demo
+                </Text>
+              </TouchableOpacity>
+
+              {/* MORE ACTIONS: Future expandability */}
+              <TouchableOpacity 
+                style={[styles.mobilePrimaryButton, styles.mobileMoreButton]}
+                onPress={() => {
+                  // Future: Show more options like Details, Settings, etc.
+                  console.log('More options for workout:', workout.id);
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.mobilePrimaryButtonText, styles.mobileMoreButtonText]}>
+                  ⋯ More
                 </Text>
               </TouchableOpacity>
             </View>
@@ -2684,6 +2870,14 @@ const createStyles = (theme: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+    // Theme-specific enhancements
+    ...(theme.isDark ? {
+      // Subtle gradient for dark theme
+      background: `linear-gradient(180deg, ${theme.colors.background} 0%, rgba(10, 10, 10, 0.98) 100%)`,
+    } : {
+      // Clean, crisp white for light theme
+      backgroundColor: '#FFFFFF',
+    }),
   },
   content: {
     padding: 20,
@@ -2694,6 +2888,8 @@ const createStyles = (theme: any) => StyleSheet.create({
   pageContainer: {
     flex: 1,
     width: '100%',
+    // Better background for dark theme
+    backgroundColor: theme.colors.background,
   },
   pageContent: {
     paddingVertical: 20, // Only top and bottom padding
@@ -2710,17 +2906,30 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderLeftColor: theme.colors.info,
   },
   emergencyTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '800',
     color: theme.colors.primary,
-    marginBottom: 4,
+    marginBottom: 6,
     textAlign: 'center',
+    letterSpacing: 0.2,
+    // Theme-specific text effects
+    ...(theme.isDark ? {
+      textShadowColor: 'rgba(0, 230, 118, 0.3)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 3,
+    } : {
+      // Clean, crisp text for light theme
+      textShadowColor: 'transparent',
+    }),
   },
   emergencySubtitle: {
-    fontSize: 14,
+    fontSize: 15, // Slightly larger
     color: theme.colors.textSecondary,
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 16, // More space
+    fontWeight: '400',
+    opacity: theme.isDark ? 0.9 : 0.8, // Better contrast for dark theme
+    lineHeight: 20,
   },
   statsRow: {
     flexDirection: 'row',
@@ -2829,20 +3038,54 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   workoutCard: {
     backgroundColor: theme.colors.card,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    width: '100%', // EMERGENCY FIX: Force full width
-    alignSelf: 'stretch', // EMERGENCY FIX: Stretch to parent width
+    borderWidth: theme.isDark ? 2 : 1, // Thicker border for dark, subtle for light
+    borderColor: theme.isDark ? 'rgba(255, 255, 255, 0.1)' : theme.colors.border,
+    width: '100%',
+    alignSelf: 'stretch',
+    // Premium shadow system for both themes
+    ...(theme.isDark ? {
+      // Dark theme shadows
+      shadowColor: 'rgba(0, 230, 118, 0.2)',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.3,
+      shadowRadius: 6,
+      elevation: 4,
+    } : {
+      // Light theme crisp shadows
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08, // Subtle but visible
+      shadowRadius: 8,
+      elevation: 3,
+    }),
   },
   completedWorkoutCard: {
-    backgroundColor: theme.isDark ? theme.colors.surface : '#F0FDF4',
+    backgroundColor: theme.isDark 
+      ? 'rgba(0, 230, 118, 0.08)' // Subtle green background for dark mode
+      : '#E8F5E8', // Light green background for light mode
     borderColor: theme.colors.success,
-    borderWidth: 2,
+    borderWidth: 3,
+    // Theme-appropriate effects
+    ...(theme.isDark ? {
+      // Dark theme glow effect
+      shadowColor: theme.colors.success,
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.4,
+      shadowRadius: 8,
+      elevation: 6,
+    } : {
+      // Light theme enhanced shadow
+      shadowColor: '#4CAF50',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 10,
+      elevation: 5,
+    }),
   },
   workoutNameRow: {
     flexDirection: 'row',
@@ -2854,10 +3097,12 @@ const createStyles = (theme: any) => StyleSheet.create({
     flex: 1,
   },
   workoutCardName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18, // Larger for better hierarchy
+    fontWeight: '700', // Bolder
     color: theme.colors.text,
     flex: 1,
+    letterSpacing: 0.1, // Subtle spacing
+    lineHeight: 22, // Better line height
   },
   completedWorkoutName: {
     textDecorationLine: 'line-through',
@@ -3809,22 +4054,39 @@ const createStyles = (theme: any) => StyleSheet.create({
     marginTop: 12,
   },
   individualWorkoutStartButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    minHeight: 52,
+    // Premium shadow system for both themes
+    ...(theme.isDark ? {
+      // Dark theme with glow
+      shadowColor: theme.colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.4,
+      shadowRadius: 8,
+      elevation: 6,
+      borderWidth: 1,
+      borderColor: 'rgba(0, 230, 118, 0.2)',
+    } : {
+      // Light theme crisp shadows
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 5 },
+      shadowOpacity: 0.18, // More prominent shadow
+      shadowRadius: 10,
+      elevation: 5,
+    }),
   },
   individualWorkoutStartButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontSize: 17, // Slightly larger
+    fontWeight: '800', // Bolder
+    letterSpacing: 0.7, // More spacing for premium feel
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 
   // ACTIVITY START BUTTON STYLES
@@ -3872,29 +4134,249 @@ const createStyles = (theme: any) => StyleSheet.create({
     color: theme.colors.textMuted,
     fontStyle: 'italic',
   },
+  
+  // MOBILE-FIRST ACTIVITY BUTTON STYLES - Prevents overflow, ensures accessibility
+  activitiesContainer: {
+    marginTop: 12,
+    paddingHorizontal: 4, // Slight padding to prevent edge touch
+  },
+  activitiesTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginBottom: 8,
+  },
+  mobileActivityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 4,
+    paddingVertical: 2,
+    minHeight: 48, // WCAG-compliant touch target
+  },
+  mobileActivityInfo: {
+    flex: 1, // Takes available space, prevents overflow
+    marginRight: 12, // Space between text and button
+    minWidth: 0, // Allows flex shrinking
+  },
+  mobileActivityText: {
+    fontSize: 14,
+    color: theme.colors.text,
+    lineHeight: 18,
+    flexShrink: 1, // Allows text to shrink if needed
+  },
+  mobileActivityDuration: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    marginTop: 2,
+    fontWeight: '500',
+  },
+  mobileActivityButton: {
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    minWidth: 60, // Consistent button width
+    minHeight: 44, // WCAG touch target requirement
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: theme.isDark ? theme.colors.primary : '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: theme.isDark ? 0.3 : 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  mobileActivityButtonActive: {
+    backgroundColor: theme.colors.accent || '#EF4444', // Red for active/stop state
+  },
+  mobileActivityButtonDisabled: {
+    backgroundColor: theme.colors.surface,
+    opacity: 0.6,
+  },
+  mobileActivityButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  mobileActivityButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  mobileActivityButtonTextDisabled: {
+    color: theme.colors.textMuted,
+  },
+
+  // DYNAMIC TIMER STATE STYLES - Color-coded for clear visual feedback
+  mobileActivityButtonDefault: {
+    backgroundColor: '#10B981', // Green for start/play state
+  },
+  mobileActivityButtonRunning: {
+    backgroundColor: '#F59E0B', // Orange/Yellow for running/pause state
+  },
+  mobileActivityButtonPaused: {
+    backgroundColor: '#3B82F6', // Blue for paused/resume state
+  },
+  mobileActivityButtonTextRunning: {
+    color: '#FFFFFF',
+  },
+  mobileActivityButtonTextPaused: {
+    color: '#FFFFFF',
+  },
+
+  // TIMER BUTTON GROUP - When timer is active, show pause/resume + stop
+  mobileTimerButtonGroup: {
+    flexDirection: 'row',
+    gap: 6, // Small gap between timer control buttons
+    alignItems: 'center',
+  },
+  mobileTimerButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 6,
+    minWidth: 36, // Smaller than main buttons
+    minHeight: 36, // Still accessible but compact
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: theme.isDark ? theme.colors.primary : '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: theme.isDark ? 0.2 : 0.08,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  mobileStopButton: {
+    backgroundColor: '#EF4444', // Red for stop action
+  },
+  mobileTimerButtonText: {
+    fontSize: 16, // Slightly larger for emoji visibility
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+
+  // TIMER DISPLAY - Shows live timer countdown
+  timerDisplay: {
+    marginTop: 4,
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    backgroundColor: theme.colors.surface,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+  },
+  timerDisplayText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.colors.textSecondary,
+  },
+  timerDisplayRunning: {
+    color: '#F59E0B', // Orange for running timer
+  },
+  timerDisplayPaused: {
+    color: '#3B82F6', // Blue for paused timer
+  },
+
+  // MOBILE-FIRST WORKOUT ACTION BUTTONS - 3 primary buttons max
+  mobileWorkoutActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
+    paddingHorizontal: 4,
+    alignItems: 'stretch', // Equal height buttons
+  },
+  mobilePrimaryButton: {
+    flex: 1, // Equal width distribution
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    minHeight: 48, // WCAG touch target
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: theme.isDark ? theme.colors.primary : '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: theme.isDark ? 0.25 : 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  mobileStartButton: {
+    // backgroundColor set dynamically based on difficulty
+  },
+  mobileSecondaryButton: {
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  mobileMoreButton: {
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  mobilePrimaryButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    numberOfLines: 1,
+  },
+  mobileSecondaryButtonText: {
+    color: theme.colors.text,
+  },
+  mobileMoreButtonText: {
+    color: theme.colors.textSecondary,
+  },
   workoutActions: {
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 80,
   },
   startButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    minWidth: 80,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    minWidth: 88,
+    minHeight: 44,
     alignItems: 'center',
+    justifyContent: 'center',
+    // Theme-appropriate shadows
+    ...(theme.isDark ? {
+      shadowColor: theme.colors.primary,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.3,
+      shadowRadius: 6,
+      elevation: 4,
+    } : {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+      elevation: 3,
+    }),
   },
   startButtonText: {
     color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 15, // Slightly larger
+    fontWeight: '700', // Bolder
+    letterSpacing: 0.3,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   },
   progressSummary: {
-    backgroundColor: theme.isDark ? theme.colors.surface : '#F0FDF4',
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 8,
+    backgroundColor: theme.isDark ? theme.colors.surface : '#F8F9FA',
+    borderRadius: 12, // More rounded for consistency
+    padding: 16, // More padding for premium feel
+    marginTop: 12,
     alignItems: 'center',
+    // Theme-specific enhancements
+    ...(theme.isDark ? {
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.1)',
+    } : {
+      borderWidth: 1,
+      borderColor: '#E0E0E0',
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.04,
+      shadowRadius: 4,
+      elevation: 1,
+    }),
   },
   progressText: {
     fontSize: 14,
@@ -3991,10 +4473,27 @@ const createStyles = (theme: any) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 20,
     backgroundColor: theme.colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
+    // Theme-specific styling
+    ...(theme.isDark ? {
+      // Dark theme depth with shadow
+      borderBottomWidth: 0,
+      shadowColor: 'rgba(0, 0, 0, 0.5)',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 3,
+    } : {
+      // Light theme clean separator
+      borderBottomWidth: 1,
+      borderBottomColor: '#F0F0F0', // Very subtle separator
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05, // Very subtle shadow
+      shadowRadius: 2,
+      elevation: 1,
+    }),
   },
   logoContainer: {
     flex: 1,
@@ -4636,17 +5135,30 @@ const createStyles = (theme: any) => StyleSheet.create({
     alignItems: 'center',
   },
   selectionHeaderTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '900',
     color: theme.colors.primary,
-    marginBottom: 8,
+    marginBottom: 12,
     textAlign: 'center',
+    letterSpacing: -0.5,
+    // Theme-specific text effects
+    ...(theme.isDark ? {
+      textShadowColor: 'rgba(0, 230, 118, 0.4)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 4,
+    } : {
+      // Light theme gets clean, crisp text with no shadow
+      textShadowColor: 'transparent',
+    }),
   },
   selectionHeaderSubtitle: {
-    fontSize: 16,
+    fontSize: 17, // Slightly larger
     color: theme.colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24, // Better line height
+    fontWeight: '400', // Regular weight
+    opacity: theme.isDark ? 0.9 : 0.8, // Better opacity for dark theme
+    letterSpacing: 0.1, // Subtle spacing
   },
 
   // DIFFICULTY SELECTION STYLES
@@ -4658,42 +5170,83 @@ const createStyles = (theme: any) => StyleSheet.create({
   difficultyCard: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    borderRadius: 16,
+    paddingVertical: 28,
+    paddingHorizontal: 18,
+    borderRadius: 20,
     position: 'relative',
-    minHeight: 140,
+    minHeight: 150,
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    // Premium shadow system for both themes
+    ...(theme.isDark ? {
+      // Dark theme enhanced shadows
+      shadowColor: 'rgba(0, 230, 118, 0.5)',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 5,
+      borderWidth: 2,
+      borderColor: 'rgba(255, 255, 255, 0.1)',
+      backgroundColor: 'rgba(31, 31, 31, 0.95)',
+    } : {
+      // Light theme crisp shadows and borders
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.12, // More prominent shadow for light theme
+      shadowRadius: 10,
+      elevation: 4,
+      borderWidth: 1,
+      borderColor: '#E0E0E0',
+      backgroundColor: '#FFFFFF',
+    }),
   },
   difficultyCardSelected: {
     borderWidth: 3,
     borderColor: theme.colors.primary,
-    shadowColor: theme.colors.primary,
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-    transform: [{ scale: 1.02 }],
+    transform: [{ scale: 1.03 }],
+    // Theme-specific selection effects
+    ...(theme.isDark ? {
+      // Dark theme glow effect
+      backgroundColor: 'rgba(0, 230, 118, 0.08)',
+      shadowColor: theme.colors.primary,
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.6,
+      shadowRadius: 12,
+      elevation: 8,
+    } : {
+      // Light theme enhanced selection
+      backgroundColor: '#E8F5E8', // Light green background
+      shadowColor: '#4CAF50',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.25, // Prominent shadow for selection
+      shadowRadius: 15,
+      elevation: 6,
+    }),
   },
   selectionDifficultyEmoji: {
     fontSize: 32,
     marginBottom: 8,
   },
   difficultyLabel: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20, // Larger for better hierarchy
+    fontWeight: '800', // Extra bold
     color: '#FFFFFF',
-    marginBottom: 4,
+    marginBottom: 6, // More space
+    textAlign: 'center',
+    letterSpacing: 0.3, // Subtle letter spacing
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   difficultyDescription: {
-    fontSize: 12,
+    fontSize: 13, // Slightly larger
     color: '#FFFFFF',
-    opacity: 0.9,
+    opacity: 0.95, // Slightly more opaque
     textAlign: 'center',
+    fontWeight: '500', // Medium weight
+    letterSpacing: 0.2, // Subtle spacing
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   selectedIndicator: {
     position: 'absolute',
@@ -4712,53 +5265,83 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // START WORKOUT SECTION STYLES
+  // START WORKOUT SECTION STYLES - Enhanced for prominence
   startWorkoutSection: {
     marginTop: 'auto',
   },
   readyToThriveContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 24, // Increased spacing
     paddingHorizontal: 16,
   },
   readyToThriveTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '900',
     color: theme.colors.text,
-    marginBottom: 8,
+    marginBottom: 12,
     textAlign: 'center',
+    letterSpacing: -0.5,
+    // Theme-appropriate text effects
+    ...(theme.isDark ? {
+      textShadowColor: 'rgba(0, 230, 118, 0.3)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 4,
+    } : {
+      // Light theme gets crisp, clean text
+      textShadowColor: 'transparent',
+    }),
   },
   readyToThriveSubtitle: {
     fontSize: 16,
     color: theme.colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24, // Better line height
+    opacity: theme.isDark ? 0.9 : 0.8, // Slightly reduced opacity for hierarchy
   },
   redesignedStartButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 20,
-    paddingHorizontal: 24,
-    borderRadius: 16,
+    justifyContent: 'center',
+    paddingVertical: 24,
+    paddingHorizontal: 32,
+    borderRadius: 20,
     marginHorizontal: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
+    minHeight: 64,
+    // Premium shadow system for both themes
+    shadowColor: theme.isDark ? theme.colors.primary : '#4CAF50',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: theme.isDark ? 0.4 : 0.3, // Enhanced shadow for light theme
+    shadowRadius: 12,
+    elevation: 8,
+    // Theme-specific enhancements
+    ...(theme.isDark ? {
+      // Dark theme glow
+      borderWidth: 1,
+      borderColor: 'rgba(0, 230, 118, 0.3)',
+    } : {
+      // Light theme crisp shadow
+      shadowOpacity: 0.25,
+      shadowColor: '#2E7D32', // Darker green shadow for light theme
+    }),
   },
   redesignedStartButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22, // Slightly larger
+    fontWeight: '900', // Extra bold for prominence
     color: '#FFFFFF',
-    flex: 1,
     textAlign: 'center',
+    letterSpacing: 0.5, // Subtle letter spacing
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   redesignedStartArrow: {
-    fontSize: 24,
+    fontSize: 26, // Slightly larger
     color: '#FFFFFF',
     fontWeight: 'bold',
+    marginLeft: 12, // Space from text
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   
   // Minimal Feed
@@ -4767,11 +5350,33 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   inspirationCard: {
     backgroundColor: theme.colors.card,
-    borderRadius: 12,
-    padding: 20,
+    borderRadius: 16,
+    padding: 24,
     alignItems: 'center',
-    borderLeftWidth: 4,
+    borderWidth: theme.isDark ? 2 : 1, // Subtle border for light theme
+    borderColor: theme.isDark 
+      ? 'rgba(0, 230, 118, 0.3)'
+      : '#E0E0E0', // Clean border for light theme
+    borderLeftWidth: 6, // Accent left border
     borderLeftColor: theme.colors.primary,
+    // Theme-specific backgrounds
+    backgroundColor: theme.isDark
+      ? 'rgba(0, 230, 118, 0.02)' // Subtle green tint for dark
+      : '#FFFFFF', // Pure white for light theme
+    // Enhanced shadows for both themes
+    ...(theme.isDark ? {
+      shadowColor: 'rgba(0, 230, 118, 0.3)',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 3,
+    } : {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.06,
+      shadowRadius: 6,
+      elevation: 2,
+    }),
   },
   inspirationText: {
     fontSize: 16,

@@ -9,6 +9,8 @@ interface WebOnboardingProps {
 
 interface UserProfile {
   goals: string[];
+  mentalHealthGoals: string[];
+  fitnessPreferences: string[];
   pathway: 'wellness' | 'fitness' | 'performance' | '';
   name: string;
 }
@@ -17,6 +19,8 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
   const [step, setStep] = useState(0);
   const [userProfile, setUserProfile] = useState<UserProfile>({
     goals: [],
+    mentalHealthGoals: [],
+    fitnessPreferences: [],
     pathway: '',
     name: ''
   });
@@ -78,6 +82,54 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
     console.log('🎯 MOBILE DEBUG: Goals updated:', newGoals);
   };
   
+  // Mental Health Goals selection handler
+  const toggleMentalHealthGoal = (goalId: string) => {
+    console.log('📱 MOBILE DEBUG: toggleMentalHealthGoal called', {
+      goalId,
+      currentGoals: userProfile.mentalHealthGoals,
+      touchEvent: 'mental-health-goal-selection',
+      timestamp: new Date().toISOString()
+    });
+    
+    let newGoals;
+    if (userProfile.mentalHealthGoals.includes(goalId)) {
+      // Remove goal
+      newGoals = userProfile.mentalHealthGoals.filter(g => g !== goalId);
+      console.log('➖ MOBILE DEBUG: Removed mental health goal', goalId);
+    } else {
+      // Add goal (no limit for mental health goals)
+      newGoals = [...userProfile.mentalHealthGoals, goalId];
+      console.log('➕ MOBILE DEBUG: Added mental health goal', goalId);
+    }
+    setUserProfile({ ...userProfile, mentalHealthGoals: newGoals });
+    setErrors([]); // Clear errors when user makes changes
+    console.log('🧠 MOBILE DEBUG: Mental health goals updated:', newGoals);
+  };
+
+  // Fitness Preferences selection handler
+  const toggleFitnessPreference = (prefId: string) => {
+    console.log('📱 MOBILE DEBUG: toggleFitnessPreference called', {
+      prefId,
+      currentPrefs: userProfile.fitnessPreferences,
+      touchEvent: 'fitness-preference-selection',
+      timestamp: new Date().toISOString()
+    });
+    
+    let newPrefs;
+    if (userProfile.fitnessPreferences.includes(prefId)) {
+      // Remove preference
+      newPrefs = userProfile.fitnessPreferences.filter(p => p !== prefId);
+      console.log('➖ MOBILE DEBUG: Removed fitness preference', prefId);
+    } else {
+      // Add preference (no limit for fitness preferences)
+      newPrefs = [...userProfile.fitnessPreferences, prefId];
+      console.log('➕ MOBILE DEBUG: Added fitness preference', prefId);
+    }
+    setUserProfile({ ...userProfile, fitnessPreferences: newPrefs });
+    setErrors([]); // Clear errors when user makes changes
+    console.log('💪 MOBILE DEBUG: Fitness preferences updated:', newPrefs);
+  };
+
   // Pathway selection handler with mobile debugging
   const selectPathway = (pathway: 'wellness' | 'fitness' | 'performance') => {
     console.log('📱 MOBILE DEBUG: selectPathway called', {
@@ -95,6 +147,14 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
   // Validation functions
   const validateGoals = () => {
     return userProfile.goals.length >= 1 && userProfile.goals.length <= 3;
+  };
+
+  const validateMentalHealthGoals = () => {
+    return userProfile.mentalHealthGoals.length >= 1;
+  };
+
+  const validateFitnessPreferences = () => {
+    return userProfile.fitnessPreferences.length >= 1;
   };
   
   const validatePathway = () => {
@@ -119,8 +179,20 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
       newErrors.push('Please select 1-3 goals to continue');
     }
     
-    // Step 2 validation (pathway)
-    if (step === 2 && !validatePathway()) {
+    // Step 2 validation (mental health goals)
+    if (step === 2 && !validateMentalHealthGoals()) {
+      console.log('❌ MOBILE DEBUG: Mental health goals validation failed', { goalCount: userProfile.mentalHealthGoals.length });
+      newErrors.push('Please select at least one mental health goal');
+    }
+    
+    // Step 3 validation (fitness preferences)
+    if (step === 3 && !validateFitnessPreferences()) {
+      console.log('❌ MOBILE DEBUG: Fitness preferences validation failed', { prefCount: userProfile.fitnessPreferences.length });
+      newErrors.push('Please select at least one fitness preference');
+    }
+    
+    // Step 4 validation (pathway)
+    if (step === 4 && !validatePathway()) {
       console.log('❌ MOBILE DEBUG: Pathway validation failed', { pathway: userProfile.pathway });
       newErrors.push('Please select a pathway to continue');
     }
@@ -132,7 +204,7 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
     }
     
     setErrors([]);
-    if (step < 3) {
+    if (step < 5) {
       const newStep = step + 1;
       console.log('✅ MOBILE DEBUG: Advancing to step', newStep);
       setStep(newStep);
@@ -239,7 +311,7 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
           color: '#666',
           fontSize: 'clamp(12px, 2.5vw, 14px)', // Smaller step indicator
           margin: '0 0 clamp(8px, 1.5vh, 12px) 0', // Compressed margin
-        }}>Step {step + 1} of 4{demoMode ? ' (Demo)' : ''}</p>
+        }}>Step {step + 1} of 6{demoMode ? ' (Demo)' : ''}</p>
         
         {step === 0 && (
           <div>
@@ -434,8 +506,310 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
         
         {step === 2 && (
           <div>
+            <p style={{ 
+              fontSize: 'clamp(14px, 3vw, 16px)', 
+              marginBottom: 'clamp(8px, 1.5vh, 10px)', 
+              color: '#333',
+              lineHeight: 1.2
+            }}>
+              🧠 Mental Health Goals
+            </p>
+            <p style={{ 
+              fontSize: 'clamp(12px, 2.5vw, 14px)', 
+              marginBottom: 'clamp(16px, 3vh, 20px)', 
+              color: '#16A34A', 
+              fontWeight: '600',
+              fontStyle: 'italic',
+              textAlign: 'center'
+            }}>
+              ✨ Select all that apply - customize your mental wellness focus
+            </p>
+            
+            <div style={{ marginBottom: 'clamp(8px, 1.5vh, 12px)' }}>
+              {[
+                { id: 'anxiety-stress', label: 'Manage anxiety and stress', emoji: '🌿' },
+                { id: 'adhd-focus', label: 'ADHD focus and attention', emoji: '🎯' },
+                { id: 'routine-structure', label: 'Build routine and structure', emoji: '📅' },
+                { id: 'energy-motivation', label: 'Boost energy and motivation', emoji: '⚡' },
+                { id: 'sleep-quality', label: 'Improve sleep quality', emoji: '😴' },
+                { id: 'social-connection', label: 'Enhance social connection', emoji: '🤝' }
+              ].map((goal) => (
+                <div 
+                  key={goal.id}
+                  onClick={() => toggleMentalHealthGoal(goal.id)}
+                  onTouchStart={(e) => {
+                    console.log('📱 MOBILE DEBUG: Touch start on mental health goal', goal.id);
+                    e.currentTarget.style.transform = 'scale(0.98)';
+                  }}
+                  onTouchEnd={(e) => {
+                    console.log('📱 MOBILE DEBUG: Touch end on mental health goal', goal.id);
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                  style={{
+                    padding: 'clamp(10px, 2.5vw, 14px)',
+                    minHeight: '52px',
+                    backgroundColor: userProfile.mentalHealthGoals.includes(goal.id) ? '#F0FDF4' : 'white',
+                    margin: 'clamp(4px, 1vh, 6px) 0',
+                    borderRadius: '12px',
+                    border: userProfile.mentalHealthGoals.includes(goal.id) ? '2px solid #16A34A' : '2px solid #ddd',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    transition: 'all 0.2s ease',
+                    touchAction: 'manipulation',
+                    WebkitTapHighlightColor: 'rgba(22, 163, 74, 0.2)',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  <span style={{ fontSize: 'clamp(20px, 4vw, 22px)', marginRight: '10px' }}>{goal.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '4px',
+                      border: '2px solid #16A34A',
+                      backgroundColor: userProfile.mentalHealthGoals.includes(goal.id) ? '#16A34A' : 'transparent',
+                      marginRight: '12px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      color: 'white'
+                    }}>
+                      {userProfile.mentalHealthGoals.includes(goal.id) ? '✓' : ''}
+                    </div>
+                    <span style={{
+                      fontSize: 'clamp(14px, 3vw, 15px)',
+                      color: userProfile.mentalHealthGoals.includes(goal.id) ? '#16A34A' : '#333',
+                      fontWeight: userProfile.mentalHealthGoals.includes(goal.id) ? 'bold' : 'normal'
+                    }}>
+                      {goal.label}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Error Messages */}
+            {errors.length > 0 && (
+              <div style={{
+                backgroundColor: '#FEF2F2',
+                border: '1px solid #FECACA',
+                borderRadius: '8px',
+                padding: '12px',
+                marginBottom: '20px'
+              }}>
+                {errors.map((error, index) => (
+                  <p key={index} style={{ color: '#DC2626', margin: 0, fontSize: '14px' }}>
+                    ❌ {error}
+                  </p>
+                ))}
+              </div>
+            )}
+            
+            <div style={{ 
+              display: 'flex', 
+              gap: 'clamp(8px, 2vw, 12px)', // Responsive gap
+              flexDirection: window.innerWidth < 480 ? 'column' : 'row', // Stack on very small screens
+              marginTop: '20px'
+            }}>
+              <button 
+                onClick={handleBack}
+                style={{
+                  backgroundColor: 'white',
+                  color: '#16A34A',
+                  border: '2px solid #16A34A',
+                  padding: '14px 20px', // Mobile-optimized padding
+                  minHeight: '48px', // Mobile touch target
+                  borderRadius: '12px',
+                  fontSize: 'clamp(14px, 3.5vw, 16px)', // Responsive font
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  flex: window.innerWidth < 480 ? 'none' : 1,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                Back
+              </button>
+              <button 
+                onClick={handleNext}
+                style={{
+                  backgroundColor: '#16A34A',
+                  color: 'white',
+                  border: 'none',
+                  padding: '14px 20px', // Mobile-optimized padding
+                  minHeight: '48px', // Mobile touch target
+                  borderRadius: '12px',
+                  fontSize: 'clamp(14px, 3.5vw, 16px)', // Responsive font
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  flex: window.innerWidth < 480 ? 'none' : 2,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                Continue with Mental Health Goals
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {step === 3 && (
+          <div>
+            <p style={{ 
+              fontSize: 'clamp(14px, 3vw, 16px)', 
+              marginBottom: 'clamp(8px, 1.5vh, 10px)', 
+              color: '#333',
+              lineHeight: 1.2
+            }}>
+              💪 Fitness Preferences
+            </p>
+            <p style={{ 
+              fontSize: 'clamp(12px, 2.5vw, 14px)', 
+              marginBottom: 'clamp(16px, 3vh, 20px)', 
+              color: '#16A34A', 
+              fontWeight: '600',
+              fontStyle: 'italic',
+              textAlign: 'center'
+            }}>
+              ✨ Select all that apply - choose your preferred activities
+            </p>
+            
+            <div style={{ marginBottom: 'clamp(8px, 1.5vh, 12px)' }}>
+              {[
+                { id: 'strength-training', label: 'Strength training and weights', emoji: '🏋️‍♀️' },
+                { id: 'cardio-endurance', label: 'Cardio and endurance', emoji: '🏃‍♂️' },
+                { id: 'flexibility-yoga', label: 'Flexibility and yoga', emoji: '🧘‍♀️' },
+                { id: 'dance-movement', label: 'Dance and movement', emoji: '💃' },
+                { id: 'outdoor-activities', label: 'Outdoor activities', emoji: '🌳' },
+                { id: 'quick-workouts', label: 'Quick workouts (15 min or less)', emoji: '⏱️' }
+              ].map((pref) => (
+                <div 
+                  key={pref.id}
+                  onClick={() => toggleFitnessPreference(pref.id)}
+                  onTouchStart={(e) => {
+                    console.log('📱 MOBILE DEBUG: Touch start on fitness preference', pref.id);
+                    e.currentTarget.style.transform = 'scale(0.98)';
+                  }}
+                  onTouchEnd={(e) => {
+                    console.log('📱 MOBILE DEBUG: Touch end on fitness preference', pref.id);
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                  style={{
+                    padding: 'clamp(10px, 2.5vw, 14px)',
+                    minHeight: '52px',
+                    backgroundColor: userProfile.fitnessPreferences.includes(pref.id) ? '#F0FDF4' : 'white',
+                    margin: 'clamp(4px, 1vh, 6px) 0',
+                    borderRadius: '12px',
+                    border: userProfile.fitnessPreferences.includes(pref.id) ? '2px solid #16A34A' : '2px solid #ddd',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    transition: 'all 0.2s ease',
+                    touchAction: 'manipulation',
+                    WebkitTapHighlightColor: 'rgba(22, 163, 74, 0.2)',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  <span style={{ fontSize: 'clamp(20px, 4vw, 22px)', marginRight: '10px' }}>{pref.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '4px',
+                      border: '2px solid #16A34A',
+                      backgroundColor: userProfile.fitnessPreferences.includes(pref.id) ? '#16A34A' : 'transparent',
+                      marginRight: '12px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      color: 'white'
+                    }}>
+                      {userProfile.fitnessPreferences.includes(pref.id) ? '✓' : ''}
+                    </div>
+                    <span style={{
+                      fontSize: 'clamp(14px, 3vw, 15px)',
+                      color: userProfile.fitnessPreferences.includes(pref.id) ? '#16A34A' : '#333',
+                      fontWeight: userProfile.fitnessPreferences.includes(pref.id) ? 'bold' : 'normal'
+                    }}>
+                      {pref.label}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Error Messages */}
+            {errors.length > 0 && (
+              <div style={{
+                backgroundColor: '#FEF2F2',
+                border: '1px solid #FECACA',
+                borderRadius: '8px',
+                padding: '12px',
+                marginBottom: '20px'
+              }}>
+                {errors.map((error, index) => (
+                  <p key={index} style={{ color: '#DC2626', margin: 0, fontSize: '14px' }}>
+                    ❌ {error}
+                  </p>
+                ))}
+              </div>
+            )}
+            
+            <div style={{ 
+              display: 'flex', 
+              gap: 'clamp(8px, 2vw, 12px)',
+              flexDirection: window.innerWidth < 480 ? 'column' : 'row',
+              marginTop: '20px'
+            }}>
+              <button 
+                onClick={handleBack}
+                style={{
+                  backgroundColor: 'white',
+                  color: '#16A34A',
+                  border: '2px solid #16A34A',
+                  padding: '14px 20px',
+                  minHeight: '48px',
+                  borderRadius: '12px',
+                  fontSize: 'clamp(14px, 3.5vw, 16px)',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  flex: window.innerWidth < 480 ? 'none' : 1,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                Back
+              </button>
+              <button 
+                onClick={handleNext}
+                style={{
+                  backgroundColor: '#16A34A',
+                  color: 'white',
+                  border: 'none',
+                  padding: '14px 20px',
+                  minHeight: '48px',
+                  borderRadius: '12px',
+                  fontSize: 'clamp(14px, 3.5vw, 16px)',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  flex: window.innerWidth < 480 ? 'none' : 2,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                Continue with Fitness Preferences
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {step === 4 && (
+          <div>
             <p style={{ fontSize: '18px', marginBottom: '10px', color: '#333' }}>
-              🎯 NEW: Choose Your THRIVE Journey
+              🎯 Choose Your THRIVE Journey
             </p>
             <p style={{ fontSize: '14px', marginBottom: '20px', color: '#666', fontStyle: 'italic' }}>
               Don't worry - you can always change this later in settings
@@ -482,8 +856,8 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
                   style={{
                     padding: '0',
                     backgroundColor: 'white',
-                    margin: 'clamp(4px, 1vh, 8px) 0', // Much tighter margins
-                    minHeight: 'clamp(70px, 12vh, 85px)', // Responsive compact height
+                    margin: 'clamp(4px, 1vh, 8px) 0',
+                    minHeight: 'clamp(70px, 12vh, 85px)',
                     borderRadius: '12px',
                     border: userProfile.pathway === pathway.id ? '2px solid #16A34A' : '2px solid #ddd',
                     cursor: 'pointer',
@@ -495,10 +869,9 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
                     boxSizing: 'border-box',
                   }}
                 >
-                  {/* Compact single-row layout */}
                   <div style={{
                     padding: 'clamp(10px, 2vh, 14px)',
-                    backgroundColor: pathway.background,
+                    backgroundColor: pathway.backgroundColor,
                     display: 'flex',
                     alignItems: 'center',
                     gap: 'clamp(8px, 2vw, 12px)',
@@ -592,8 +965,8 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
             
             <div style={{ 
               display: 'flex', 
-              gap: 'clamp(8px, 2vw, 12px)', // Responsive gap
-              flexDirection: window.innerWidth < 480 ? 'column' : 'row', // Stack on very small screens
+              gap: 'clamp(8px, 2vw, 12px)',
+              flexDirection: window.innerWidth < 480 ? 'column' : 'row',
               marginTop: '20px'
             }}>
               <button 
@@ -602,10 +975,10 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
                   backgroundColor: 'white',
                   color: '#16A34A',
                   border: '2px solid #16A34A',
-                  padding: '14px 20px', // Mobile-optimized padding
-                  minHeight: '48px', // Mobile touch target
+                  padding: '14px 20px',
+                  minHeight: '48px',
                   borderRadius: '12px',
-                  fontSize: 'clamp(14px, 3.5vw, 16px)', // Responsive font
+                  fontSize: 'clamp(14px, 3.5vw, 16px)',
                   cursor: 'pointer',
                   fontWeight: 'bold',
                   flex: window.innerWidth < 480 ? 'none' : 1,
@@ -621,10 +994,10 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
                   backgroundColor: '#16A34A',
                   color: 'white',
                   border: 'none',
-                  padding: '14px 20px', // Mobile-optimized padding
-                  minHeight: '48px', // Mobile touch target
+                  padding: '14px 20px',
+                  minHeight: '48px',
                   borderRadius: '12px',
-                  fontSize: 'clamp(14px, 3.5vw, 16px)', // Responsive font
+                  fontSize: 'clamp(14px, 3.5vw, 16px)',
                   cursor: 'pointer',
                   fontWeight: 'bold',
                   flex: window.innerWidth < 480 ? 'none' : 2,
@@ -638,7 +1011,7 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
           </div>
         )}
         
-        {step === 3 && (
+        {step === 5 && (
           <div>
             <h2 style={{ 
               color: '#16A34A', 
@@ -692,6 +1065,96 @@ export default function WebOnboarding({ visible, onComplete, demoMode = false, o
                     }}>
                       <span style={{ fontSize: 'clamp(9px, 2vw, 10px)', marginRight: '3px' }}>{goal.emoji}</span>
                       <span style={{ fontSize: 'clamp(8px, 1.8vw, 9px)', fontWeight: '500', lineHeight: 1.1 }}>{goal.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Mental Health Goals Summary - ULTRA COMPACT */}
+            <div style={{
+              backgroundColor: '#F0FDF4',
+              borderRadius: '4px',
+              padding: 'clamp(4px, 0.6vh, 5px)',
+              marginBottom: 'clamp(2px, 0.3vh, 3px)',
+              border: '1px solid #16A34A'
+            }}>
+              <h3 style={{ 
+                fontSize: 'clamp(10px, 2.2vw, 11px)',
+                fontWeight: 'bold', 
+                color: '#16A34A', 
+                margin: '0 0 clamp(1px, 0.2vh, 2px) 0',
+                display: 'flex',
+                alignItems: 'center',
+                lineHeight: 1.0
+              }}>
+                🧠 Mental Health Focus
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1px, 0.1vh, 1px)' }}>
+                {userProfile.mentalHealthGoals.map((goalId, index) => {
+                  const goalLabels: {[key: string]: {label: string, emoji: string}} = {
+                    'anxiety-stress': { label: 'Manage anxiety and stress', emoji: '🌿' },
+                    'adhd-focus': { label: 'ADHD focus and attention', emoji: '🎯' },
+                    'routine-structure': { label: 'Build routine and structure', emoji: '📅' },
+                    'energy-motivation': { label: 'Boost energy and motivation', emoji: '⚡' },
+                    'sleep-quality': { label: 'Improve sleep quality', emoji: '😴' },
+                    'social-connection': { label: 'Enhance social connection', emoji: '🤝' }
+                  };
+                  const goal = goalLabels[goalId];
+                  return (
+                    <div key={goalId} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: 'clamp(1px, 0.1vh, 1px) 0',
+                      color: '#16A34A'
+                    }}>
+                      <span style={{ fontSize: 'clamp(9px, 2vw, 10px)', marginRight: '3px' }}>{goal.emoji}</span>
+                      <span style={{ fontSize: 'clamp(8px, 1.8vw, 9px)', fontWeight: '500', lineHeight: 1.1 }}>{goal.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Fitness Preferences Summary - ULTRA COMPACT */}
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '4px',
+              padding: 'clamp(4px, 0.6vh, 5px)',
+              marginBottom: 'clamp(2px, 0.3vh, 3px)',
+              border: '1px solid #16A34A'
+            }}>
+              <h3 style={{ 
+                fontSize: 'clamp(10px, 2.2vw, 11px)',
+                fontWeight: 'bold', 
+                color: '#16A34A', 
+                margin: '0 0 clamp(1px, 0.2vh, 2px) 0',
+                display: 'flex',
+                alignItems: 'center',
+                lineHeight: 1.0
+              }}>
+                💪 Fitness Activities
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(1px, 0.1vh, 1px)' }}>
+                {userProfile.fitnessPreferences.map((prefId, index) => {
+                  const prefLabels: {[key: string]: {label: string, emoji: string}} = {
+                    'strength-training': { label: 'Strength training and weights', emoji: '🏋️‍♀️' },
+                    'cardio-endurance': { label: 'Cardio and endurance', emoji: '🏃‍♂️' },
+                    'flexibility-yoga': { label: 'Flexibility and yoga', emoji: '🧘‍♀️' },
+                    'dance-movement': { label: 'Dance and movement', emoji: '💃' },
+                    'outdoor-activities': { label: 'Outdoor activities', emoji: '🌳' },
+                    'quick-workouts': { label: 'Quick workouts (15 min or less)', emoji: '⏱️' }
+                  };
+                  const pref = prefLabels[prefId];
+                  return (
+                    <div key={prefId} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: 'clamp(1px, 0.1vh, 1px) 0',
+                      color: '#16A34A'
+                    }}>
+                      <span style={{ fontSize: 'clamp(9px, 2vw, 10px)', marginRight: '3px' }}>{pref.emoji}</span>
+                      <span style={{ fontSize: 'clamp(8px, 1.8vw, 9px)', fontWeight: '500', lineHeight: 1.1 }}>{pref.label}</span>
                     </div>
                   );
                 })}
