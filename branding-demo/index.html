@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THRIVE Branding System - Interactive Demo</title>
+    <link href="../src/styles/thrive-branding-system.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--thrive-font-primary);
+            background: var(--thrive-gradient-background);
+            min-height: 100vh;
+        }
+        
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .demo-section {
+            margin-bottom: 40px;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .color-swatch {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            margin-right: 8px;
+            vertical-align: middle;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .progress-demo {
+            margin: 20px 0;
+        }
+        
+        .buttons-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin: 20px 0;
+        }
+        
+        .form-demo {
+            max-width: 400px;
+        }
+        
+        .achievement-trigger {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--thrive-light-gray);
+            margin-bottom: 20px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <!-- Header -->
+        <header class="thrive-header">
+            <h1 class="thrive-hero">🌱 THRIVE Branding System</h1>
+            <p class="thrive-body-large">Revolutionary mental health-first design system</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="thrive-tab active" onclick="showTab('overview')">Overview</button>
+            <button class="thrive-tab" onclick="showTab('components')">Components</button>
+            <button class="thrive-tab" onclick="showTab('interactions')">Interactions</button>
+            <button class="thrive-tab" onclick="showTab('accessibility')">Accessibility</button>
+        </nav>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="demo-section">
+                <h2 class="thrive-header">🎨 Color System</h2>
+                <div class="thrive-card">
+                    <h3 class="thrive-subheader">THRIVE Green Palette</h3>
+                    <p class="thrive-body">
+                        <span class="color-swatch" style="background: var(--thrive-deep-forest);"></span>
+                        Deep Forest (#006241) - Trust, stability
+                    </p>
+                    <p class="thrive-body">
+                        <span class="color-swatch" style="background: var(--thrive-primary);"></span>
+                        Primary (#4CAF50) - Main brand color
+                    </p>
+                    <p class="thrive-body">
+                        <span class="color-swatch" style="background: var(--thrive-fresh);"></span>
+                        Fresh (#81C784) - Success states
+                    </p>
+                    <p class="thrive-body">
+                        <span class="color-swatch" style="background: var(--thrive-gentle);"></span>
+                        Gentle (#A5D6A7) - Subtle backgrounds
+                    </p>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h2 class="thrive-header">📝 Typography Hierarchy</h2>
+                <div class="thrive-card">
+                    <h1 class="thrive-hero">Hero Text (32px, Bold)</h1>
+                    <h2 class="thrive-header">Header Text (24px, Semibold)</h2>
+                    <h3 class="thrive-subheader">Subheader Text (20px, Medium)</h3>
+                    <p class="thrive-body">Body text with proper line height and spacing for optimal readability (16px, Regular)</p>
+                    <p class="thrive-caption">Caption text for UI labels and secondary information (14px, Regular)</p>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h2 class="thrive-header">🌱 Progress Animations</h2>
+                <div class="thrive-card">
+                    <h3 class="thrive-subheader">Workout Progress</h3>
+                    <div class="progress-demo">
+                        <div class="thrive-progress-container">
+                            <div class="thrive-progress-bar" style="width: 65%;"></div>
+                        </div>
+                        <p class="thrive-caption">65% complete - Keep growing! 🌱</p>
+                    </div>
+                    
+                    <h3 class="thrive-subheader">Step Progress</h3>
+                    <div class="thrive-step-progress">
+                        <div class="thrive-step completed">1</div>
+                        <div class="thrive-step-connector completed"></div>
+                        <div class="thrive-step completed">2</div>
+                        <div class="thrive-step-connector completed"></div>
+                        <div class="thrive-step active">3</div>
+                        <div class="thrive-step-connector"></div>
+                        <div class="thrive-step">4</div>
+                        <div class="thrive-step-connector"></div>
+                        <div class="thrive-step">5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Components Tab -->
+        <div id="components" class="tab-content">
+            <div class="demo-section">
+                <h2 class="thrive-header">🔘 Button System</h2>
+                <div class="thrive-card">
+                    <div class="buttons-demo">
+                        <button class="thrive-button-primary">Primary Action</button>
+                        <button class="thrive-button-secondary">Secondary Action</button>
+                        <button class="thrive-button-gentle">Gentle Action</button>
+                        <button class="thrive-button-icon">⚙️</button>
+                    </div>
+                    
+                    <h3 class="thrive-subheader">Loading State</h3>
+                    <button class="thrive-button-primary thrive-button-loading">Processing...</button>
+                    
+                    <h3 class="thrive-subheader">Disabled State</h3>
+                    <button class="thrive-button-primary" disabled>Disabled Button</button>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h2 class="thrive-header">📋 Card Variants</h2>
+                <div class="demo-grid">
+                    <div class="thrive-card thrive-card-workout">
+                        <h3 class="thrive-subheader">Workout Card</h3>
+                        <p class="thrive-body">Specialized for exercise content with workout-specific styling.</p>
+                    </div>
+                    
+                    <div class="thrive-card thrive-card-achievement">
+                        <h3 class="thrive-subheader">Achievement Card</h3>
+                        <p class="thrive-body">Celebrates milestones with sparkle animation.</p>
+                    </div>
+                    
+                    <div class="thrive-card thrive-card-community">
+                        <h3 class="thrive-subheader">Community Card</h3>
+                        <p class="thrive-body">Social features with community-focused design.</p>
+                    </div>
+                    
+                    <div class="thrive-card thrive-card-stats">
+                        <span class="stat-number">127</span>
+                        <span class="stat-label">Workouts Completed</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h2 class="thrive-header">📝 Form Elements</h2>
+                <div class="thrive-card">
+                    <div class="form-demo">
+                        <div class="thrive-form-group">
+                            <label class="thrive-form-label">Email Address</label>
+                            <input type="email" class="thrive-input" placeholder="Enter your email">
+                            <div class="thrive-form-help">We'll never share your email</div>
+                        </div>
+                        
+                        <div class="thrive-form-group">
+                            <label class="thrive-form-label">Search Workouts</label>
+                            <div class="thrive-search-container">
+                                <input type="text" class="thrive-input thrive-search-input" placeholder="Search for exercises...">
+                                <span class="thrive-search-icon">🔍</span>
+                            </div>
+                        </div>
+                        
+                        <div class="thrive-form-group">
+                            <label class="thrive-form-label">Notifications</label>
+                            <button class="thrive-toggle active" onclick="toggleSwitch(this)">
+                                <div class="thrive-toggle-slider"></div>
+                            </button>
+                        </div>
+                        
+                        <div class="thrive-form-group">
+                            <button class="thrive-button-primary">Save Settings</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactions Tab -->
+        <div id="interactions" class="tab-content">
+            <div class="demo-section">
+                <h2 class="thrive-header">🎭 Loading States</h2>
+                <div class="thrive-card">
+                    <div class="thrive-loading-container">
+                        <div class="thrive-loading-plant">
+                            <div class="thrive-loading-stem"></div>
+                            <div class="thrive-loading-leaf"></div>
+                            <div class="thrive-loading-leaf"></div>
+                        </div>
+                        <div class="thrive-loading-text">Loading your wellness journey...</div>
+                    </div>
+                </div>
+                
+                <h3 class="thrive-subheader">Skeleton Loader</h3>
+                <div class="thrive-skeleton-card">
+                    <div class="thrive-skeleton-line"></div>
+                    <div class="thrive-skeleton-line"></div>
+                    <div class="thrive-skeleton-line"></div>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h2 class="thrive-header">🏆 Achievement System</h2>
+                <div class="thrive-card">
+                    <p class="thrive-body">Click the floating action button below to see the achievement celebration!</p>
+                    <button class="thrive-button-secondary" onclick="triggerAchievement()">
+                        Trigger Achievement Demo
+                    </button>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h2 class="thrive-header">📊 Interactive Progress</h2>
+                <div class="thrive-card">
+                    <h3 class="thrive-subheader">Daily Workout Progress</h3>
+                    <div class="progress-demo">
+                        <div class="thrive-progress-container">
+                            <div class="thrive-progress-bar" id="interactive-progress" style="width: 25%;"></div>
+                        </div>
+                        <button class="thrive-button-gentle" onclick="updateProgress()">Complete Exercise</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accessibility Tab -->
+        <div id="accessibility" class="tab-content">
+            <div class="demo-section">
+                <h2 class="thrive-header">♿ Accessibility Features</h2>
+                <div class="thrive-card">
+                    <h3 class="thrive-subheader">Built-in Support</h3>
+                    <ul class="thrive-body">
+                        <li>High contrast mode (automatic detection)</li>
+                        <li>Reduced motion preferences</li>
+                        <li>Large text support (scales with system settings)</li>
+                        <li>Focus management with visible indicators</li>
+                        <li>Touch-friendly 44px minimum targets</li>
+                        <li>Screen reader optimized structure</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h2 class="thrive-header">🧠 Mental Health First</h2>
+                <div class="thrive-card">
+                    <h3 class="thrive-subheader">Anxiety-Friendly Design</h3>
+                    <p class="thrive-body">
+                        Every interaction is designed to be encouraging, not demanding. 
+                        Gentle animations, soft colors, and supportive language help 
+                        reduce stress and promote wellbeing.
+                    </p>
+                    
+                    <div class="buttons-demo">
+                        <button class="thrive-button-gentle">Gentle Interaction</button>
+                        <button class="thrive-button-primary">Encouraging Action</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h2 class="thrive-header">🎯 ADHD Support</h2>
+                <div class="thrive-card">
+                    <h3 class="thrive-subheader">Focus-Friendly Features</h3>
+                    <ul class="thrive-body">
+                        <li>Clear visual hierarchy reduces cognitive load</li>
+                        <li>Consistent interaction patterns</li>
+                        <li>Progress feedback with plant metaphors</li>
+                        <li>Minimal visual clutter</li>
+                        <li>Predictable button behaviors</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button class="thrive-fab achievement-trigger" onclick="triggerAchievement()">
+            ✨
+        </button>
+    </div>
+
+    <!-- Achievement Overlay (hidden initially) -->
+    <div id="achievement-overlay" class="thrive-celebration-container" style="display: none;">
+        <div class="thrive-achievement-popup">
+            <div class="thrive-achievement-icon">🏆</div>
+            <h2 class="thrive-achievement-title">Congratulations!</h2>
+            <p class="thrive-achievement-description">
+                You've experienced the THRIVE branding system! 
+                Your wellness journey is growing beautifully.
+            </p>
+            <button class="thrive-button-primary" onclick="closeAchievement()">
+                Continue Growing 🌱
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.thrive-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Toggle switch
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+        }
+
+        // Progress update
+        let currentProgress = 25;
+        function updateProgress() {
+            currentProgress += 25;
+            if (currentProgress > 100) currentProgress = 25;
+            
+            document.getElementById('interactive-progress').style.width = currentProgress + '%';
+            
+            if (currentProgress === 100) {
+                triggerAchievement();
+            }
+        }
+
+        // Achievement system
+        function triggerAchievement() {
+            const overlay = document.getElementById('achievement-overlay');
+            overlay.style.display = 'flex';
+            
+            // Create confetti
+            createConfetti();
+            
+            // Auto-close after 5 seconds
+            setTimeout(() => {
+                closeAchievement();
+            }, 5000);
+        }
+
+        function closeAchievement() {
+            document.getElementById('achievement-overlay').style.display = 'none';
+        }
+
+        function createConfetti() {
+            const container = document.getElementById('achievement-overlay');
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'thrive-confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                container.appendChild(confetti);
+                
+                // Remove after animation
+                setTimeout(() => {
+                    if (confetti.parentNode) {
+                        confetti.parentNode.removeChild(confetti);
+                    }
+                }, 5000);
+            }
+        }
+
+        // Show toast message on load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const toast = document.createElement('div');
+                toast.className = 'thrive-toast';
+                toast.innerHTML = '🌱 Welcome to the THRIVE branding system!';
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 3000);
+            }, 1000);
+        });
+
+        // Demonstrate focus management
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                // Add focus visible class for keyboard navigation
+                setTimeout(() => {
+                    if (document.activeElement) {
+                        document.activeElement.classList.add('thrive-focus-visible');
+                    }
+                }, 0);
+            }
+        });
+    </script>
+</body>
+</html>

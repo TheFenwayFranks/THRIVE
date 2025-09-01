@@ -40,6 +40,16 @@ interface AppSettings {
   themeMode?: 'light' | 'dark' | 'system';
 }
 
+interface UserProfile {
+  name: string;
+  motivation: 'gentle' | 'energetic' | 'focused';
+  goals: string[];
+  reason: string;
+  morningFlowEnabled: boolean;
+  communityUsername: string;
+  createdAt?: string;
+}
+
 export class StorageService {
   private static readonly KEYS = {
     USER_STATS: '@thrive_user_stats',
@@ -48,7 +58,9 @@ export class StorageService {
     MORNING_FLOW_DATE: '@thrive_morning_flow_date',
     SETTINGS: '@thrive_settings',
     WORKOUT_HISTORY: '@thrive_workout_history',
-    COMPLETED_WORKOUTS: '@thrive_completed_workouts'
+    COMPLETED_WORKOUTS: '@thrive_completed_workouts',
+    COMPLETED_ACTIVITIES: '@thrive_completed_activities',
+    USER_PROFILE: '@thrive_user_profile'
   };
 
   static async initialize(): Promise<void> {
@@ -267,6 +279,73 @@ export class StorageService {
     }
   }
 
+  // PROGRESSIVE TASK COMPLETION: Individual Activity Management
+  static async getCompletedActivities(): Promise<{[key: string]: boolean}> {
+    try {
+      const data = await AsyncStorage.getItem(this.KEYS.COMPLETED_ACTIVITIES);
+      return data ? JSON.parse(data) : {};
+    } catch (error) {
+      console.error('Failed to get completed activities:', error);
+      return {};
+    }
+  }
+
+  static async saveCompletedActivities(completedActivities: {[key: string]: boolean}): Promise<void> {
+    try {
+      await AsyncStorage.setItem(this.KEYS.COMPLETED_ACTIVITIES, JSON.stringify(completedActivities));
+    } catch (error) {
+      console.error('Failed to save completed activities:', error);
+    }
+  }
+
+  static async toggleActivityCompletion(activityId: string): Promise<boolean> {
+    try {
+      const completedActivities = await this.getCompletedActivities();
+      const isCompleted = completedActivities[activityId] || false;
+      completedActivities[activityId] = !isCompleted;
+      await this.saveCompletedActivities(completedActivities);
+      return !isCompleted;
+    } catch (error) {
+      console.error('Failed to toggle activity completion:', error);
+      return false;
+    }
+  }
+
+  static async resetWorkoutActivities(workoutId: number, activities: {id: string}[]): Promise<void> {
+    try {
+      const completedActivities = await this.getCompletedActivities();
+      activities.forEach(activity => {
+        delete completedActivities[activity.id];
+      });
+      await this.saveCompletedActivities(completedActivities);
+    } catch (error) {
+      console.error('Failed to reset workout activities:', error);
+    }
+  }
+
+  // User Profile Management (for onboarding)
+  static async getUserProfile(): Promise<UserProfile | null> {
+    try {
+      const data = await AsyncStorage.getItem(this.KEYS.USER_PROFILE);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      console.error('Failed to get user profile:', error);
+      return null;
+    }
+  }
+
+  static async saveUserProfile(profile: UserProfile): Promise<void> {
+    try {
+      const profileWithTimestamp = {
+        ...profile,
+        createdAt: profile.createdAt || new Date().toISOString()
+      };
+      await AsyncStorage.setItem(this.KEYS.USER_PROFILE, JSON.stringify(profileWithTimestamp));
+    } catch (error) {
+      console.error('Failed to save user profile:', error);
+    }
+  }
+
   static async exportData(): Promise<string> {
     try {
       const allData: any = {};
@@ -284,4 +363,4 @@ export class StorageService {
   }
 }
 
-export type { UserStats, ProgressData, MoodEntry, AppSettings };
+export type { UserStats, ProgressData, MoodEntry, AppSettings, UserProfile };

@@ -3,6 +3,9 @@ import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider } from './src/context/ThemeContext';
 import EmergencyEnhanced from './EmergencyEnhanced';
 
+// 🌱 THRIVE BRANDING SYSTEM - Import the revolutionary design system
+import './src/styles/thrive-branding-system.css';
+
 // EMERGENCY SINGLE-SCREEN THRIVE - AVOIDING NAVIGATION CRASHES
 // ✅ Post-workout mood tracking with personalized responses  
 // ✅ Single-screen workout system (avoiding tab navigation crashes)

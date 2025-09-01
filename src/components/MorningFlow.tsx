@@ -714,10 +714,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderRadius: 16,
     minWidth: 250,
     alignItems: 'center',
-    shadowColor: theme.colors.success,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    boxShadow: `0 4px 8px ${theme.colors.success}80`,
   },
   thriveButtonText: {
     color: '#FFFFFF',

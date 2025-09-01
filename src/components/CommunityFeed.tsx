@@ -31,6 +31,10 @@ export default function CommunityFeed({ userStats }: CommunityFeedProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showComposer, setShowComposer] = useState(false);
   const [ralliedPosts, setRalliedPosts] = useState<string[]>([]);
+  
+  // FILTERING SYSTEM: Category-based post filtering
+  const [selectedCategory, setSelectedCategory] = useState<'fitness' | 'mental' | 'both'>('both');
+  const [postCategory, setPostCategory] = useState<'fitness' | 'mental' | 'both'>('both');
 
   // Load community posts on mount
   useEffect(() => {
@@ -178,6 +182,31 @@ export default function CommunityFeed({ userStats }: CommunityFeedProps) {
     return 'Just now';
   };
 
+  // CATEGORY FILTERING LOGIC
+  const getPostCategory = (postType: PostType): 'fitness' | 'mental' | 'both' => {
+    switch (postType) {
+      case 'tip':
+      case 'modification': 
+        return 'fitness';
+      case 'motivation':
+      case 'support':
+        return 'mental';
+      case 'progress':
+        return 'both';
+      default: 
+        return 'both';
+    }
+  };
+
+  const getFilteredPosts = () => {
+    if (selectedCategory === 'both') return posts;
+    
+    return posts.filter(post => {
+      const postCat = getPostCategory(post.postType);
+      return postCat === selectedCategory || postCat === 'both';
+    });
+  };
+
   const postTypeOptions: { type: PostType; label: string; description: string }[] = [
     { type: 'motivation', label: 'Motivation', description: 'Encourage others' },
     { type: 'progress', label: 'Progress', description: 'Share your wins' },
@@ -201,6 +230,57 @@ export default function CommunityFeed({ userStats }: CommunityFeedProps) {
             {showComposer ? 'Cancel' : 'Share Support'}
           </Text>
         </TouchableOpacity>
+      </View>
+
+      {/* FILTERING SYSTEM */}
+      <View style={styles.filterContainer}>
+        <Text style={styles.filterTitle}>Filter Posts</Text>
+        <View style={styles.filterRow}>
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              selectedCategory === 'fitness' && styles.filterButtonSelected
+            ]}
+            onPress={() => setSelectedCategory('fitness')}
+          >
+            <Text style={[
+              styles.filterButtonText,
+              selectedCategory === 'fitness' && styles.filterButtonTextSelected
+            ]}>
+              💪 Fitness
+            </Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              selectedCategory === 'mental' && styles.filterButtonSelected
+            ]}
+            onPress={() => setSelectedCategory('mental')}
+          >
+            <Text style={[
+              styles.filterButtonText,
+              selectedCategory === 'mental' && styles.filterButtonTextSelected
+            ]}>
+              🧠 Mental
+            </Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              selectedCategory === 'both' && styles.filterButtonSelected
+            ]}
+            onPress={() => setSelectedCategory('both')}
+          >
+            <Text style={[
+              styles.filterButtonText,
+              selectedCategory === 'both' && styles.filterButtonTextSelected
+            ]}>
+              🌟 Both
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Post Composer */}
@@ -229,6 +309,57 @@ export default function CommunityFeed({ userStats }: CommunityFeedProps) {
               </TouchableOpacity>
             ))}
           </ScrollView>
+
+          {/* Category Selection for New Posts */}
+          <View style={styles.categorySelector}>
+            <Text style={styles.categorySelectorTitle}>Post Category:</Text>
+            <View style={styles.categoryRow}>
+              <TouchableOpacity
+                style={[
+                  styles.categoryOption,
+                  postCategory === 'fitness' && styles.categoryOptionSelected
+                ]}
+                onPress={() => setPostCategory('fitness')}
+              >
+                <Text style={[
+                  styles.categoryOptionText,
+                  postCategory === 'fitness' && styles.categoryOptionTextSelected
+                ]}>
+                  💪 Fitness
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[
+                  styles.categoryOption,
+                  postCategory === 'mental' && styles.categoryOptionSelected
+                ]}
+                onPress={() => setPostCategory('mental')}
+              >
+                <Text style={[
+                  styles.categoryOptionText,
+                  postCategory === 'mental' && styles.categoryOptionTextSelected
+                ]}>
+                  🧠 Mental
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[
+                  styles.categoryOption,
+                  postCategory === 'both' && styles.categoryOptionSelected
+                ]}
+                onPress={() => setPostCategory('both')}
+              >
+                <Text style={[
+                  styles.categoryOptionText,
+                  postCategory === 'both' && styles.categoryOptionTextSelected
+                ]}>
+                  🌟 Both
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
 
           {/* Text Input */}
           <TextInput
@@ -266,15 +397,21 @@ export default function CommunityFeed({ userStats }: CommunityFeedProps) {
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
       >
-        {posts.length === 0 ? (
+        {getFilteredPosts().length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateTitle}>Welcome to THRIVE Community</Text>
+            <Text style={styles.emptyStateTitle}>
+              {selectedCategory === 'both' 
+                ? 'Welcome to THRIVE Community' 
+                : `No ${selectedCategory} posts yet`}
+            </Text>
             <Text style={styles.emptyStateText}>
-              Be the first to share support, tips, or motivation with the community.
+              {selectedCategory === 'both'
+                ? 'Be the first to share support, tips, or motivation with the community.'
+                : `Be the first to share ${selectedCategory}-related content with the community.`}
             </Text>
           </View>
         ) : (
-          posts.map((post) => (
+          getFilteredPosts().map((post) => (
             <View key={post.id} style={styles.postCard}>
               {/* Post Header */}
               <View style={styles.postHeader}>
@@ -283,6 +420,12 @@ export default function CommunityFeed({ userStats }: CommunityFeedProps) {
                   <View style={[styles.postTypeBadge, { backgroundColor: getPostTypeColor(post.postType) }]}>
                     <Text style={styles.postTypeBadgeText}>
                       {getPostTypeLabel(post.postType)}
+                    </Text>
+                  </View>
+                  <View style={styles.categoryBadge}>
+                    <Text style={styles.categoryBadgeText}>
+                      {getPostCategory(post.postType) === 'fitness' ? '💪' : 
+                       getPostCategory(post.postType) === 'mental' ? '🧠' : '🌟'}
                     </Text>
                   </View>
                 </View>
@@ -350,11 +493,16 @@ const createStyles = (theme: any) => StyleSheet.create({
     marginBottom: 16,
   },
   composeButton: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: '#16A34A',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
     alignItems: 'center',
+    shadowColor: '#16A34A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   composeButtonText: {
     color: '#FFFFFF',
@@ -426,7 +574,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     color: theme.colors.textMuted,
   },
   postButton: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: '#16A34A',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 6,
@@ -551,5 +699,92 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontSize: 14,
     color: theme.colors.primary,
     fontWeight: '600',
+  },
+
+  // FILTERING SYSTEM STYLES
+  filterContainer: {
+    padding: 16,
+    backgroundColor: theme.colors.card,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  filterTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginBottom: 12,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  filterButton: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#16A34A',
+    backgroundColor: theme.colors.surface,
+    alignItems: 'center',
+  },
+  filterButtonSelected: {
+    backgroundColor: '#16A34A',
+  },
+  filterButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#16A34A',
+  },
+  filterButtonTextSelected: {
+    color: '#FFFFFF',
+  },
+
+  // CATEGORY SELECTION STYLES
+  categorySelector: {
+    marginBottom: 16,
+  },
+  categorySelectorTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginBottom: 8,
+  },
+  categoryRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  categoryOption: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#16A34A',
+    backgroundColor: theme.colors.surface,
+    alignItems: 'center',
+  },
+  categoryOptionSelected: {
+    backgroundColor: '#16A34A',
+  },
+  categoryOptionText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#16A34A',
+  },
+  categoryOptionTextSelected: {
+    color: '#FFFFFF',
+  },
+
+  // CATEGORY BADGE STYLES
+  categoryBadge: {
+    marginLeft: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    backgroundColor: '#F0FDF4',
+  },
+  categoryBadgeText: {
+    fontSize: 12,
   },
 });

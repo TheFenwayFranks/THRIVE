@@ -1,0 +1,1441 @@
+/*
+ * 🌱 THRIVE COMPLETE VISUAL BRANDING SYSTEM
+ * Revolutionary mental health-first design system
+ * Philosophy: "Growth and healing through movement"
+ * 
+ * Created for THRIVE Mental Health Fitness App
+ * Focus: Professional, healing-focused, accessible design
+ */
+
+/* ===================================
+   1. THRIVE COLOR SYSTEM (FOUNDATION)
+   =================================== */
+
+:root {
+  /* THRIVE Green System - Core Brand Colors */
+  --thrive-deep-forest: #006241;      /* Trust, stability, headers */
+  --thrive-primary: #4CAF50;          /* Main brand, buttons, progress */
+  --thrive-fresh: #81C784;            /* Light interactions, success states */
+  --thrive-gentle: #A5D6A7;           /* Subtle backgrounds, disabled states */
+  
+  /* Gradients - Healing Energy */
+  --thrive-gradient-primary: linear-gradient(135deg, #4CAF50, #66BB6A);
+  --thrive-gradient-subtle: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+  --thrive-gradient-background: linear-gradient(180deg, #fafafa 0%, #f0f9f0 100%);
+  --thrive-gradient-card: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+  
+  /* Supporting Colors - Calming Neutrals */
+  --thrive-white: #FAFAFA;             /* Clean backgrounds */
+  --thrive-charcoal: #2E2E2E;         /* Primary text */
+  --thrive-gray: #666666;             /* Secondary text */
+  --thrive-light-gray: #E0E0E0;       /* Borders, dividers */
+  --thrive-soft-gray: #F5F5F5;        /* Subtle backgrounds */
+  
+  /* Semantic Colors - Emotional Intelligence */
+  --thrive-success: #66BB6A;          /* Achievements, completed */
+  --thrive-energy: #8BC34A;           /* High-intensity workouts */
+  --thrive-calm: #81C784;             /* Meditation, rest modes */
+  --thrive-warning: #FFF8E1;          /* Gentle warnings, not harsh */
+  --thrive-error: #FFCDD2;            /* Soft error states */
+  --thrive-info: #E3F2FD;             /* Information backgrounds */
+  
+  /* Accessibility Colors - Inclusive Design */
+  --thrive-focus: #4CAF50;            /* Focus indicators */
+  --thrive-contrast-text: #000000;    /* High contrast mode */
+  --thrive-contrast-bg: #FFFFFF;      /* High contrast backgrounds */
+  --thrive-selection: rgba(76, 175, 80, 0.2); /* Text selection */
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --thrive-white: #1E1E1E;
+    --thrive-charcoal: #E0E0E0;
+    --thrive-gray: #CCCCCC;
+    --thrive-light-gray: #333333;
+    --thrive-soft-gray: #2A2A2A;
+    --thrive-gradient-background: linear-gradient(180deg, #1e1e1e 0%, #2a2a2a 100%);
+    --thrive-gradient-subtle: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+  }
+}
+
+/* Color Usage Classes */
+.thrive-bg-primary { background: var(--thrive-primary); }
+.thrive-bg-gradient { background: var(--thrive-gradient-primary); }
+.thrive-bg-subtle { background: var(--thrive-gradient-subtle); }
+.thrive-bg-main { background: var(--thrive-gradient-background); }
+.thrive-text-primary { color: var(--thrive-charcoal); }
+.thrive-text-secondary { color: var(--thrive-gray); }
+.thrive-text-success { color: var(--thrive-success); }
+.thrive-border-primary { border-color: var(--thrive-primary); }
+
+/* ===================================
+   2. TYPOGRAPHY SYSTEM
+   =================================== */
+
+:root {
+  /* Font Families - Premium Typography */
+  --thrive-font-primary: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  --thrive-font-secondary: 'Inter', system-ui, sans-serif;
+  --thrive-font-mono: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+  
+  /* Font Sizes - Harmonious Scale */
+  --thrive-text-hero: clamp(28px, 4vw, 32px);      /* Main headers */
+  --thrive-text-large: clamp(20px, 3vw, 24px);     /* Section headers */
+  --thrive-text-medium: clamp(18px, 2.5vw, 20px);  /* Sub-headers */
+  --thrive-text-body: 16px;                        /* Body text */
+  --thrive-text-small: 14px;                       /* UI labels */
+  --thrive-text-tiny: 12px;                        /* Captions */
+  
+  /* Font Weights - Expressive Range */
+  --thrive-weight-light: 300;
+  --thrive-weight-regular: 400;
+  --thrive-weight-medium: 500;
+  --thrive-weight-semibold: 600;
+  --thrive-weight-bold: 700;
+  
+  /* Line Heights - Readable Spacing */
+  --thrive-line-tight: 1.2;
+  --thrive-line-normal: 1.4;
+  --thrive-line-loose: 1.6;
+  --thrive-line-relaxed: 1.8;
+}
+
+/* Typography Classes */
+.thrive-hero {
+  font-family: var(--thrive-font-primary);
+  font-size: var(--thrive-text-hero);
+  font-weight: var(--thrive-weight-bold);
+  line-height: var(--thrive-line-tight);
+  color: var(--thrive-charcoal);
+  letter-spacing: -0.5px;
+  margin-bottom: 16px;
+}
+
+.thrive-header {
+  font-family: var(--thrive-font-primary);
+  font-size: var(--thrive-text-large);
+  font-weight: var(--thrive-weight-semibold);
+  line-height: var(--thrive-line-normal);
+  color: var(--thrive-charcoal);
+  margin-bottom: 12px;
+}
+
+.thrive-subheader {
+  font-family: var(--thrive-font-primary);
+  font-size: var(--thrive-text-medium);
+  font-weight: var(--thrive-weight-medium);
+  line-height: var(--thrive-line-normal);
+  color: var(--thrive-charcoal);
+  margin-bottom: 8px;
+}
+
+.thrive-body {
+  font-family: var(--thrive-font-secondary);
+  font-size: var(--thrive-text-body);
+  font-weight: var(--thrive-weight-regular);
+  line-height: var(--thrive-line-loose);
+  color: var(--thrive-charcoal);
+  margin-bottom: 16px;
+}
+
+.thrive-body-large {
+  font-size: 18px;
+  font-weight: var(--thrive-weight-medium);
+}
+
+.thrive-caption {
+  font-family: var(--thrive-font-secondary);
+  font-size: var(--thrive-text-small);
+  font-weight: var(--thrive-weight-regular);
+  line-height: var(--thrive-line-normal);
+  color: var(--thrive-gray);
+}
+
+.thrive-label {
+  font-family: var(--thrive-font-secondary);
+  font-size: var(--thrive-text-small);
+  font-weight: var(--thrive-weight-medium);
+  color: var(--thrive-charcoal);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ===================================
+   3. BUTTON SYSTEM WITH MICRO-INTERACTIONS
+   =================================== */
+
+/* Primary Button - Main Actions */
+.thrive-button-primary {
+  background: var(--thrive-gradient-primary);
+  border: none;
+  border-radius: 12px;
+  padding: 16px 24px;
+  font-family: var(--thrive-font-primary);
+  font-size: var(--thrive-text-body);
+  font-weight: var(--thrive-weight-medium);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  min-height: 48px;
+  min-width: 120px;
+}
+
+.thrive-button-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.thrive-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+  background: linear-gradient(135deg, #5CBF60, #7BC87F);
+}
+
+.thrive-button-primary:hover::before {
+  left: 100%;
+}
+
+.thrive-button-primary:active {
+  transform: translateY(0px) scale(0.98);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+}
+
+.thrive-button-primary:focus {
+  outline: 3px solid var(--thrive-focus);
+  outline-offset: 2px;
+}
+
+/* Secondary Button - Secondary Actions */
+.thrive-button-secondary {
+  background: transparent;
+  border: 2px solid var(--thrive-primary);
+  border-radius: 12px;
+  padding: 14px 22px;
+  font-family: var(--thrive-font-primary);
+  font-size: var(--thrive-text-body);
+  font-weight: var(--thrive-weight-medium);
+  color: var(--thrive-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  min-height: 48px;
+  min-width: 120px;
+}
+
+.thrive-button-secondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: var(--thrive-primary);
+  transition: width 0.3s ease;
+  z-index: -1;
+}
+
+.thrive-button-secondary:hover {
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+.thrive-button-secondary:hover::before {
+  width: 100%;
+}
+
+/* Gentle Button - Anxiety-Friendly */
+.thrive-button-gentle {
+  background: var(--thrive-gentle);
+  border: none;
+  border-radius: 20px;
+  padding: 12px 20px;
+  font-family: var(--thrive-font-primary);
+  font-size: var(--thrive-text-small);
+  font-weight: var(--thrive-weight-medium);
+  color: var(--thrive-deep-forest);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  min-height: 40px;
+}
+
+.thrive-button-gentle:hover {
+  background: var(--thrive-fresh);
+  transform: scale(1.02);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
+}
+
+/* Icon Button */
+.thrive-button-icon {
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--thrive-gray);
+}
+
+.thrive-button-icon:hover {
+  background: rgba(76, 175, 80, 0.1);
+  color: var(--thrive-primary);
+  transform: scale(1.1);
+}
+
+/* Floating Action Button */
+.thrive-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--thrive-gradient-primary);
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+}
+
+.thrive-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+/* Button States */
+.thrive-button:disabled,
+.thrive-button-primary:disabled,
+.thrive-button-secondary:disabled,
+.thrive-button-gentle:disabled {
+  background: var(--thrive-light-gray) !important;
+  color: var(--thrive-gray) !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: var(--thrive-light-gray) !important;
+}
+
+/* Button Loading State */
+.thrive-button-loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.thrive-button-loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: thriveSpinner 1s linear infinite;
+}
+
+@keyframes thriveSpinner {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===================================
+   4. PROGRESS ANIMATIONS - PLANT GROWTH
+   =================================== */
+
+/* Linear Progress Bar */
+.thrive-progress-container {
+  width: 100%;
+  height: 12px;
+  background: rgba(76, 175, 80, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  margin: 8px 0;
+}
+
+.thrive-progress-bar {
+  height: 100%;
+  background: var(--thrive-gradient-primary);
+  border-radius: 6px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  min-width: 4px;
+}
+
+.thrive-progress-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: progressShimmer 2s infinite;
+}
+
+.thrive-progress-bar::after {
+  content: '🌱';
+  position: absolute;
+  right: -12px;
+  top: -8px;
+  font-size: 16px;
+  animation: plantGrow 0.5s ease-out;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+@keyframes progressShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes plantGrow {
+  0% { 
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Circular Progress */
+.thrive-circular-progress {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: conic-gradient(var(--thrive-primary) var(--progress-angle, 0deg), var(--thrive-gentle) 0deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.8s ease;
+}
+
+.thrive-circular-progress::before {
+  content: '';
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+}
+
+.thrive-circular-progress-text {
+  font-size: var(--thrive-text-small);
+  font-weight: var(--thrive-weight-semibold);
+  color: var(--thrive-charcoal);
+  z-index: 1;
+  position: relative;
+}
+
+/* Step Progress */
+.thrive-step-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 24px 0;
+}
+
+.thrive-step {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--thrive-light-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--thrive-gray);
+  font-weight: var(--thrive-weight-medium);
+  font-size: var(--thrive-text-small);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.thrive-step.active {
+  background: var(--thrive-gradient-primary);
+  color: white;
+  transform: scale(1.1);
+}
+
+.thrive-step.completed {
+  background: var(--thrive-success);
+  color: white;
+}
+
+.thrive-step.completed::after {
+  content: '✓';
+}
+
+.thrive-step-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--thrive-light-gray);
+  margin: 0 8px;
+  position: relative;
+}
+
+.thrive-step-connector.completed {
+  background: var(--thrive-success);
+}
+
+/* ===================================
+   5. CARD SYSTEM WITH NEW SHADOWS
+   =================================== */
+
+.thrive-card {
+  background: var(--thrive-gradient-card);
+  border: 1px solid rgba(76, 175, 80, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin: 12px 0;
+  box-shadow: 0 2px 12px rgba(76, 175, 80, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.thrive-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--thrive-gradient-primary);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.thrive-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.15);
+  border-color: rgba(76, 175, 80, 0.2);
+}
+
+.thrive-card:hover::before {
+  opacity: 1;
+}
+
+/* Workout Card Variant */
+.thrive-card-workout {
+  background: var(--thrive-gradient-subtle);
+  border-left: 4px solid var(--thrive-primary);
+}
+
+.thrive-card-workout:hover {
+  background: linear-gradient(135deg, #f0f9f0 0%, #e8f5e8 100%);
+}
+
+.thrive-card-workout::after {
+  content: '💪';
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 24px;
+  opacity: 0.7;
+}
+
+/* Achievement Card */
+.thrive-card-achievement {
+  background: linear-gradient(135deg, #fff8e1 0%, #f0f9f0 100%);
+  border: 2px solid var(--thrive-success);
+  position: relative;
+}
+
+.thrive-card-achievement::after {
+  content: '✨';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 20px;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+  50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+}
+
+/* Community Card */
+.thrive-card-community {
+  background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.thrive-card-community::after {
+  content: '👥';
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 20px;
+  opacity: 0.7;
+}
+
+/* Stats Card */
+.thrive-card-stats {
+  background: var(--thrive-gradient-card);
+  text-align: center;
+  padding: 24px;
+}
+
+.thrive-card-stats .stat-number {
+  font-size: var(--thrive-text-large);
+  font-weight: var(--thrive-weight-bold);
+  color: var(--thrive-primary);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.thrive-card-stats .stat-label {
+  font-size: var(--thrive-text-small);
+  color: var(--thrive-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Compact Card */
+.thrive-card-compact {
+  padding: 16px;
+  margin: 8px 0;
+  border-radius: 12px;
+}
+
+/* ===================================
+   6. LOADING STATES & ANIMATIONS
+   =================================== */
+
+.thrive-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.thrive-loading-plant {
+  width: 60px;
+  height: 60px;
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.thrive-loading-stem {
+  width: 4px;
+  height: 40px;
+  background: var(--thrive-primary);
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  animation: stemGrow 1.5s ease-in-out infinite;
+}
+
+.thrive-loading-leaf {
+  width: 20px;
+  height: 15px;
+  background: var(--thrive-fresh);
+  border-radius: 50% 10px;
+  position: absolute;
+  animation: leafSway 2s ease-in-out infinite;
+}
+
+.thrive-loading-leaf:nth-child(2) {
+  top: 10px;
+  left: 25px;
+  animation-delay: -0.5s;
+}
+
+.thrive-loading-leaf:nth-child(3) {
+  top: 20px;
+  right: 25px;
+  animation-delay: -1s;
+}
+
+@keyframes stemGrow {
+  0%, 100% { transform: translateX(-50%) scaleY(0.8); }
+  50% { transform: translateX(-50%) scaleY(1.2); }
+}
+
+@keyframes leafSway {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+.thrive-loading-text {
+  font-family: var(--thrive-font-primary);
+  font-size: var(--thrive-text-small);
+  color: var(--thrive-gray);
+  animation: fadeInOut 2s ease-in-out infinite;
+  text-align: center;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* Skeleton Loader */
+.thrive-skeleton-card {
+  background: var(--thrive-gradient-subtle);
+  border-radius: 16px;
+  padding: 20px;
+  margin: 12px 0;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.thrive-skeleton-line {
+  height: 16px;
+  background: rgba(76, 175, 80, 0.1);
+  border-radius: 8px;
+  margin: 8px 0;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  background-image: linear-gradient(90deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.2) 50%, rgba(76, 175, 80, 0.1) 100%);
+  background-size: 200px 100%;
+  background-repeat: no-repeat;
+}
+
+.thrive-skeleton-line:nth-child(1) { width: 80%; }
+.thrive-skeleton-line:nth-child(2) { width: 60%; }
+.thrive-skeleton-line:nth-child(3) { width: 90%; }
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+/* Spinner */
+.thrive-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(76, 175, 80, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--thrive-primary);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===================================
+   7. ACHIEVEMENT CELEBRATION SYSTEM
+   =================================== */
+
+.thrive-celebration-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.thrive-confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--thrive-success);
+  animation: confettiFall 3s linear forwards;
+}
+
+.thrive-confetti:nth-child(odd) {
+  background: var(--thrive-primary);
+  border-radius: 50%;
+}
+
+.thrive-confetti:nth-child(even) {
+  background: var(--thrive-fresh);
+  border-radius: 2px;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-100px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.thrive-achievement-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 40px rgba(76, 175, 80, 0.3);
+  text-align: center;
+  z-index: 1001;
+  animation: achievementPopup 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(76, 175, 80, 0.2);
+}
+
+@keyframes achievementPopup {
+  0% {
+    transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1) rotate(-90deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.thrive-achievement-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  animation: achievementGlow 2s ease-in-out infinite;
+}
+
+@keyframes achievementGlow {
+  0%, 100% { 
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(76, 175, 80, 0.5));
+  }
+  50% { 
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 20px rgba(76, 175, 80, 0.8));
+  }
+}
+
+.thrive-achievement-title {
+  font-family: var(--thrive-font-primary);
+  font-size: var(--thrive-text-large);
+  font-weight: var(--thrive-weight-bold);
+  color: var(--thrive-charcoal);
+  margin-bottom: 8px;
+}
+
+.thrive-achievement-description {
+  font-family: var(--thrive-font-secondary);
+  font-size: var(--thrive-text-body);
+  color: var(--thrive-gray);
+  margin-bottom: 20px;
+  line-height: var(--thrive-line-loose);
+}
+
+/* Success Toast */
+.thrive-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--thrive-gradient-primary);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  animation: toastSlideIn 0.3s ease-out;
+  z-index: 1000;
+  max-width: 300px;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ===================================
+   8. ICON SYSTEM AND CONSISTENCY
+   =================================== */
+
+.thrive-icon {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.5px;
+  stroke: currentColor;
+  fill: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.thrive-icon-small {
+  width: 16px;
+  height: 16px;
+}
+
+.thrive-icon-large {
+  width: 32px;
+  height: 32px;
+}
+
+.thrive-icon-interactive {
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.thrive-icon-interactive:hover {
+  background: rgba(76, 175, 80, 0.1);
+  transform: scale(1.1);
+}
+
+/* Icon Colors */
+.thrive-icon-primary { color: var(--thrive-primary); }
+.thrive-icon-success { color: var(--thrive-success); }
+.thrive-icon-warning { color: var(--thrive-energy); }
+.thrive-icon-calm { color: var(--thrive-calm); }
+.thrive-icon-gray { color: var(--thrive-gray); }
+
+/* Icon Containers */
+.thrive-icon-container {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--thrive-gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+  transition: all 0.3s ease;
+}
+
+.thrive-icon-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+}
+
+.thrive-icon-container-large {
+  width: 64px;
+  height: 64px;
+  font-size: 28px;
+}
+
+.thrive-icon-container-small {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+}
+
+/* ===================================
+   9. FORM ELEMENTS AND INPUTS
+   =================================== */
+
+.thrive-input {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid var(--thrive-light-gray);
+  border-radius: 12px;
+  font-family: var(--thrive-font-secondary);
+  font-size: var(--thrive-text-body);
+  color: var(--thrive-charcoal);
+  background: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.thrive-input:focus {
+  border-color: var(--thrive-primary);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  background: white;
+}
+
+.thrive-input::placeholder {
+  color: var(--thrive-gray);
+  font-style: italic;
+}
+
+.thrive-input-error {
+  border-color: #f44336;
+  background: rgba(244, 67, 54, 0.05);
+}
+
+.thrive-input-success {
+  border-color: var(--thrive-success);
+  background: rgba(76, 175, 80, 0.05);
+}
+
+/* Search Input */
+.thrive-search-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.thrive-search-input {
+  padding-left: 48px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(76, 175, 80, 0.2);
+  border-radius: 25px;
+}
+
+.thrive-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--thrive-gray);
+}
+
+/* Textarea */
+.thrive-textarea {
+  min-height: 100px;
+  resize: vertical;
+  font-family: var(--thrive-font-secondary);
+}
+
+/* Select */
+.thrive-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  padding-right: 48px;
+}
+
+/* Toggle Switches */
+.thrive-toggle {
+  width: 52px;
+  height: 32px;
+  background: var(--thrive-light-gray);
+  border-radius: 16px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  outline: none;
+}
+
+.thrive-toggle.active {
+  background: var(--thrive-gradient-primary);
+}
+
+.thrive-toggle-slider {
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.thrive-toggle.active .thrive-toggle-slider {
+  transform: translateX(20px);
+}
+
+.thrive-toggle:focus {
+  outline: 3px solid var(--thrive-focus);
+  outline-offset: 2px;
+}
+
+/* Checkbox */
+.thrive-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--thrive-light-gray);
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.thrive-checkbox:checked {
+  background: var(--thrive-primary);
+  border-color: var(--thrive-primary);
+}
+
+.thrive-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -2px;
+  left: 2px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Radio Button */
+.thrive-radio {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--thrive-light-gray);
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.thrive-radio:checked {
+  border-color: var(--thrive-primary);
+}
+
+.thrive-radio:checked::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--thrive-primary);
+  border-radius: 50%;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+}
+
+/* Form Group */
+.thrive-form-group {
+  margin-bottom: 24px;
+}
+
+.thrive-form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: var(--thrive-weight-medium);
+  color: var(--thrive-charcoal);
+}
+
+.thrive-form-help {
+  margin-top: 4px;
+  font-size: var(--thrive-text-small);
+  color: var(--thrive-gray);
+}
+
+.thrive-form-error {
+  margin-top: 4px;
+  font-size: var(--thrive-text-small);
+  color: #f44336;
+}
+
+/* ===================================
+   10. RESPONSIVE & ACCESSIBILITY
+   =================================== */
+
+/* Breakpoints */
+:root {
+  --thrive-mobile: 768px;
+  --thrive-tablet: 1024px;
+  --thrive-desktop: 1200px;
+}
+
+/* Base responsive adjustments */
+@media (max-width: 768px) {
+  :root {
+    --thrive-text-hero: 28px;
+    --thrive-text-large: 20px;
+    --thrive-text-medium: 18px;
+  }
+  
+  .thrive-card {
+    padding: 16px;
+    margin: 8px 0;
+  }
+  
+  .thrive-button-primary,
+  .thrive-button-secondary {
+    padding: 14px 20px;
+    width: 100%;
+    margin: 8px 0;
+  }
+  
+  .thrive-fab {
+    bottom: 16px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* Accessibility Features */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  :root {
+    --thrive-primary: #000000;
+    --thrive-charcoal: #000000;
+    --thrive-gray: #333333;
+    --thrive-light-gray: #666666;
+  }
+}
+
+/* Focus management */
+.thrive-focus-visible,
+*:focus-visible {
+  outline: 3px solid var(--thrive-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Large text support */
+.thrive-large-text {
+  font-size: 1.25em;
+}
+
+.thrive-large-text .thrive-body {
+  font-size: 20px;
+  line-height: 1.6;
+}
+
+.thrive-large-text .thrive-caption {
+  font-size: 18px;
+}
+
+/* Touch targets */
+@media (pointer: coarse) {
+  .thrive-button-primary,
+  .thrive-button-secondary,
+  .thrive-button-gentle,
+  .thrive-button-icon,
+  .thrive-toggle {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .thrive-card {
+    box-shadow: none;
+    border: 1px solid var(--thrive-light-gray);
+  }
+  
+  .thrive-button-primary,
+  .thrive-button-secondary {
+    background: transparent !important;
+    color: var(--thrive-charcoal) !important;
+    border: 1px solid var(--thrive-charcoal) !important;
+  }
+}
+
+/* ===================================
+   11. UTILITY CLASSES
+   =================================== */
+
+/* Spacing */
+.thrive-mt-xs { margin-top: 8px; }
+.thrive-mt-sm { margin-top: 16px; }
+.thrive-mt-md { margin-top: 24px; }
+.thrive-mt-lg { margin-top: 32px; }
+
+.thrive-mb-xs { margin-bottom: 8px; }
+.thrive-mb-sm { margin-bottom: 16px; }
+.thrive-mb-md { margin-bottom: 24px; }
+.thrive-mb-lg { margin-bottom: 32px; }
+
+.thrive-p-xs { padding: 8px; }
+.thrive-p-sm { padding: 16px; }
+.thrive-p-md { padding: 24px; }
+.thrive-p-lg { padding: 32px; }
+
+/* Display */
+.thrive-flex { display: flex; }
+.thrive-flex-col { flex-direction: column; }
+.thrive-flex-row { flex-direction: row; }
+.thrive-items-center { align-items: center; }
+.thrive-justify-center { justify-content: center; }
+.thrive-justify-between { justify-content: space-between; }
+
+/* Text alignment */
+.thrive-text-left { text-align: left; }
+.thrive-text-center { text-align: center; }
+.thrive-text-right { text-align: right; }
+
+/* Border radius */
+.thrive-rounded-sm { border-radius: 8px; }
+.thrive-rounded { border-radius: 12px; }
+.thrive-rounded-lg { border-radius: 16px; }
+.thrive-rounded-xl { border-radius: 20px; }
+.thrive-rounded-full { border-radius: 50%; }
+
+/* Shadows */
+.thrive-shadow-sm { box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1); }
+.thrive-shadow { box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15); }
+.thrive-shadow-lg { box-shadow: 0 8px 25px rgba(76, 175, 80, 0.2); }
+
+/* Animations */
+.thrive-animate-pulse { animation: thriveAnimatePulse 2s ease-in-out infinite; }
+.thrive-animate-bounce { animation: thriveAnimateBounce 1s ease-in-out infinite; }
+.thrive-animate-grow { animation: thriveAnimateGrow 0.3s ease-out; }
+
+@keyframes thriveAnimatePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes thriveAnimateBounce {
+  0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+  40%, 43% { transform: translateY(-8px); }
+  70% { transform: translateY(-4px); }
+  90% { transform: translateY(-2px); }
+}
+
+@keyframes thriveAnimateGrow {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ===================================
+   12. COMPONENT-SPECIFIC STYLES
+   =================================== */
+
+/* Navigation */
+.thrive-nav {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(76, 175, 80, 0.1);
+}
+
+/* Header */
+.thrive-header {
+  background: var(--thrive-gradient-background);
+  padding: 24px 0;
+  text-align: center;
+}
+
+/* Footer */
+.thrive-footer {
+  background: var(--thrive-charcoal);
+  color: var(--thrive-white);
+  padding: 40px 0 20px;
+  text-align: center;
+}
+
+/* Modal */
+.thrive-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.thrive-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Tabs */
+.thrive-tabs {
+  border-bottom: 1px solid var(--thrive-light-gray);
+  margin-bottom: 24px;
+}
+
+.thrive-tab {
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: var(--thrive-gray);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.thrive-tab:hover {
+  color: var(--thrive-primary);
+}
+
+.thrive-tab.active {
+  color: var(--thrive-primary);
+  border-bottom-color: var(--thrive-primary);
+}
+
+/* ===================================
+   END OF THRIVE BRANDING SYSTEM
+   =================================== */
+
+/* Global text selection */
+::selection {
+  background: var(--thrive-selection);
+  color: var(--thrive-charcoal);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--thrive-soft-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--thrive-light-gray);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--thrive-gray);
+}

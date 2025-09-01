@@ -76,7 +76,7 @@ const lightTheme: Theme = {
     
     // Difficulty colors
     gentle: '#10B981',
-    steady: '#3B82F6',
+    steady: '#059669', // Changed from blue to darker green
     beast: '#EF4444',
     
     // Special colors
@@ -117,7 +117,7 @@ const darkTheme: Theme = {
     
     // Difficulty colors (brightened for dark theme)
     gentle: '#22C55E',
-    steady: '#60A5FA',
+    steady: '#10B981', // Changed from blue to green for consistency
     beast: '#F87171',
     
     // Special colors
