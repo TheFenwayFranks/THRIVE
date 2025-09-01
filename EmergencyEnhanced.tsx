@@ -20,9 +20,8 @@ import CommunityFeed from './src/components/CommunityFeed';
 import StatsTab from './src/components/StatsTab';
 import SwipeNavigation, { PageName } from './src/components/PureSwipeNavigation';
 import HamburgerMenu from './src/components/HamburgerMenu';
-import OnboardingFlow from './src/components/OnboardingFlow';
-import MinimalOnboarding from './minimal-onboarding-test';
 import WebOnboarding from './web-onboarding';
+import { OnboardingManager, OnboardingState } from './src/services/OnboardingManager';
 
 // ENHANCED THRIVE DASHBOARD - Full ADHD-Optimized Interface
 // Includes: Quick Access + Dashboard + Smart Shortcuts + Minimal Navigation
@@ -303,10 +302,31 @@ export default function EmergencyEnhanced() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [currentDetailActivity, setCurrentDetailActivity] = useState<any>(null);
 
-  // ONBOARDING FLOW STATE - FORCE SHOW FOR TESTING
-  const [showOnboarding, setShowOnboarding] = useState(true);
-  const [isFirstTimeUser, setIsFirstTimeUser] = useState(true);
+  // MASTER ONBOARDING STATE - SINGLE SOURCE OF TRUTH
+  const [onboardingState, setOnboardingState] = useState<OnboardingState | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
+  
+  // EMERGENCY DEBUG STATE
+  const [onboardingDebug, setOnboardingDebug] = useState<string[]>([]);
+  
+  // EMERGENCY STATE MONITORING
+  useEffect(() => {
+    if (onboardingState) {
+      console.log('🔍 ONBOARDING STATE MONITOR:', {
+        isFirstTime: onboardingState.isFirstTime,
+        showOnboarding: onboardingState.showOnboarding,
+        onboardingType: onboardingState.onboardingType,
+        hasCompletedOnboarding: onboardingState.hasCompletedOnboarding,
+        debugInfo: onboardingState.debugInfo
+      });
+      
+      console.log('📊 APP STATE SUMMARY:', {
+        onboardingVisible: onboardingState.showOnboarding,
+        userProfileExists: !!userProfile,
+        userName: userProfile?.name || 'None'
+      });
+    }
+  }, [onboardingState, userProfile]);
 
   // PROGRESSIVE TASK COMPLETION: Individual activity tracking
   const [completedActivities, setCompletedActivities] = useState<{[key: string]: boolean}>({});
@@ -334,9 +354,9 @@ export default function EmergencyEnhanced() {
   const [showVideoPlayer, setShowVideoPlayer] = useState(false);
   const [selectedVideoWorkout, setSelectedVideoWorkout] = useState<any>(null);
 
-  // Morning flow states
-  const [showMorningFlow, setShowMorningFlow] = useState(false);
-  const [hasSeenMorningFlowToday, setHasSeenMorningFlowToday] = useState(false);
+  // DISABLED: Morning flow states (EMERGENCY DISABLE)
+  // const [showMorningFlow, setShowMorningFlow] = useState(false);
+  // const [hasSeenMorningFlowToday, setHasSeenMorningFlowToday] = useState(false);
   
   // Settings states
   const [showSettings, setShowSettings] = useState(false);
@@ -344,47 +364,77 @@ export default function EmergencyEnhanced() {
   // Community states
   const [showCommunity, setShowCommunity] = useState(false);
 
-  // Load user stats and check morning flow on mount
+  // EMERGENCY ONBOARDING INITIALIZATION
   useEffect(() => {
-    checkFirstTimeUser();
+    initializeOnboardingState();
     loadUserStats();
     loadCompletedWorkouts();
     loadCompletedActivities(); // PROGRESSIVE: Load individual activity completions
-    checkMorningFlowStatus();
+    // DISABLED: checkMorningFlowStatus(); // EMERGENCY DISABLE TO PREVENT CONFLICTS
   }, []);
 
-  // Check if this is a first-time user
-  const checkFirstTimeUser = async () => {
+  // EMERGENCY ONBOARDING STATE MANAGER
+  const initializeOnboardingState = async () => {
+    console.log('🚨 EMERGENCY INIT: Starting clean onboarding state');
+    
     try {
-      const profile = await StorageService.getUserProfile();
-      if (profile) {
-        setUserProfile(profile);
-        setIsFirstTimeUser(false);
-      } else {
-        setIsFirstTimeUser(true);
-        setShowOnboarding(true);
+      // First, debug any conflicts
+      const conflicts = await OnboardingManager.debugConflicts();
+      setOnboardingDebug(conflicts.recommendations);
+      
+      console.log('🔍 CONFLICT CHECK:', conflicts);
+      
+      // Initialize clean state
+      const state = await OnboardingManager.getOnboardingState();
+      setOnboardingState(state);
+      
+      console.log('✅ ONBOARDING STATE INITIALIZED:', state);
+      
+      // Try to load existing user profile
+      try {
+        const profile = await StorageService.getUserProfile();
+        if (profile && state.hasCompletedOnboarding) {
+          console.log('👤 EXISTING USER PROFILE FOUND:', profile.name);
+          setUserProfile(profile);
+          // Update state to reflect existing user
+          await OnboardingManager.updateOnboardingState({
+            isFirstTime: false,
+            showOnboarding: false,
+            hasCompletedOnboarding: true
+          });
+        } else {
+          console.log('🆕 NEW USER OR INCOMPLETE ONBOARDING');
+        }
+      } catch (profileError) {
+        console.log('📝 NO EXISTING PROFILE - SHOWING ONBOARDING');
       }
+      
     } catch (error) {
-      console.log('No user profile found, showing onboarding');
-      setIsFirstTimeUser(true);
-      setShowOnboarding(true);
+      console.error('❌ EMERGENCY INIT ERROR:', error);
+      // Fallback to clean state
+      const fallbackState = await OnboardingManager.initializeCleanState();
+      setOnboardingState(fallbackState);
     }
   };
 
-  // Handle onboarding completion
+  // MASTER ONBOARDING COMPLETION HANDLER
   const handleOnboardingComplete = async (profile: any) => {
+    console.log('🎉 MASTER ONBOARDING: Completing onboarding flow', profile);
+    
     try {
-      await StorageService.saveUserProfile(profile);
+      // Use OnboardingManager to handle completion
+      const newState = await OnboardingManager.completeOnboarding(profile);
+      setOnboardingState(newState);
       setUserProfile(profile);
-      setIsFirstTimeUser(false);
-      setShowOnboarding(false);
+      
+      console.log('✅ ONBOARDING COMPLETED:', newState);
       
       Alert.alert(
         'Welcome to THRIVE! 🎉',
-        `Great to have you here, ${profile.name}! Your personalized wellness journey starts now.`
+        `Great to have you here, ${profile.name || 'THRIVE User'}! Your personalized wellness journey starts now.`
       );
     } catch (error) {
-      console.error('Failed to save onboarding data:', error);
+      console.error('❌ ONBOARDING COMPLETION ERROR:', error);
     }
   };
 
@@ -1076,7 +1126,14 @@ export default function EmergencyEnhanced() {
     setSelectedVideoWorkout(null);
   };
 
+  // EMERGENCY DISABLE: Morning flow function completely disabled to prevent conflicts
   const checkMorningFlowStatus = async () => {
+    console.log('🚨 EMERGENCY DISABLE: Morning flow system disabled to prevent onboarding conflicts');
+    console.log('🔄 Use OnboardingManager for all onboarding state instead');
+    return; // EMERGENCY EARLY RETURN
+    
+    // DISABLED CODE BELOW - kept for reference
+    /*
     try {
       const lastMorningFlowDate = await StorageService.getMorningFlowDate();
       const today = new Date().toDateString();
@@ -1087,6 +1144,8 @@ export default function EmergencyEnhanced() {
         hasSeenToday: lastMorningFlowDate === today
       });
       
+      // DISABLED CODE SECTION
+      /*
       if (lastMorningFlowDate !== today) {
         // User hasn't seen morning flow today
         console.log('🌅 Showing morning flow for new day');
@@ -1104,19 +1163,18 @@ export default function EmergencyEnhanced() {
       // Default to showing morning flow if we can't check
       setShowMorningFlow(true);
     }
+    */
   };
 
+  // EMERGENCY DISABLE: Morning flow completion handlers
   const completeMorningFlow = () => {
-    console.log('🌅 Morning flow completed, proceeding to dashboard');
-    setShowMorningFlow(false);
-    setHasSeenMorningFlowToday(true);
+    console.log('🚨 EMERGENCY DISABLE: Morning flow system disabled');
+    return; // EMERGENCY EARLY RETURN
   };
 
   const startMorningFlow = () => {
-    console.log('🌅 Morning Flow button pressed');
-    console.log('🌅 Current morning flow state:', { showMorningFlow, hasSeenMorningFlowToday });
-    setShowMorningFlow(true);
-    console.log('🌅 Morning flow modal should be showing');
+    console.log('🚨 EMERGENCY DISABLE: Morning flow system disabled');
+    return; // EMERGENCY EARLY RETURN
   };
 
   const handleReset = () => {
@@ -1772,8 +1830,9 @@ export default function EmergencyEnhanced() {
         </TouchableOpacity>
       </View>
 
-      {/* Morning Flow Status */}
-      {hasSeenMorningFlowToday && (
+      {/* DISABLED: Morning Flow Status (EMERGENCY DISABLE) */}
+      {/* Morning flow completely disabled to prevent onboarding conflicts */}
+      {false && (
         <View style={styles.completionCard}>
           <Text style={styles.completionEmoji}>✨</Text>
           <Text style={styles.completionText}>Morning intention set</Text>
@@ -2422,7 +2481,7 @@ export default function EmergencyEnhanced() {
       {/* Clean Header with Hamburger Menu */}
       <View style={styles.cleanHeader}>
         <HamburgerMenu
-          onMorningFlow={startMorningFlow}
+          onMorningFlow={() => console.log('🚨 EMERGENCY DISABLE: Morning flow disabled')} // EMERGENCY DISABLE
           onMoodCheckin={quickMoodCheckin}
           onSettings={() => setShowSettings(true)}
           userStats={userStats}
@@ -2516,12 +2575,12 @@ export default function EmergencyEnhanced() {
         workoutName={selectedVideoWorkout?.name || 'Exercise Demo'}
       />
 
-      {/* Morning Flow Modal */}
-      <MorningFlow
+      {/* DISABLED: Morning Flow Modal (EMERGENCY DISABLE) */}
+      {/* <MorningFlow
         visible={showMorningFlow}
         onComplete={completeMorningFlow}
         userStats={userStats}
-      />
+      /> */}
 
       {/* Settings Modal */}
       <SettingsModal
@@ -2661,18 +2720,30 @@ export default function EmergencyEnhanced() {
         </View>
       </Modal>
 
-      {/* Onboarding Flow Modal - TESTING WEB VERSION */}
+      {/* MASTER ONBOARDING FLOW - SINGLE SOURCE OF TRUTH */}
       <WebOnboarding
-        visible={showOnboarding}
-        onComplete={(profile) => {
-          console.log('🎉 ONBOARDING COMPLETED:', profile);
-          setUserProfile(profile);
-          setShowOnboarding(false);
-          setIsFirstTimeUser(false);
-          // Save to storage if needed
-          // StorageService.saveUserProfile(profile);
-        }}
+        visible={onboardingState?.showOnboarding || false}
+        onComplete={handleOnboardingComplete}
       />
+      
+      {/* EMERGENCY DEBUG INFO */}
+      {onboardingDebug.length > 0 && __DEV__ && (
+        <View style={{
+          position: 'absolute',
+          top: 100,
+          left: 10,
+          right: 10,
+          backgroundColor: 'rgba(255,0,0,0.1)',
+          padding: 10,
+          borderRadius: 5,
+          zIndex: 999
+        }}>
+          <Text style={{ fontSize: 12, color: 'red' }}>🚨 ONBOARDING DEBUG:</Text>
+          {onboardingDebug.map((msg, i) => (
+            <Text key={i} style={{ fontSize: 10, color: 'red' }}>• {msg}</Text>
+          ))}
+        </View>
+      )}
 
     </SafeAreaView>
   );

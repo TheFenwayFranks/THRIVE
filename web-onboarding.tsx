@@ -173,32 +173,38 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
     }}>
       <div style={{
         backgroundColor: '#f0f9f0',
-        padding: 'clamp(20px, 5vw, 40px)', // Responsive padding
-        borderRadius: '20px',
+        padding: 'clamp(12px, 3vw, 20px)', // Compressed padding for mobile
+        borderRadius: '16px',
         maxWidth: '500px',
         width: '100%',
-        maxHeight: '90vh', // Prevent overflow on mobile
+        maxHeight: '95vh', // Maximize available space
         textAlign: 'center',
-        boxShadow: '0 10px 50px rgba(0,0,0,0.5)',
-        margin: 'auto', // Center vertically on mobile
-        overflowY: 'auto', // Allow internal scrolling
+        boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
+        margin: 'auto',
+        overflowY: 'hidden', // Disable scrolling - everything must fit
         boxSizing: 'border-box',
       }}>
         <h1 style={{
           color: '#16A34A',
-          fontSize: '32px',
-          margin: '0 0 10px 0',
+          fontSize: 'clamp(20px, 5vw, 24px)', // Even more compact title
+          margin: '0 0 4px 0', // Minimal margin
+          lineHeight: 1.0
         }}>🌟 Welcome to THRIVE!</h1>
         
         <p style={{
           color: '#666',
-          fontSize: '16px',
-          margin: '0 0 30px 0',
+          fontSize: 'clamp(12px, 2.5vw, 14px)', // Smaller step indicator
+          margin: '0 0 clamp(8px, 1.5vh, 12px) 0', // Compressed margin
         }}>Step {step + 1} of 4</p>
         
         {step === 0 && (
           <div>
-            <p style={{ fontSize: '18px', marginBottom: '30px', color: '#333' }}>
+            <p style={{ 
+              fontSize: 'clamp(15px, 3.5vw, 16px)', 
+              marginBottom: 'clamp(16px, 3vh, 20px)', 
+              color: '#333',
+              lineHeight: 1.3
+            }}>
               Mental Health Fitness App - Your personalized wellness journey starts here!
             </p>
             <button 
@@ -227,16 +233,21 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
         
         {step === 1 && (
           <div>
-            <p style={{ fontSize: '18px', marginBottom: '20px', color: '#333' }}>
-              ✨ NEW: Select 1-3 wellness goals that matter most to you
+            <p style={{ 
+              fontSize: 'clamp(14px, 3vw, 16px)', 
+              marginBottom: 'clamp(8px, 1.5vh, 10px)', 
+              color: '#333',
+              lineHeight: 1.2
+            }}>
+              ✨ Select 1-3 core wellness goals
             </p>
             
             {/* Goal Counter */}
             <div style={{
               backgroundColor: '#F0FDF4',
-              borderRadius: '8px',
-              padding: '12px',
-              marginBottom: '20px',
+              borderRadius: '6px',
+              padding: 'clamp(6px, 1vh, 8px)', // More compressed
+              marginBottom: 'clamp(8px, 1.5vh, 10px)', // Tighter margins
               textAlign: 'center',
               border: '1px solid #16A34A'
             }}>
@@ -245,14 +256,12 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
               </strong>
             </div>
             
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: 'clamp(6px, 1vh, 10px)' }}> {/* Tighter goal container margin */}
               {[
-                { id: 'daily-movement', label: 'Move my body daily', emoji: '🚶‍♀️' },
-                { id: 'stress-relief', label: 'Reduce daily stress', emoji: '🧘‍♀️' },
-                { id: 'energy-boost', label: 'Increase energy levels', emoji: '⚡' },
-                { id: 'better-sleep', label: 'Improve sleep quality', emoji: '😴' },
-                { id: 'mood-stability', label: 'Stabilize my mood', emoji: '💚' },
-                { id: 'build-routine', label: 'Build consistent routines', emoji: '📅' }
+                { id: 'mental-strength', label: 'Build mental strength through movement', emoji: '💪' },
+                { id: 'healthy-habits', label: 'Create consistent healthy habits', emoji: '📅' },
+                { id: 'mood-anxiety', label: 'Improve mood and reduce anxiety', emoji: '💚' },
+                { id: 'energy-motivation', label: 'Increase energy and motivation', emoji: '⚡' }
               ].map((goal) => (
                 <div 
                   key={goal.id}
@@ -266,10 +275,10 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                     e.currentTarget.style.transform = 'scale(1)';
                   }}
                   style={{
-                    padding: 'clamp(12px, 3vw, 16px)', // Responsive padding
-                    minHeight: '60px', // Larger touch target for goals
+                    padding: 'clamp(10px, 2.5vw, 14px)', // More compact padding
+                    minHeight: '52px', // Slightly smaller touch target but still accessible
                     backgroundColor: userProfile.goals.includes(goal.id) ? '#F0FDF4' : 'white',
-                    margin: 'clamp(8px, 2vw, 12px) 0',
+                    margin: 'clamp(4px, 1vh, 6px) 0', // Much tighter margins between goals
                     borderRadius: '12px',
                     border: userProfile.goals.includes(goal.id) ? '2px solid #16A34A' : '2px solid #ddd',
                     cursor: userProfile.goals.length >= 3 && !userProfile.goals.includes(goal.id) ? 'not-allowed' : 'pointer',
@@ -282,7 +291,7 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                     boxSizing: 'border-box',
                   }}
                 >
-                  <span style={{ fontSize: '24px', marginRight: '12px' }}>{goal.emoji}</span>
+                  <span style={{ fontSize: 'clamp(20px, 4vw, 22px)', marginRight: '10px' }}>{goal.emoji}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{
                       width: '20px',
@@ -300,7 +309,7 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                       {userProfile.goals.includes(goal.id) ? '✓' : ''}
                     </div>
                     <span style={{
-                      fontSize: '16px',
+                      fontSize: 'clamp(14px, 3vw, 15px)',
                       color: userProfile.goals.includes(goal.id) ? '#16A34A' : '#333',
                       fontWeight: userProfile.goals.includes(goal.id) ? 'bold' : 'normal'
                     }}>
@@ -385,36 +394,30 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
               Don't worry - you can always change this later in settings
             </p>
             
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: 'clamp(8px, 1.5vh, 12px)' }}>
               {[
                 {
                   id: 'wellness',
                   emoji: '🌱',
-                  title: 'Wellness Journey',
-                  tagline: 'Every step is progress',
-                  description: "I'm focusing on mental health through gentle movement",
-                  intensity: 'Low impact, high support',
-                  examples: 'Walking, stretching, breathing exercises',
+                  title: 'Wellness',
+                  description: "Mental health through gentle movement",
+                  tag: 'Low impact',
                   background: '#F0FDF4'
                 },
                 {
                   id: 'fitness', 
                   emoji: '💪',
-                  title: 'Fitness Journey',
-                  tagline: 'Building strength inside and out',
-                  description: 'I want to build healthy habits and stay consistently active',
-                  intensity: 'Moderate challenge, balanced approach',
-                  examples: 'Regular workouts, jogging, gym sessions',
+                  title: 'Fitness',
+                  description: 'Healthy habits and consistent activity',
+                  tag: 'Balanced',
                   background: '#DCFCE7'
                 },
                 {
                   id: 'performance',
                   emoji: '🏃‍♂️',
-                  title: 'Performance Journey',
-                  tagline: 'Excellence in body and mind',
-                  description: "I'm athletic and want to optimize both physical and mental performance",
-                  intensity: 'High challenge, elite mindset', 
-                  examples: 'Intense training, competitive sports, advanced fitness',
+                  title: 'Performance',
+                  description: "Optimize physical and mental performance",
+                  tag: 'High intensity',
                   background: '#BBF7D0'
                 }
               ].map((pathway) => (
@@ -432,97 +435,92 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                   style={{
                     padding: '0',
                     backgroundColor: 'white',
-                    margin: 'clamp(12px, 3vw, 16px) 0', // Responsive margin
-                    minHeight: '120px', // Minimum touch target height
-                    borderRadius: '16px',
-                    border: userProfile.pathway === pathway.id ? '3px solid #16A34A' : '2px solid #ddd',
+                    margin: 'clamp(4px, 1vh, 8px) 0', // Much tighter margins
+                    minHeight: 'clamp(70px, 12vh, 85px)', // Responsive compact height
+                    borderRadius: '12px',
+                    border: userProfile.pathway === pathway.id ? '2px solid #16A34A' : '2px solid #ddd',
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    boxShadow: userProfile.pathway === pathway.id ? '0 8px 25px rgba(22, 163, 74, 0.2)' : '0 2px 10px rgba(0,0,0,0.1)',
-                    transform: userProfile.pathway === pathway.id ? 'translateY(-2px)' : 'none',
+                    transition: 'all 0.2s ease',
+                    boxShadow: userProfile.pathway === pathway.id ? '0 4px 12px rgba(22, 163, 74, 0.15)' : '0 1px 4px rgba(0,0,0,0.08)',
                     overflow: 'hidden',
                     touchAction: 'manipulation',
-                    WebkitTapHighlightColor: 'rgba(22, 163, 74, 0.1)', // Custom tap highlight
+                    WebkitTapHighlightColor: 'rgba(22, 163, 74, 0.1)',
                     boxSizing: 'border-box',
                   }}
                 >
-                  {/* Header with gradient */}
+                  {/* Compact single-row layout */}
                   <div style={{
-                    padding: '20px',
+                    padding: 'clamp(10px, 2vh, 14px)',
                     backgroundColor: pathway.background,
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
-                    position: 'relative'
+                    gap: 'clamp(8px, 2vw, 12px)',
+                    height: '100%',
+                    minHeight: 'inherit'
                   }}>
-                    <span style={{ fontSize: '32px' }}>{pathway.emoji}</span>
-                    <strong style={{ 
-                      fontSize: '20px', 
-                      color: '#16A34A',
-                      flex: 1,
-                      textAlign: 'center',
-                      marginLeft: '-32px'
+                    <span style={{ 
+                      fontSize: 'clamp(20px, 4vw, 24px)',
+                      flexShrink: 0
                     }}>
-                      {pathway.title}
-                    </strong>
+                      {pathway.emoji}
+                    </span>
+                    
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        marginBottom: '2px'
+                      }}>
+                        <strong style={{ 
+                          fontSize: 'clamp(16px, 3.5vw, 18px)', 
+                          color: '#16A34A',
+                          lineHeight: 1
+                        }}>
+                          {pathway.title}
+                        </strong>
+                        <span style={{
+                          backgroundColor: '#E5F3E5',
+                          borderRadius: '4px',
+                          padding: '2px 6px',
+                          fontSize: 'clamp(10px, 2vw, 11px)',
+                          color: '#16A34A',
+                          fontWeight: '600',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {pathway.tag}
+                        </span>
+                      </div>
+                      <p style={{ 
+                        fontSize: 'clamp(13px, 2.8vw, 14px)', 
+                        margin: 0,
+                        color: '#555',
+                        lineHeight: '1.2',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {pathway.description}
+                      </p>
+                    </div>
+                    
                     {userProfile.pathway === pathway.id && (
                       <div style={{
-                        width: '32px',
-                        height: '32px',
+                        width: 'clamp(20px, 4vw, 24px)',
+                        height: 'clamp(20px, 4vw, 24px)',
                         backgroundColor: '#16A34A',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: 'white',
-                        fontSize: '18px',
-                        fontWeight: 'bold'
+                        fontSize: 'clamp(12px, 2.5vw, 14px)',
+                        fontWeight: 'bold',
+                        flexShrink: 0
                       }}>
                         ✓
                       </div>
                     )}
-                  </div>
-                  
-                  {/* Content */}
-                  <div style={{ padding: '20px' }}>
-                    <p style={{ 
-                      fontSize: '16px', 
-                      margin: '0 0 12px 0',
-                      color: '#333',
-                      lineHeight: '1.4'
-                    }}>
-                      {pathway.description}
-                    </p>
-                    <p style={{ 
-                      fontSize: '14px', 
-                      color: '#16A34A', 
-                      fontStyle: 'italic',
-                      margin: '0 0 12px 0',
-                      textAlign: 'center'
-                    }}>
-                      "{pathway.tagline}"
-                    </p>
-                    <div style={{
-                      backgroundColor: '#E5F3E5',
-                      borderRadius: '6px',
-                      padding: '6px 12px',
-                      margin: '0 auto 12px auto',
-                      display: 'inline-block',
-                      fontSize: '12px',
-                      color: '#16A34A',
-                      fontWeight: 'bold'
-                    }}>
-                      {pathway.intensity}
-                    </div>
-                    <p style={{
-                      fontSize: '12px',
-                      color: '#999',
-                      textAlign: 'center',
-                      fontStyle: 'italic',
-                      margin: 0
-                    }}>
-                      {pathway.examples}
-                    </p>
                   </div>
                 </div>
               ))}
@@ -609,24 +607,23 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
               border: '2px solid #16A34A'
             }}>
               <h3 style={{ 
-                fontSize: '18px', 
+                fontSize: 'clamp(15px, 3.5vw, 17px)', 
                 fontWeight: 'bold', 
                 color: '#16A34A', 
-                margin: '0 0 15px 0',
+                margin: '0 0 clamp(8px, 1.5vh, 10px) 0', // Compressed margin
                 display: 'flex',
-                alignItems: 'center'
+                alignItems: 'center',
+                lineHeight: 1.1
               }}>
                 🎯 Your Wellness Goals
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {userProfile.goals.map((goalId, index) => {
                   const goalLabels: {[key: string]: {label: string, emoji: string}} = {
-                    'daily-movement': { label: 'Move my body daily', emoji: '🚶‍♀️' },
-                    'stress-relief': { label: 'Reduce daily stress', emoji: '🧘‍♀️' },
-                    'energy-boost': { label: 'Increase energy levels', emoji: '⚡' },
-                    'better-sleep': { label: 'Improve sleep quality', emoji: '😴' },
-                    'mood-stability': { label: 'Stabilize my mood', emoji: '💚' },
-                    'build-routine': { label: 'Build consistent routines', emoji: '📅' }
+                    'mental-strength': { label: 'Build mental strength through movement', emoji: '💪' },
+                    'healthy-habits': { label: 'Create consistent healthy habits', emoji: '📅' },
+                    'mood-anxiety': { label: 'Improve mood and reduce anxiety', emoji: '💚' },
+                    'energy-motivation': { label: 'Increase energy and motivation', emoji: '⚡' }
                   };
                   const goal = goalLabels[goalId];
                   return (
@@ -653,12 +650,13 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
               border: '2px solid #16A34A'
             }}>
               <h3 style={{ 
-                fontSize: '18px', 
+                fontSize: 'clamp(15px, 3.5vw, 17px)', 
                 fontWeight: 'bold', 
                 color: '#16A34A', 
-                margin: '0 0 15px 0',
+                margin: '0 0 clamp(8px, 1.5vh, 10px) 0', // Compressed margin
                 display: 'flex',
-                alignItems: 'center'
+                alignItems: 'center',
+                lineHeight: 1.1
               }}>
                 🚀 Your THRIVE Journey
               </h3>
@@ -712,7 +710,7 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                       </div>
                     </div>
                     <p style={{ 
-                      fontSize: '16px', 
+                      fontSize: 'clamp(14px, 3vw, 15px)', 
                       color: '#666',
                       margin: 0,
                       lineHeight: '1.4'
@@ -724,15 +722,21 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
               })()}
             </div>
             
-            <p style={{ fontSize: '18px', marginBottom: '30px', color: '#333', textAlign: 'center', lineHeight: '1.5' }}>
+            <p style={{ 
+              fontSize: 'clamp(15px, 3.5vw, 16px)', 
+              marginBottom: 'clamp(12px, 2vh, 16px)', 
+              color: '#333', 
+              textAlign: 'center', 
+              lineHeight: '1.3'
+            }}>
               Ready to start your wellness journey? Let's THRIVE together! 💚
             </p>
             
             <div style={{ 
               display: 'flex', 
               gap: 'clamp(8px, 2vw, 12px)', // Responsive gap
-              flexDirection: window.innerWidth < 480 ? 'column' : 'row', // Stack on very small screens
-              marginTop: '20px'
+              flexDirection: window.innerWidth < 480 ? 'column' : 'row',
+              marginTop: 'clamp(8px, 1.5vh, 12px)' // Compressed top margin for final buttons
             }}>
               <button 
                 onClick={handleBack}
