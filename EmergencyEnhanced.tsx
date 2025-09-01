@@ -2469,15 +2469,18 @@ export default function EmergencyEnhanced() {
                               • {activity.name}
                             </Text>
                             
-                            {/* DYNAMIC TIMER DISPLAY - Shows time left when timer active */}
+                            {/* ENHANCED TIMER DISPLAY - Clear state indication */}
                             {isActive && currentTimer ? (
-                              <View style={styles.timerDisplay}>
+                              <View style={[
+                                styles.timerDisplay,
+                                currentTimer.isRunning ? styles.timerDisplayActiveState : styles.timerDisplayPausedState
+                              ]}>
                                 <Text style={[
                                   styles.timerDisplayText,
                                   currentTimer.isRunning ? styles.timerDisplayRunning : styles.timerDisplayPaused
                                 ]}>
-                                  ⏱️ {Math.floor(currentTimer.timeLeft / 60)}:{(currentTimer.timeLeft % 60).toString().padStart(2, '0')} 
-                                  {currentTimer.isRunning ? ' (running)' : ' (paused)'}
+                                  {currentTimer.isRunning ? '🟢' : '🔵'} {Math.floor(currentTimer.timeLeft / 60)}:{(currentTimer.timeLeft % 60).toString().padStart(2, '0')} 
+                                  {currentTimer.isRunning ? ' Running' : ' Paused'}
                                 </Text>
                               </View>
                             ) : (
@@ -2489,24 +2492,24 @@ export default function EmergencyEnhanced() {
                           
                           {/* DYNAMIC TIMER BUTTON LAYOUT - Adapts based on timer state */}
                           {!isActive && !isCompleted ? (
-                            // NO TIMER: Show single START button
+                            // NO TIMER: Show single PLAY button
                             <TouchableOpacity 
-                              style={[styles.mobileActivityButton, styles.mobileActivityButtonDefault]}
+                              style={[styles.mobileActivityButton, styles.timerPlayState]}
                               onPress={() => startInlineActivity(activity, workout.id)}
                               activeOpacity={0.7}
                             >
                               <Text style={[styles.mobileActivityButtonText]}>
-                                ▶️ START
+                                ▶️ Play
                               </Text>
                             </TouchableOpacity>
                           ) : isCompleted ? (
-                            // COMPLETED: Show DONE button
+                            // COMPLETED: Show COMPLETE button
                             <TouchableOpacity 
-                              style={[styles.mobileActivityButton, styles.mobileActivityButtonDisabled]}
+                              style={[styles.mobileActivityButton, styles.timerCompleteState]}
                               disabled={true}
                             >
-                              <Text style={[styles.mobileActivityButtonText, styles.mobileActivityButtonTextDisabled]}>
-                                ✅ DONE
+                              <Text style={[styles.mobileActivityButtonText, styles.timerCompleteText]}>
+                                ✅ Complete
                               </Text>
                             </TouchableOpacity>
                           ) : (
@@ -2515,13 +2518,13 @@ export default function EmergencyEnhanced() {
                               <TouchableOpacity 
                                 style={[
                                   styles.mobileTimerButton,
-                                  activeTimers[activity.id]?.isRunning ? styles.mobileActivityButtonRunning : styles.mobileActivityButtonPaused
+                                  currentTimer?.isRunning ? styles.timerPauseState : styles.timerResumeState
                                 ]}
                                 onPress={() => toggleInlineTimer(activity.id)}
                                 activeOpacity={0.7}
                               >
                                 <Text style={[styles.mobileTimerButtonText]}>
-                                  {currentTimer?.isRunning ? '⏸️' : '▶️'}
+                                  {currentTimer?.isRunning ? '⏸️ Pause' : '▶️ Resume'}
                                 </Text>
                               </TouchableOpacity>
                               
@@ -2531,7 +2534,7 @@ export default function EmergencyEnhanced() {
                                 activeOpacity={0.7}
                               >
                                 <Text style={[styles.mobileTimerButtonText]}>
-                                  ⏹️
+                                  ⏹️ Stop
                                 </Text>
                               </TouchableOpacity>
                             </View>
@@ -4264,10 +4267,37 @@ const createStyles = (theme: any) => StyleSheet.create({
     backgroundColor: '#EF4444', // Red for stop action
   },
   mobileTimerButtonText: {
-    fontSize: 16, // Slightly larger for emoji visibility
-    fontWeight: '600',
+    fontSize: 12, // Smaller text for compact buttons
+    fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
+  },
+
+  // DYNAMIC TIMER STATE COLORS - Proper Play/Pause/Resume visual feedback
+  timerPlayState: {
+    backgroundColor: '#10B981', // Green for Play button
+    borderColor: '#059669',
+    borderWidth: 1,
+  },
+  timerPauseState: {
+    backgroundColor: '#F59E0B', // Orange/Yellow for Pause button
+    borderColor: '#D97706',
+    borderWidth: 1,
+  },
+  timerResumeState: {
+    backgroundColor: '#3B82F6', // Blue for Resume button
+    borderColor: '#2563EB',
+    borderWidth: 1,
+  },
+  timerCompleteState: {
+    backgroundColor: '#22C55E', // Green for completed state
+    borderColor: '#16A34A',
+    borderWidth: 1,
+    opacity: 0.8,
+  },
+  timerCompleteText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
 
   // TIMER DISPLAY - Shows live timer countdown
@@ -4289,6 +4319,16 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   timerDisplayPaused: {
     color: '#3B82F6', // Blue for paused timer
+  },
+  timerDisplayActiveState: {
+    backgroundColor: '#FEF3C7', // Light yellow background when running
+    borderColor: '#F59E0B',
+    borderWidth: 1,
+  },
+  timerDisplayPausedState: {
+    backgroundColor: '#DBEAFE', // Light blue background when paused
+    borderColor: '#3B82F6',
+    borderWidth: 1,
   },
 
   // MOBILE-FIRST WORKOUT ACTION BUTTONS - 3 primary buttons max
