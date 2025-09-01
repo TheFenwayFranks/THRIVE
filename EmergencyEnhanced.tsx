@@ -307,6 +307,10 @@ export default function EmergencyEnhanced() {
   const [onboardingState, setOnboardingState] = useState<OnboardingState | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   
+  // DEMO MODE STATE
+  const [demoMode, setDemoMode] = useState(false);
+  const [showDemoOnboarding, setShowDemoOnboarding] = useState(false);
+  
   // Removed debug state - no longer needed
   
   // EMERGENCY STATE MONITORING
@@ -679,6 +683,33 @@ export default function EmergencyEnhanced() {
 
   const stopInlineActivity = () => {
     setActiveInlineTimer(null);
+  };
+
+  // DEMO MODE HANDLERS
+  const startDemoMode = () => {
+    console.log('✨ DEMO MODE: Starting tutorial/walkthrough');
+    setDemoMode(true);
+    setShowDemoOnboarding(true);
+  };
+
+  const handleDemoComplete = (profile: any) => {
+    console.log('✨ DEMO MODE: Demo completed, returning to main app');
+    // Don't save demo profile - it's just for demonstration
+    setShowDemoOnboarding(false);
+    setDemoMode(false);
+    
+    // Show completion message
+    Alert.alert(
+      'Demo Complete! ✨',
+      'You\'ve completed the THRIVE tutorial. This was just a demo - your actual profile and settings remain unchanged.',
+      [{ text: 'Got it!', style: 'default' }]
+    );
+  };
+
+  const exitDemoMode = () => {
+    console.log('✨ DEMO MODE: User exited demo early');
+    setShowDemoOnboarding(false);
+    setDemoMode(false);
   };
 
   const completeWorkout = async () => {
@@ -2391,6 +2422,7 @@ export default function EmergencyEnhanced() {
           onMorningFlow={() => console.log('🚨 EMERGENCY DISABLE: Morning flow disabled')} // EMERGENCY DISABLE
           onMoodCheckin={quickMoodCheckin}
           onSettings={() => setShowSettings(true)}
+          onDemo={startDemoMode}
           userStats={userStats}
         />
         <View style={styles.logoContainer}>
@@ -2631,6 +2663,14 @@ export default function EmergencyEnhanced() {
       <WebOnboarding
         visible={onboardingState?.showOnboarding || false}
         onComplete={handleOnboardingComplete}
+      />
+      
+      {/* DEMO MODE ONBOARDING - NON-DESTRUCTIVE TUTORIAL */}
+      <WebOnboarding
+        visible={showDemoOnboarding}
+        onComplete={handleDemoComplete}
+        demoMode={true}
+        onExit={exitDemoMode}
       />
       
       {/* Debug banner removed - clean UI */}

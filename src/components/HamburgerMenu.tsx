@@ -15,6 +15,7 @@ interface HamburgerMenuProps {
   onMorningFlow: () => void;
   onMoodCheckin: () => void;
   onSettings: () => void;
+  onDemo: () => void;
   userStats?: {
     xp: number;
     streak: number;
@@ -26,6 +27,7 @@ export default function HamburgerMenu({
   onMorningFlow, 
   onMoodCheckin, 
   onSettings,
+  onDemo,
   userStats 
 }: HamburgerMenuProps) {
   const { theme, themeMode } = useTheme();
@@ -84,6 +86,12 @@ export default function HamburgerMenu({
       title: 'Settings',
       description: 'App preferences & theme options',
       action: () => handleMenuOption(onSettings)
+    },
+    {
+      icon: '✨',
+      title: 'Demo/Tutorial',
+      description: 'Replay the app walkthrough & tutorial',
+      action: () => handleMenuOption(onDemo)
     },
     {
       icon: '❓',

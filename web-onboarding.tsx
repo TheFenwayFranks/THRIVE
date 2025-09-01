@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 interface WebOnboardingProps {
   visible: boolean;
   onComplete: (profile: any) => void;
+  demoMode?: boolean;
+  onExit?: () => void;
 }
 
 interface UserProfile {
@@ -11,7 +13,7 @@ interface UserProfile {
   name: string;
 }
 
-export default function WebOnboarding({ visible, onComplete }: WebOnboardingProps) {
+export default function WebOnboarding({ visible, onComplete, demoMode = false, onExit }: WebOnboardingProps) {
   const [step, setStep] = useState(0);
   const [userProfile, setUserProfile] = useState<UserProfile>({
     goals: [],
@@ -184,18 +186,60 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
         overflowY: 'hidden', // Disable scrolling - everything must fit
         boxSizing: 'border-box',
       }}>
+        {/* DEMO MODE BANNER */}
+        {demoMode && (
+          <div style={{
+            backgroundColor: '#FEF3C7',
+            border: '2px solid #F59E0B',
+            borderRadius: '8px',
+            padding: '8px 12px',
+            marginBottom: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '16px' }}>✨</span>
+              <span style={{ 
+                fontSize: 'clamp(12px, 2.8vw, 14px)', 
+                fontWeight: '600',
+                color: '#92400E' 
+              }}>
+                Demo Mode - Tutorial Walkthrough
+              </span>
+            </div>
+            {onExit && (
+              <button
+                onClick={onExit}
+                style={{
+                  backgroundColor: '#F59E0B',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                }}
+              >
+                Skip Demo
+              </button>
+            )}
+          </div>
+        )}
+
         <h1 style={{
           color: '#16A34A',
           fontSize: 'clamp(20px, 5vw, 24px)', // Even more compact title
           margin: '0 0 4px 0', // Minimal margin
           lineHeight: 1.0
-        }}>🌟 Welcome to THRIVE!</h1>
+        }}>🌟 {demoMode ? 'THRIVE Tutorial' : 'Welcome to THRIVE!'}</h1>
         
         <p style={{
           color: '#666',
           fontSize: 'clamp(12px, 2.5vw, 14px)', // Smaller step indicator
           margin: '0 0 clamp(8px, 1.5vh, 12px) 0', // Compressed margin
-        }}>Step {step + 1} of 4</p>
+        }}>Step {step + 1} of 4{demoMode ? ' (Demo)' : ''}</p>
         
         {step === 0 && (
           <div>
@@ -205,7 +249,10 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
               color: '#333',
               lineHeight: 1.3
             }}>
-              Mental Health Fitness App - Your personalized wellness journey starts here!
+              {demoMode ? 
+                'Tutorial walkthrough - Learn how THRIVE creates your personalized wellness experience!' :
+                'Mental Health Fitness App - Your personalized wellness journey starts here!'
+              }
             </p>
             <button 
               onClick={() => setStep(1)}
@@ -226,7 +273,7 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                 WebkitTapHighlightColor: 'transparent', // Remove iOS tap highlight
               }}
             >
-              Get Started 🚀
+              {demoMode ? 'Begin Tutorial 🎯' : 'Get Started 🚀'}
             </button>
           </div>
         )}
@@ -741,7 +788,10 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
               textAlign: 'center', 
               lineHeight: '1.1'
             }}>
-              Ready to start your wellness journey? Let's THRIVE together! 💚
+              {demoMode ? 
+                'Demo complete! This shows how THRIVE personalizes your wellness journey. ✨' :
+                'Ready to start your wellness journey? Let\'s THRIVE together! 💚'
+              }
             </p>
             
             <div style={{ 
@@ -786,7 +836,7 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                   WebkitTapHighlightColor: 'transparent',
                 }}
               >
-                Start THRIVING! 🚀
+                {demoMode ? 'Finish Demo! ✨' : 'Start THRIVING! 🚀'}
               </button>
             </div>
           </div>
