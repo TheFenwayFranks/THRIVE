@@ -2544,44 +2544,62 @@ export default function EmergencyEnhanced() {
               
             </View>
             
-            {/* MOBILE-OPTIMIZED BUTTON LAYOUT - Max 3 primary actions */}
-            <View style={styles.mobileWorkoutActions}>
-              {/* PRIMARY ACTION: Start/Restart Button */}
+            {/* SIMPLIFIED MOBILE BUTTON LAYOUT - Essential actions only */}
+            <View style={styles.simplifiedMobileActions}>
+              {/* PRIMARY ACTION: Start/Complete Button */}
               <TouchableOpacity 
                 style={[
-                  styles.mobilePrimaryButton,
-                  styles.mobileStartButton,
-                  { backgroundColor: getDifficultyColor(selectedDifficulty) }
+                  styles.simplifiedPrimaryButton,
+                  completedWorkouts.includes(workout.id) ? styles.simplifiedCompletedButton : styles.simplifiedStartButton
                 ]}
-                onPress={() => startWorkout(workout)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.mobilePrimaryButtonText}>
-                  {completedWorkouts.includes(workout.id) ? '↻ Restart' : '▶ Start'}
-                </Text>
-              </TouchableOpacity>
-
-              {/* SECONDARY ACTION: Demo Button */}
-              <TouchableOpacity 
-                style={[styles.mobilePrimaryButton, styles.mobileSecondaryButton]}
-                onPress={() => showVideoDemo(workout)}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.mobilePrimaryButtonText, styles.mobileSecondaryButtonText]}>
-                  📺 Demo
-                </Text>
-              </TouchableOpacity>
-
-              {/* MORE ACTIONS: Future expandability */}
-              <TouchableOpacity 
-                style={[styles.mobilePrimaryButton, styles.mobileMoreButton]}
                 onPress={() => {
-                  // Future: Show more options like Details, Settings, etc.
-                  console.log('More options for workout:', workout.id);
+                  if (completedWorkouts.includes(workout.id)) {
+                    // If completed, restart
+                    startWorkout(workout);
+                  } else {
+                    // If not started, begin workout
+                    startWorkout(workout);
+                  }
                 }}
                 activeOpacity={0.7}
               >
-                <Text style={[styles.mobilePrimaryButtonText, styles.mobileMoreButtonText]}>
+                <Text style={styles.simplifiedPrimaryButtonText}>
+                  {completedWorkouts.includes(workout.id) ? '✅ Complete' : '▶️ Start'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* MORE MENU: Demo & Details */}
+              <TouchableOpacity 
+                style={[styles.simplifiedSecondaryButton]}
+                onPress={() => {
+                  // Show action sheet with Demo and Details options
+                  Alert.alert(
+                    'Workout Options',
+                    'Choose an action:',
+                    [
+                      {
+                        text: '📺 Watch Demo',
+                        onPress: () => showVideoDemo(workout)
+                      },
+                      {
+                        text: '📋 View Details',
+                        onPress: () => {
+                          // Show first activity details as workout preview
+                          if (workout.activities && workout.activities.length > 0) {
+                            showExerciseDetails(workout.activities[0]);
+                          }
+                        }
+                      },
+                      {
+                        text: 'Cancel',
+                        style: 'cancel'
+                      }
+                    ]
+                  );
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.simplifiedSecondaryButtonText}>
                   ⋯ More
                 </Text>
               </TouchableOpacity>
@@ -4320,6 +4338,64 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   mobileMoreButtonText: {
     color: theme.colors.textSecondary,
+  },
+
+  // SIMPLIFIED MOBILE ACTIONS - Clean 2-button layout for better UX
+  simplifiedMobileActions: {
+    flexDirection: 'row',
+    gap: 16, // Bigger gap for easier tapping
+    marginTop: 16,
+    paddingHorizontal: 4,
+    alignItems: 'stretch',
+  },
+  simplifiedPrimaryButton: {
+    flex: 2, // Primary button takes more space
+    paddingVertical: 16, // Bigger for easier tapping
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    minHeight: 56, // Larger touch target (WCAG++)
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: theme.isDark ? theme.colors.primary : '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: theme.isDark ? 0.3 : 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  simplifiedStartButton: {
+    backgroundColor: '#10B981', // Green for start
+  },
+  simplifiedCompletedButton: {
+    backgroundColor: '#6B7280', // Gray for completed/restart
+  },
+  simplifiedSecondaryButton: {
+    flex: 1, // More button is smaller
+    paddingVertical: 16,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    minHeight: 56, // Same height as primary
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.surface,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    shadowColor: theme.isDark ? theme.colors.border : '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: theme.isDark ? 0.2 : 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  simplifiedPrimaryButtonText: {
+    fontSize: 16, // Larger text for better readability
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  simplifiedSecondaryButtonText: {
+    fontSize: 20, // Larger icon for More button
+    fontWeight: '600',
+    color: theme.colors.text,
+    textAlign: 'center',
   },
   workoutActions: {
     alignItems: 'center',
