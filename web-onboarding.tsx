@@ -402,7 +402,7 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                   title: 'Wellness',
                   description: "Mental health through gentle movement",
                   tag: 'Low impact',
-                  background: '#F0FDF4'
+                  backgroundColor: '#F0FDF4'
                 },
                 {
                   id: 'fitness', 
@@ -410,7 +410,7 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                   title: 'Fitness',
                   description: 'Healthy habits and consistent activity',
                   tag: 'Balanced',
-                  background: '#DCFCE7'
+                  backgroundColor: '#DCFCE7'
                 },
                 {
                   id: 'performance',
@@ -418,7 +418,7 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                   title: 'Performance',
                   description: "Optimize physical and mental performance",
                   tag: 'High intensity',
-                  background: '#BBF7D0'
+                  backgroundColor: '#BBF7D0'
                 }
               ].map((pathway) => (
                 <div 
