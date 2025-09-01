@@ -20,34 +20,74 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
   });
   const [errors, setErrors] = useState<string[]>([]);
   
+  // Mobile viewport debugging
+  React.useEffect(() => {
+    if (visible) {
+      console.log('📱 MOBILE VIEWPORT DEBUG:', {
+        screenWidth: window.screen.width,
+        screenHeight: window.screen.height,
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+        devicePixelRatio: window.devicePixelRatio,
+        userAgent: navigator.userAgent,
+        isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      });
+      
+      // Check for viewport meta tag
+      const viewportMeta = document.querySelector('meta[name="viewport"]');
+      if (!viewportMeta) {
+        console.warn('⚠️ MOBILE WARNING: No viewport meta tag found!');
+      } else {
+        console.log('✅ MOBILE DEBUG: Viewport meta tag:', viewportMeta.getAttribute('content'));
+      }
+    }
+  }, [visible]);
+  
   console.log('🌐 WEB ONBOARDING:', { visible, step, userProfile });
   
   if (!visible) return null;
   
-  // Goal selection handler
+  // Goal selection handler with mobile debugging
   const toggleGoal = (goalId: string) => {
+    console.log('📱 MOBILE DEBUG: toggleGoal called', {
+      goalId,
+      currentGoals: userProfile.goals,
+      touchEvent: 'goal-selection',
+      timestamp: new Date().toISOString()
+    });
+    
     let newGoals;
     if (userProfile.goals.includes(goalId)) {
       // Remove goal
       newGoals = userProfile.goals.filter(g => g !== goalId);
+      console.log('➖ MOBILE DEBUG: Removed goal', goalId);
     } else {
       // Add goal if under 3
       if (userProfile.goals.length < 3) {
         newGoals = [...userProfile.goals, goalId];
+        console.log('➕ MOBILE DEBUG: Added goal', goalId);
       } else {
+        console.log('❌ MOBILE DEBUG: Goal limit reached, cannot add', goalId);
         return; // Don't add more than 3
       }
     }
     setUserProfile({ ...userProfile, goals: newGoals });
     setErrors([]); // Clear errors when user makes changes
-    console.log('🎯 Goals updated:', newGoals);
+    console.log('🎯 MOBILE DEBUG: Goals updated:', newGoals);
   };
   
-  // Pathway selection handler
+  // Pathway selection handler with mobile debugging
   const selectPathway = (pathway: 'wellness' | 'fitness' | 'performance') => {
+    console.log('📱 MOBILE DEBUG: selectPathway called', {
+      pathway,
+      previousPathway: userProfile.pathway,
+      touchEvent: 'pathway-selection',
+      timestamp: new Date().toISOString()
+    });
+    
     setUserProfile({ ...userProfile, pathway });
     setErrors([]); // Clear errors when user makes changes
-    console.log('🚀 Pathway selected:', pathway);
+    console.log('🚀 MOBILE DEBUG: Pathway selected:', pathway);
   };
   
   // Validation functions
@@ -59,29 +99,43 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
     return userProfile.pathway !== '';
   };
   
-  // Navigation handler
+  // Navigation handler with mobile debugging
   const handleNext = () => {
+    console.log('📱 MOBILE DEBUG: handleNext called', {
+      currentStep: step,
+      userProfile,
+      screenWidth: window.innerWidth,
+      screenHeight: window.innerHeight,
+      userAgent: navigator.userAgent
+    });
+    
     const newErrors: string[] = [];
     
     // Step 1 validation (goals)
     if (step === 1 && !validateGoals()) {
+      console.log('❌ MOBILE DEBUG: Goals validation failed', { goalCount: userProfile.goals.length });
       newErrors.push('Please select 1-3 goals to continue');
     }
     
     // Step 2 validation (pathway)
     if (step === 2 && !validatePathway()) {
+      console.log('❌ MOBILE DEBUG: Pathway validation failed', { pathway: userProfile.pathway });
       newErrors.push('Please select a pathway to continue');
     }
     
     if (newErrors.length > 0) {
+      console.log('❌ MOBILE DEBUG: Validation errors', newErrors);
       setErrors(newErrors);
       return;
     }
     
     setErrors([]);
     if (step < 3) {
-      setStep(step + 1);
+      const newStep = step + 1;
+      console.log('✅ MOBILE DEBUG: Advancing to step', newStep);
+      setStep(newStep);
     } else {
+      console.log('✅ MOBILE DEBUG: Completing onboarding');
       // Complete onboarding
       onComplete({
         ...userProfile,
@@ -92,8 +146,11 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
   };
   
   const handleBack = () => {
+    console.log('🔙 MOBILE DEBUG: handleBack called', { currentStep: step });
     if (step > 0) {
-      setStep(step - 1);
+      const newStep = step - 1;
+      console.log('✅ MOBILE DEBUG: Going back to step', newStep);
+      setStep(newStep);
       setErrors([]);
     }
   };
@@ -110,15 +167,22 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+      padding: '16px', // Mobile-safe padding
+      boxSizing: 'border-box',
+      overflowY: 'auto', // Allow scrolling on mobile
     }}>
       <div style={{
         backgroundColor: '#f0f9f0',
-        padding: '40px',
+        padding: 'clamp(20px, 5vw, 40px)', // Responsive padding
         borderRadius: '20px',
         maxWidth: '500px',
-        width: '90%',
+        width: '100%',
+        maxHeight: '90vh', // Prevent overflow on mobile
         textAlign: 'center',
         boxShadow: '0 10px 50px rgba(0,0,0,0.5)',
+        margin: 'auto', // Center vertically on mobile
+        overflowY: 'auto', // Allow internal scrolling
+        boxSizing: 'border-box',
       }}>
         <h1 style={{
           color: '#16A34A',
@@ -143,11 +207,17 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                 backgroundColor: '#16A34A',
                 color: 'white',
                 border: 'none',
-                padding: '15px 30px',
-                borderRadius: '10px',
-                fontSize: '16px',
+                padding: '16px 24px', // Mobile-optimized padding
+                minHeight: '48px', // Mobile touch target minimum
+                borderRadius: '12px',
+                fontSize: 'clamp(16px, 4vw, 18px)', // Responsive font size
                 cursor: 'pointer',
                 fontWeight: 'bold',
+                width: '100%',
+                maxWidth: '300px',
+                margin: '0 auto',
+                touchAction: 'manipulation', // Prevent zoom on tap
+                WebkitTapHighlightColor: 'transparent', // Remove iOS tap highlight
               }}
             >
               Get Started 🚀
@@ -187,17 +257,29 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                 <div 
                   key={goal.id}
                   onClick={() => toggleGoal(goal.id)}
+                  onTouchStart={(e) => {
+                    console.log('📱 MOBILE DEBUG: Touch start on goal', goal.id);
+                    e.currentTarget.style.transform = 'scale(0.98)';
+                  }}
+                  onTouchEnd={(e) => {
+                    console.log('📱 MOBILE DEBUG: Touch end on goal', goal.id);
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
                   style={{
-                    padding: '15px',
+                    padding: 'clamp(12px, 3vw, 16px)', // Responsive padding
+                    minHeight: '60px', // Larger touch target for goals
                     backgroundColor: userProfile.goals.includes(goal.id) ? '#F0FDF4' : 'white',
-                    margin: '10px 0',
+                    margin: 'clamp(8px, 2vw, 12px) 0',
                     borderRadius: '12px',
                     border: userProfile.goals.includes(goal.id) ? '2px solid #16A34A' : '2px solid #ddd',
                     cursor: userProfile.goals.length >= 3 && !userProfile.goals.includes(goal.id) ? 'not-allowed' : 'pointer',
                     opacity: userProfile.goals.length >= 3 && !userProfile.goals.includes(goal.id) ? 0.5 : 1,
                     display: 'flex',
                     alignItems: 'center',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    touchAction: 'manipulation',
+                    WebkitTapHighlightColor: 'rgba(22, 163, 74, 0.2)', // Custom tap highlight
+                    boxSizing: 'border-box',
                   }}
                 >
                   <span style={{ fontSize: '24px', marginRight: '12px' }}>{goal.emoji}</span>
@@ -246,19 +328,27 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
               </div>
             )}
             
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: 'clamp(8px, 2vw, 12px)', // Responsive gap
+              flexDirection: window.innerWidth < 480 ? 'column' : 'row', // Stack on very small screens
+              marginTop: '20px'
+            }}>
               <button 
                 onClick={handleBack}
                 style={{
                   backgroundColor: 'white',
                   color: '#16A34A',
                   border: '2px solid #16A34A',
-                  padding: '15px 30px',
-                  borderRadius: '10px',
-                  fontSize: '16px',
+                  padding: '14px 20px', // Mobile-optimized padding
+                  minHeight: '48px', // Mobile touch target
+                  borderRadius: '12px',
+                  fontSize: 'clamp(14px, 3.5vw, 16px)', // Responsive font
                   cursor: 'pointer',
                   fontWeight: 'bold',
-                  flex: 1
+                  flex: window.innerWidth < 480 ? 'none' : 1,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
                 }}
               >
                 Back
@@ -269,12 +359,15 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                   backgroundColor: '#16A34A',
                   color: 'white',
                   border: 'none',
-                  padding: '15px 30px',
-                  borderRadius: '10px',
-                  fontSize: '16px',
+                  padding: '14px 20px', // Mobile-optimized padding
+                  minHeight: '48px', // Mobile touch target
+                  borderRadius: '12px',
+                  fontSize: 'clamp(14px, 3.5vw, 16px)', // Responsive font
                   cursor: 'pointer',
                   fontWeight: 'bold',
-                  flex: 2
+                  flex: window.innerWidth < 480 ? 'none' : 2,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
                 }}
               >
                 Continue with Selected Goals
@@ -328,17 +421,29 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                 <div 
                   key={pathway.id}
                   onClick={() => selectPathway(pathway.id as any)}
+                  onTouchStart={(e) => {
+                    console.log('📱 MOBILE DEBUG: Touch start on pathway', pathway.id);
+                    e.currentTarget.style.transform = userProfile.pathway === pathway.id ? 'translateY(-2px) scale(0.98)' : 'scale(0.98)';
+                  }}
+                  onTouchEnd={(e) => {
+                    console.log('📱 MOBILE DEBUG: Touch end on pathway', pathway.id);
+                    e.currentTarget.style.transform = userProfile.pathway === pathway.id ? 'translateY(-2px)' : 'none';
+                  }}
                   style={{
                     padding: '0',
                     backgroundColor: 'white',
-                    margin: '15px 0',
+                    margin: 'clamp(12px, 3vw, 16px) 0', // Responsive margin
+                    minHeight: '120px', // Minimum touch target height
                     borderRadius: '16px',
                     border: userProfile.pathway === pathway.id ? '3px solid #16A34A' : '2px solid #ddd',
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
                     boxShadow: userProfile.pathway === pathway.id ? '0 8px 25px rgba(22, 163, 74, 0.2)' : '0 2px 10px rgba(0,0,0,0.1)',
                     transform: userProfile.pathway === pathway.id ? 'translateY(-2px)' : 'none',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    touchAction: 'manipulation',
+                    WebkitTapHighlightColor: 'rgba(22, 163, 74, 0.1)', // Custom tap highlight
+                    boxSizing: 'border-box',
                   }}
                 >
                   {/* Header with gradient */}
@@ -440,19 +545,27 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
               </div>
             )}
             
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: 'clamp(8px, 2vw, 12px)', // Responsive gap
+              flexDirection: window.innerWidth < 480 ? 'column' : 'row', // Stack on very small screens
+              marginTop: '20px'
+            }}>
               <button 
                 onClick={handleBack}
                 style={{
                   backgroundColor: 'white',
                   color: '#16A34A',
                   border: '2px solid #16A34A',
-                  padding: '15px 30px',
-                  borderRadius: '10px',
-                  fontSize: '16px',
+                  padding: '14px 20px', // Mobile-optimized padding
+                  minHeight: '48px', // Mobile touch target
+                  borderRadius: '12px',
+                  fontSize: 'clamp(14px, 3.5vw, 16px)', // Responsive font
                   cursor: 'pointer',
                   fontWeight: 'bold',
-                  flex: 1
+                  flex: window.innerWidth < 480 ? 'none' : 1,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
                 }}
               >
                 Back
@@ -463,12 +576,15 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                   backgroundColor: '#16A34A',
                   color: 'white',
                   border: 'none',
-                  padding: '15px 30px',
-                  borderRadius: '10px',
-                  fontSize: '16px',
+                  padding: '14px 20px', // Mobile-optimized padding
+                  minHeight: '48px', // Mobile touch target
+                  borderRadius: '12px',
+                  fontSize: 'clamp(14px, 3.5vw, 16px)', // Responsive font
                   cursor: 'pointer',
                   fontWeight: 'bold',
-                  flex: 2
+                  flex: window.innerWidth < 480 ? 'none' : 2,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
                 }}
               >
                 Continue with {userProfile.pathway ? userProfile.pathway.charAt(0).toUpperCase() + userProfile.pathway.slice(1) : 'Selected'} Journey
@@ -612,19 +728,27 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
               Ready to start your wellness journey? Let's THRIVE together! 💚
             </p>
             
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: 'clamp(8px, 2vw, 12px)', // Responsive gap
+              flexDirection: window.innerWidth < 480 ? 'column' : 'row', // Stack on very small screens
+              marginTop: '20px'
+            }}>
               <button 
                 onClick={handleBack}
                 style={{
                   backgroundColor: 'white',
                   color: '#16A34A',
                   border: '2px solid #16A34A',
-                  padding: '15px 30px',
-                  borderRadius: '10px',
-                  fontSize: '16px',
+                  padding: '14px 20px', // Mobile-optimized padding
+                  minHeight: '48px', // Mobile touch target
+                  borderRadius: '12px',
+                  fontSize: 'clamp(14px, 3.5vw, 16px)', // Responsive font
                   cursor: 'pointer',
                   fontWeight: 'bold',
-                  flex: 1
+                  flex: window.innerWidth < 480 ? 'none' : 1,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
                 }}
               >
                 Back
@@ -635,12 +759,15 @@ export default function WebOnboarding({ visible, onComplete }: WebOnboardingProp
                   backgroundColor: '#16A34A',
                   color: 'white',
                   border: 'none',
-                  padding: '15px 30px',
-                  borderRadius: '10px',
-                  fontSize: '18px',
+                  padding: '14px 20px', // Mobile-optimized padding
+                  minHeight: '48px', // Mobile touch target
+                  borderRadius: '12px',
+                  fontSize: 'clamp(16px, 4vw, 18px)', // Responsive font - larger for final CTA
                   cursor: 'pointer',
                   fontWeight: 'bold',
-                  flex: 2
+                  flex: window.innerWidth < 480 ? 'none' : 2,
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
                 }}
               >
                 Start THRIVING! 🚀
