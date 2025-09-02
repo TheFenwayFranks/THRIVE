@@ -652,17 +652,15 @@ export default function EmergencyEnhanced() {
     console.log('🚨 DEBUG: startWorkout called with:', workout);
     
     try {
-      console.log('🚨 DEBUG: Setting current workout...');
-      setCurrentWorkout(workout);
+      console.log('🚨 DEBUG: Setting inline workout states...');
+      setInlineWorkout(workout);
+      setShowInlineTimer(true);
       
       console.log('🚨 DEBUG: Setting time left...');
       setTimeLeft(workout.duration * 60); // Convert minutes to seconds
       
-      console.log('🚨 DEBUG: Setting workout active...');
-      setIsWorkoutActive(true);
-      
-      console.log('🚨 DEBUG: Setting running state...');
-      setIsRunning(true);
+      console.log('🚨 DEBUG: Setting running state to false initially...');
+      setIsRunning(false); // Start paused, user can press play
       
       console.log('🚨 DEBUG: startWorkout completed successfully');
     } catch (error) {

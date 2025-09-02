@@ -6,6 +6,7 @@ import {
   Animated,
   PanResponder,
   Dimensions,
+  Easing,
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 
@@ -37,8 +38,9 @@ export default function NavigationDrawer({
   React.useEffect(() => {
     Animated.timing(translateX, {
       toValue: visible ? 0 : -DRAWER_WIDTH,
-      duration: 300, // Match existing page transitions
+      duration: 250, // Slightly faster, smoother
       useNativeDriver: false, // Set to false for web compatibility
+      easing: Easing.bezier(0.25, 0.46, 0.45, 0.94), // Smooth easing curve like iOS
     }).start();
   }, [visible]);
 
@@ -60,6 +62,7 @@ export default function NavigationDrawer({
           toValue: 0,
           duration: 200,
           useNativeDriver: false, // Set to false for web compatibility
+          easing: Easing.bezier(0.25, 0.46, 0.45, 0.94), // Same smooth easing
         }).start();
       }
     },
