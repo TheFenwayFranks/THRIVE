@@ -239,7 +239,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
                 <Text style={styles.inputLabel}>Height (ft'in)</Text>
                 <TextInput
                   style={styles.textInput}
-                  placeholder="5'8\""
+                  placeholder="5'8''"
                   value={profile.height}
                   onChangeText={(text) => {
                     // Auto-format height as user types (e.g., 58 -> 5'8")
