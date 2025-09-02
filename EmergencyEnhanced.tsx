@@ -7,14 +7,12 @@ import {
   SafeAreaView,
   ScrollView,
   Modal,
-  Alert,
-  Animated
+  Alert
 } from 'react-native';
 import { useTheme } from './src/context/ThemeContext';
 import { StorageService } from './src/services/StorageService';
 import MoodTracker from './src/components/MoodTracker';
 import VideoPlayerPlaceholder from './src/components/VideoPlayerPlaceholder';
-import MorningFlow from './src/components/MorningFlow';
 import SettingsModal from './src/components/SettingsModal';
 import CommunityFeed from './src/components/CommunityFeed';
 import StatsTab from './src/components/StatsTab';
@@ -247,8 +245,7 @@ interface UserStats {
 export default function EmergencyEnhanced() {
   const { theme, toggleTheme, themeMode } = useTheme();
   const styles = createStyles(theme);
-  // NUCLEAR RESET: Remove manual difficulty selection - app determines automatically
-  // const [selectedDifficulty, setSelectedDifficulty] = useState<'gentle' | 'steady' | 'beast' | null>(null);
+  // NUCLEAR RESET: Manual difficulty selection removed - app determines automatically
   const [completedWorkouts, setCompletedWorkouts] = useState<number[]>([]);
   
   // Timer states
@@ -285,18 +282,10 @@ export default function EmergencyEnhanced() {
   // Dashboard states - UPDATED: Swipe navigation
   const [activePage, setActivePage] = useState<PageName>('home');
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
-  const [recentWorkouts, setRecentWorkouts] = useState<any[]>([]);
-  const [dailyMood, setDailyMood] = useState<number | null>(null);
-  const [todayGoal, setTodayGoal] = useState({ current: 0, target: 50 }); // XP goal
 
-  // DYNAMIC CONTENT ANIMATION STATES
-  // NUCLEAR RESET: Remove animation and previous state tracking (no journey selection)
-  // const [contentOpacity] = useState(new Animated.Value(1));
-  // const [prevSelectedDifficulty, setPrevSelectedDifficulty] = useState<string | null>(null);
+  // NUCLEAR RESET: Animation and previous state tracking removed (no journey selection needed)
 
-  // JOURNEY/POTENTIAL BUTTON STATES
-  // NUCLEAR RESET: Remove journey selection - profile system handles this automatically
-  // const [selectedJourney, setSelectedJourney] = useState<'new' | 'potential' | null>(null);
+  // NUCLEAR RESET: Journey selection removed - profile system handles this automatically
 
   // VIDEO DEMONSTRATION MODAL STATE
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -614,10 +603,7 @@ export default function EmergencyEnhanced() {
     }
   };
 
-  // NUCLEAR RESET: Remove manual difficulty selection function (app chooses intelligently)
-  // const handleDifficultySelect = (difficulty: 'gentle' | 'steady' | 'beast') => {
-  //   // No longer needed - app automatically determines appropriate difficulty
-  // };
+  // NUCLEAR RESET: Manual difficulty selection function removed - app chooses intelligently
 
   const startWorkout = (workout: any) => {
     console.log('🚨 DEBUG: startWorkout called with:', workout);
@@ -1091,7 +1077,7 @@ export default function EmergencyEnhanced() {
       console.log('🚨 EMERGENCY BYPASS: Created workout:', selectedWorkout);
       
       // BYPASS NAVIGATION: Show inline timer instead of separate screen
-      setSelectedDifficulty(difficulty);
+      // NUCLEAR RESET: Removed setSelectedDifficulty - no longer needed
       setInlineWorkout(selectedWorkout);
       setTimeLeft(selectedWorkout.duration * 60);
       setShowInlineTimer(true);
@@ -1123,7 +1109,7 @@ export default function EmergencyEnhanced() {
     // Simulate workout completion
     const mockWorkout = { name: "Test Breathing", duration: 3 };
     setCurrentWorkout(mockWorkout);
-    setSelectedDifficulty('gentle');
+    // NUCLEAR RESET: Removed setSelectedDifficulty - no longer needed
     
     // Trigger completion flow
     const mockCompletedData = {
@@ -1157,7 +1143,7 @@ export default function EmergencyEnhanced() {
     console.log('✅ LEGITIMATE AUTO-REDIRECT: User clicked back to dashboard');
     setActivePage('home');
     setCurrentPageIndex(0);
-    setSelectedDifficulty(null);
+    // NUCLEAR RESET: Removed setSelectedDifficulty - no longer needed
     if (isWorkoutActive) {
       cancelWorkout();
     }
@@ -1178,10 +1164,7 @@ export default function EmergencyEnhanced() {
     
     console.log('✅ SWIPE COMPLETE: Now on page:', page);
     
-    // Clear any selected difficulty when switching pages
-    if (page !== 'home') {
-      setSelectedDifficulty(null);
-    }
+    // NUCLEAR RESET: Removed difficulty clearing - no longer needed with profile-driven system
   };
 
   const getMotivationalMessage = () => {
@@ -1332,19 +1315,10 @@ export default function EmergencyEnhanced() {
     */
   };
 
-  // EMERGENCY DISABLE: Morning flow completion handlers
-  const completeMorningFlow = () => {
-    console.log('🚨 EMERGENCY DISABLE: Morning flow system disabled');
-    return; // EMERGENCY EARLY RETURN
-  };
-
-  const startMorningFlow = () => {
-    console.log('🚨 EMERGENCY DISABLE: Morning flow system disabled');
-    return; // EMERGENCY EARLY RETURN
-  };
+  // NUCLEAR RESET: Morning flow functions removed - no longer needed
 
   const handleReset = () => {
-    setSelectedDifficulty(null);
+    // NUCLEAR RESET: Removed setSelectedDifficulty - no longer needed
     setCompletedWorkouts([]);
     if (isWorkoutActive) {
       cancelWorkout();
@@ -2014,14 +1988,7 @@ export default function EmergencyEnhanced() {
         </TouchableOpacity>
       </View>
 
-      {/* DISABLED: Morning Flow Status (EMERGENCY DISABLE) */}
-      {/* Morning flow completely disabled to prevent onboarding conflicts */}
-      {false && (
-        <View style={styles.completionCard}>
-          <Text style={styles.completionEmoji}>✨</Text>
-          <Text style={styles.completionText}>Morning intention set</Text>
-        </View>
-      )}
+      {/* NUCLEAR RESET: Morning Flow Status removed - using new onboarding system */}
     </View>
   );
 
@@ -2080,187 +2047,7 @@ export default function EmergencyEnhanced() {
   };
 
   // NUCLEAR RESET: Removed renderMotivationalStatsContent function (replaced by profile-driven content)
-  // const renderMotivationalStatsContent = () => { /* REMOVED - 160+ lines of redundant journey selection content */ };
-    const currentLevel = Math.floor(userStats.xp / 100) + 1;
-    const progressToNextLevel = userStats.xp % 100;
-    const weeklyGoal = 5; // 5 workouts per week
-    const weeklyProgress = Math.min(userStats.totalWorkouts % 7, weeklyGoal);
-    const monthlyWorkouts = userStats.totalWorkouts % 30;
-    
-    // Journey-specific messaging
-    const journeyMessage = selectedJourney === 'new' 
-      ? "Building your foundation step by step 🌱" 
-      : selectedJourney === 'potential'
-      ? "Unlocking your maximum potential ✨"
-      : "Select your journey above to personalize your experience";
-    
-    return (
-      <Animated.View style={[styles.motivationalContainer]}>
-        {/* Current Stats Overview */}
-        <View style={styles.statsOverviewSection}>
-          <Text style={styles.statsOverviewTitle}>Your THRIVE Journey</Text>
-          
-          {/* Main Stats Grid */}
-          <View style={styles.statsGrid}>
-            {/* Streak Card */}
-            <View style={styles.statCard}>
-              <Text style={styles.statEmoji}>🔥</Text>
-              <Text style={styles.statNumber}>{userStats.streak}</Text>
-              <Text style={styles.statLabel}>Day Streak</Text>
-              {userStats.streak > 0 && (
-                <Text style={styles.statSubtext}>Keep it going!</Text>
-              )}
-            </View>
-            
-            {/* XP & Level Card */}
-            <View style={styles.statCard}>
-              <Text style={styles.statEmoji}>💎</Text>
-              <Text style={styles.statNumber}>{userStats.xp}</Text>
-              <Text style={styles.statLabel}>Total XP</Text>
-              <Text style={styles.statSubtext}>Level {currentLevel}</Text>
-            </View>
-            
-            {/* Total Workouts Card */}
-            <View style={styles.statCard}>
-              <Text style={styles.statEmoji}>💪</Text>
-              <Text style={styles.statNumber}>{userStats.totalWorkouts}</Text>
-              <Text style={styles.statLabel}>Workouts</Text>
-              <Text style={styles.statSubtext}>Total completed</Text>
-            </View>
-          </View>
-        </View>
-        
-        {/* Progress & Goals Section */}
-        <View style={styles.progressSection}>
-          {/* Level Progress */}
-          <View style={styles.progressItem}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressTitle}>⭐ Level {currentLevel} Progress</Text>
-              <Text style={styles.progressValue}>{progressToNextLevel}/100 XP</Text>
-            </View>
-            <View style={styles.progressBarContainer}>
-              <View 
-                style={[
-                  styles.progressBar, 
-                  { width: `${progressToNextLevel}%` }
-                ]} 
-              />
-            </View>
-          </View>
-          
-          {/* Weekly Goal Progress */}
-          <View style={styles.progressItem}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressTitle}>🏆 Weekly Goal</Text>
-              <Text style={styles.progressValue}>{weeklyProgress}/{weeklyGoal} workouts</Text>
-            </View>
-            <View style={styles.progressBarContainer}>
-              <View 
-                style={[
-                  styles.progressBar, 
-                  { width: `${(weeklyProgress / weeklyGoal) * 100}%` }
-                ]} 
-              />
-            </View>
-            {weeklyProgress < weeklyGoal && (
-              <Text style={styles.goalMotivation}>
-                {weeklyGoal - weeklyProgress} more to reach your weekly goal!
-              </Text>
-            )}
-          </View>
-        </View>
-        
-        {/* Achievements & Badges */}
-        <View style={styles.achievementsSection}>
-          <Text style={styles.achievementsTitle}>Recent Achievements</Text>
-          <View style={styles.badgesContainer}>
-            {userStats.streak >= 7 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeEmoji}>⭐</Text>
-                <Text style={styles.badgeText}>Week Warrior</Text>
-              </View>
-            )}
-            {userStats.totalWorkouts >= 10 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeEmoji}>💪</Text>
-                <Text style={styles.badgeText}>10 Workouts</Text>
-              </View>
-            )}
-            {userStats.xp >= 250 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeEmoji}>💎</Text>
-                <Text style={styles.badgeText}>XP Master</Text>
-              </View>
-            )}
-            {/* Special first-time user badges */}
-            {userStats.totalWorkouts === 0 && (
-              <>
-                <View style={styles.badge}>
-                  <Text style={styles.badgeEmoji}>🌱</Text>
-                  <Text style={styles.badgeText}>New Journey</Text>
-                </View>
-                <View style={styles.badge}>
-                  <Text style={styles.badgeEmoji}>✨</Text>
-                  <Text style={styles.badgeText}>Full Potential</Text>
-                </View>
-              </>
-            )}
-            {/* Milestone badges for beginners */}
-            {userStats.totalWorkouts === 1 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeEmoji}>🎉</Text>
-                <Text style={styles.badgeText}>First Step!</Text>
-              </View>
-            )}
-          </View>
-        </View>
-        
-        {/* Journey Status & Call to Action */}
-        <View style={styles.journeyStatusContainer}>
-          <Text style={styles.journeyStatusText}>{journeyMessage}</Text>
-        </View>
-        
-        <View style={styles.motivationalCTA}>
-          {userStats.totalWorkouts === 0 ? (
-            <>
-              <Text style={styles.ctaTitle}>Welcome to THRIVE! 🚀</Text>
-              <Text style={styles.ctaSubtitle}>
-                {selectedJourney ? "Now select your intensity level to begin!" : "Choose your journey and intensity above to start!"}
-              </Text>
-            </>
-          ) : (
-            <>
-              <Text style={styles.ctaTitle}>Ready to THRIVE? 💚</Text>
-              <Text style={styles.ctaSubtitle}>
-                {selectedJourney && selectedDifficulty ? "Perfect! Your personalized workout awaits below." : "Complete your selections above to continue!"}
-              </Text>
-            </>
-          )}
-        </View>
-      </Animated.View>
-    );
-  };
-  
-  // WORKOUT TASKS: Selected difficulty state with journey modifications
-  // NUCLEAR RESET: Remove old workout tasks function (replaced by profile-driven activities)
-  // const renderWorkoutTasksContent = () => { /* REMOVED */ };
-
-  // NUCLEAR REBUILD: FRESH HOME PAGE FROM SCRATCH
-  const renderDashboard = () => (
-    <View style={styles.nuclearCleanPage}>
-      {/* CLEAN WELCOME HEADER */}
-      <View style={styles.cleanWelcomeHeader}>
-        <Text style={styles.welcomeTitle}>Ready to THRIVE Today?</Text>
-        <Text style={styles.welcomeSubtitle}>Your personalized activities are ready</Text>
-      </View>
-      
-      {/* TODAY'S ACTIVITIES SECTION */}
-      {renderTodaysActivities()}
-      
-      {/* PROFILE-DRIVEN CONTENT */}
-      {renderProfileDrivenContent()}
-    </View>
-  );
+  // NUCLEAR RESET: Large block of orphaned code removed completely
 
   // HELPER: Count completed activities for progressive revelation
   const getCompletedActivitiesCount = (workout: any) => {
@@ -2271,14 +2058,36 @@ export default function EmergencyEnhanced() {
     }).length;
   };
 
-  // FRESH WORKOUT LIST - NO LEGACY CONSTRAINTS
-  // NUCLEAR RESET: Removed renderFreshWorkoutList function (replaced by profile-driven activities)
-  // const renderFreshWorkoutList = () => { /* REMOVED - depends on manual difficulty selection */ };
+  // NUCLEAR RESET: renderFreshWorkoutList function removed - replaced by profile-driven activities
 
   // NUCLEAR RESET: All orphaned function code removed - clean slate ready
 
+  // MAIN DASHBOARD RENDER FUNCTION
+  const renderDashboard = () => {
+    return (
+      <ScrollView style={styles.minimalDashboard} showsVerticalScrollIndicator={false}>
+        {/* Stats Section */}
+        {renderMinimalStats()}
+        
+        {/* Feed Section with Quick Access */}
+        {renderMinimalFeed()}
+        
+        {/* Today's Activities */}
+        {renderTodaysActivities()}
+        
+        {/* Profile-Driven Content */}
+        {renderProfileDrivenContent()}
+      </ScrollView>
+    );
+  };
+
   // MAIN COMPONENT RENDER
-  // NUCLEAR RESET: All orphaned code removed
+  return (
+    <SafeAreaView style={[styles.container, styles.thriveMainBackground]}>
+      {/* Clean Header with Hamburger Menu */}
+      <View style={styles.cleanHeader}>
+        <HamburgerMenu
+          onMorningFlow={() => console.log('🚨 EMERGENCY DISABLE: Morning flow disabled')} // EMERGENCY DISABLE
           onMoodCheckin={quickMoodCheckin}
           onSettings={() => setShowSettings(true)}
           onDemo={startDemoMode}
@@ -2373,12 +2182,7 @@ export default function EmergencyEnhanced() {
         workoutName={selectedVideoWorkout?.name || 'Exercise Demo'}
       />
 
-      {/* DISABLED: Morning Flow Modal (EMERGENCY DISABLE) */}
-      {/* <MorningFlow
-        visible={showMorningFlow}
-        onComplete={completeMorningFlow}
-        userStats={userStats}
-      /> */}
+      {/* NUCLEAR RESET: Morning Flow Modal removed - using new onboarding system */}
 
       {/* Settings Modal */}
       <SettingsModal
@@ -2986,7 +2790,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     maxWidth: '100%',
     alignItems: 'stretch',
     alignSelf: 'stretch',
-    backgroundColor: 'rgba(0,255,0,0.1)', // TEMPORARY DEBUG: Green container
+    backgroundColor: theme.colors.surface, // CLEANED: Using theme color
   },
   
   // PROPER HORIZONTAL WIDE TASK CARD
@@ -5919,97 +5723,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     // Inherits styles from existing workout list
   },
 
-  // JOURNEY BUTTON STYLES (Matching Difficulty Button Design)
-  freshJourneySection: {
-    marginBottom: 24,
-    paddingHorizontal: 20,
-  },
-
-  freshJourneyRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-
-  freshJourneyButton: {
-    flex: 1,
-    backgroundColor: theme.colors.surface,
-    borderRadius: 16,
-    padding: 20,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: theme.colors.border,
-    shadowColor: '#16A34A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-
-  freshJourneyButtonSelected: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#16A34A',
-    shadowColor: '#16A34A',
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 5,
-  },
-
-  freshJourneyEmoji: {
-    fontSize: 24,
-    marginBottom: 8,
-  },
-
-  freshJourneyText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#16A34A',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-
-  freshJourneySubtext: {
-    fontSize: 12,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-
-  // JOURNEY STATUS DISPLAY
-  journeyStatusContainer: {
-    backgroundColor: '#F0FDF4',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#16A34A',
-  },
-
-  journeyStatusText: {
-    fontSize: 14,
-    color: '#16A34A',
-    fontWeight: '500',
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-
-  // JOURNEY ENHANCEMENT BANNER
-  journeyEnhancementBanner: {
-    backgroundColor: '#F0FDF4',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#16A34A',
-  },
-
-  journeyEnhancementText: {
-    fontSize: 14,
-    color: '#16A34A',
-    fontWeight: '500',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
+  // NUCLEAR RESET: Removed journey button styles - no longer needed with profile-driven system
 
   // ACTION BUTTONS ROW (START + DEMO)
   freshActionButtonsRow: {
