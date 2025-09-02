@@ -627,7 +627,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
 
   return (
     <View style={styles.container}>
-      {/* Progress Indicator */}
+      {/* Progress Indicator - Visual only, no text counter */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBar}>
           <View 
@@ -637,9 +637,6 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
             ]}
           />
         </View>
-        <Text style={styles.progressText}>
-          {currentSlide} of {TOTAL_SLIDES}
-        </Text>
       </View>
 
       {/* Slide Content */}
@@ -712,15 +709,18 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontWeight: '500',
   },
   
-  // Slide Container
+  // Slide Container - Fixed to prevent overlap with buttons
   slideContainer: {
     flex: 1,
-    justifyContent: 'center',
     paddingHorizontal: 20,
+    paddingBottom: 120, // Extra space to prevent overlap with navigation buttons
   },
   
   slideContent: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    minHeight: '100%',
   },
   
   // Question
@@ -739,19 +739,21 @@ const createStyles = (theme: any) => StyleSheet.create({
     lineHeight: 24,
   },
   
-  // Options
+  // Options - Improved mobile layout
   optionsContainer: {
     width: '100%',
-    gap: 16,
+    gap: 12,
+    marginTop: 20,
+    paddingBottom: 20, // Extra space for button clearance
   },
   optionButton: {
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#E5E7EB',
     borderRadius: 16,
-    padding: 24,
+    padding: 20, // Slightly reduced padding
     alignItems: 'center',
-    minHeight: 80,
+    minHeight: 70, // Slightly reduced height
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -835,12 +837,19 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontWeight: '500',
   },
   
-  // Navigation
+  // Navigation - Fixed positioning
   navigationContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     padding: 20,
     paddingBottom: 40,
     gap: 12,
+    backgroundColor: theme.colors.background || '#F8F9FA',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
   },
   backButton: {
     flex: 1,
