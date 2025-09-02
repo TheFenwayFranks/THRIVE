@@ -151,10 +151,10 @@ export class DailyTaskManager {
    */
   static getProgressLevelDescription(level: number): string {
     if (level <= 2) return 'Just getting started! Every step counts.';
-    if (level <= 4) return 'Building momentum! You\\'re making progress.';
-    if (level <= 6) return 'Great consistency! You\\'re developing strong habits.';
-    if (level <= 8) return 'Excellent progress! You\\'re becoming stronger.';
-    return 'Outstanding! You\\'re thriving at an advanced level.';
+    if (level <= 4) return 'Building momentum! You\'re making progress.';
+    if (level <= 6) return 'Great consistency! You\'re developing strong habits.';
+    if (level <= 8) return 'Excellent progress! You\'re becoming stronger.';
+    return 'Outstanding! You\'re thriving at an advanced level.';
   }
   
   /**
@@ -265,7 +265,7 @@ export class DailyTaskManager {
   static getRecommendedDifficulty(progress: UserProgress): string {
     const avgLevel = (progress.fitnessLevel + progress.mentalHealthProgress) / 2;
     
-    if (avgLevel >= 8) return 'Expert level - you\\'re mastering advanced techniques!';
+    if (avgLevel >= 8) return 'Expert level - you\'re mastering advanced techniques!';
     if (avgLevel >= 6) return 'Advanced level - ready for more challenging tasks!';
     if (avgLevel >= 4) return 'Intermediate level - building strong foundations!';
     return 'Beginner level - perfect starting point for your journey!';
