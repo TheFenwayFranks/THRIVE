@@ -42,9 +42,8 @@ export default function NavigationDrawer({
       Animated.spring(translateX, {
         toValue: visible ? 0 : -DRAWER_WIDTH,
         useNativeDriver: false, // Required for web compatibility
-        tension: 100, // Higher tension = snappier
+        tension: 120, // Higher tension = snappier
         friction: 8, // Lower friction = less bounce, smoother
-        speed: 20, // Faster animation speed
       }),
       Animated.timing(opacity, {
         toValue: visible ? 1 : 0,
