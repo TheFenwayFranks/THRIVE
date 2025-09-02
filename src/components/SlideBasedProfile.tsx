@@ -125,15 +125,15 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
   const canProceed = () => {
     switch (currentSlide) {
       case 1: return profile.name.trim() !== ''; // Personal info - name required
-      case 11: return profile.fitnessLevel !== '';
-      case 11: return profile.exerciseFrequency !== '';
-      case 11: return profile.workoutPreferences !== '';
-      case 11: return profile.availableTime !== '';
-      case 11: return profile.mentalHealthFocus !== '';
-      case 11: return profile.energyLevels !== '';
-      case 11: return profile.motivationTiming !== '';
-      case 11: return profile.ageRange !== '';
-      case 11: return profile.equipmentAccess !== '';
+      case 2: return profile.fitnessLevel !== '';
+      case 3: return profile.exerciseFrequency !== '';
+      case 4: return profile.workoutPreferences !== '';
+      case 5: return profile.availableTime !== '';
+      case 6: return profile.mentalHealthFocus !== '';
+      case 7: return profile.energyLevels !== '';
+      case 8: return profile.motivationTiming !== '';
+      case 9: return profile.ageRange !== '';
+      case 10: return profile.equipmentAccess !== '';
       case 11: return true; // Summary slide
       default: return false;
     }
@@ -177,8 +177,20 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
                 style={styles.textInput}
                 placeholder="MM/DD/YYYY"
                 value={profile.dateOfBirth}
-                onChangeText={(text) => updateProfile('dateOfBirth', text)}
+                onChangeText={(text) => {
+                  // Auto-format date as user types
+                  let formatted = text.replace(/\D/g, ''); // Remove non-digits
+                  if (formatted.length >= 2) {
+                    formatted = formatted.substring(0, 2) + '/' + formatted.substring(2);
+                  }
+                  if (formatted.length >= 5) {
+                    formatted = formatted.substring(0, 5) + '/' + formatted.substring(5, 9);
+                  }
+                  updateProfile('dateOfBirth', formatted);
+                }}
                 placeholderTextColor="#9CA3AF"
+                keyboardType="numeric"
+                maxLength={10}
               />
             </View>
 
@@ -208,32 +220,51 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
 
             <View style={styles.measurementRow}>
               <View style={[styles.inputContainer, styles.halfWidth]}>
-                <Text style={styles.inputLabel}>Weight</Text>
+                <Text style={styles.inputLabel}>Weight (lbs)</Text>
                 <TextInput
                   style={styles.textInput}
-                  placeholder="lbs"
+                  placeholder="150"
                   value={profile.weight}
-                  onChangeText={(text) => updateProfile('weight', text)}
+                  onChangeText={(text) => {
+                    // Only allow numbers for weight
+                    const numericValue = text.replace(/[^0-9]/g, '');
+                    updateProfile('weight', numericValue);
+                  }}
                   placeholderTextColor="#9CA3AF"
                   keyboardType="numeric"
                 />
               </View>
 
               <View style={[styles.inputContainer, styles.halfWidth]}>
-                <Text style={styles.inputLabel}>Height</Text>
+                <Text style={styles.inputLabel}>Height (ft'in)</Text>
                 <TextInput
                   style={styles.textInput}
-                  placeholder="5'8"
+                  placeholder="5'8\""
                   value={profile.height}
-                  onChangeText={(text) => updateProfile('height', text)}
+                  onChangeText={(text) => {
+                    // Auto-format height as user types (e.g., 58 -> 5'8")
+                    let formatted = text.replace(/[^0-9]/g, ''); // Remove non-digits
+                    if (formatted.length >= 1) {
+                      const feet = formatted.substring(0, 1);
+                      const inches = formatted.substring(1, 3);
+                      if (inches) {
+                        formatted = feet + "'" + inches + '"';
+                      } else {
+                        formatted = feet + "'";
+                      }
+                    }
+                    updateProfile('height', formatted);
+                  }}
                   placeholderTextColor="#9CA3AF"
+                  keyboardType="numeric"
+                  maxLength={4}
                 />
               </View>
             </View>
           </View>
         );
 
-      case 11:
+      case 2:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>What's your fitness level?</Text>
@@ -287,7 +318,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 11:
+      case 3:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>How often do you exercise?</Text>
@@ -341,7 +372,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 11:
+      case 4:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>What type of workouts do you prefer?</Text>
@@ -395,7 +426,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 11:
+      case 5:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>How much time can you commit?</Text>
@@ -449,7 +480,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 11:
+      case 6:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>What's your mental health focus?</Text>
@@ -503,7 +534,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 11:
+      case 7:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>How are your energy levels?</Text>
@@ -546,7 +577,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 11:
+      case 8:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>When do you feel most motivated?</Text>
@@ -589,7 +620,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 11:
+      case 9:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>What's your age range?</Text>
@@ -649,7 +680,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 11:
+      case 10:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>What equipment do you have access to?</Text>
