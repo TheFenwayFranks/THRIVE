@@ -1725,8 +1725,43 @@ export default function EmergencyEnhanced() {
     </View>
   );
 
-  // REDESIGNED: Selection-first approach with default selection
-  const [selectedIntensity, setSelectedIntensity] = useState<'gentle' | 'steady' | 'beast'>('steady'); // Default to steady
+  // PROFILE-BASED: Default difficulty determined by user's pathway from profile system
+  const [selectedIntensity, setSelectedIntensity] = useState<'gentle' | 'steady' | 'beast'>('steady'); // Will be set from profile
+
+  // Get difficulty level from user's pathway in profile system
+  const getDifficultyFromProfile = async () => {
+    try {
+      const profile = await StorageService.getUserProfile();
+      if (profile?.pathway) {
+        // Map pathway to difficulty level:
+        // wellness -> gentle (low impact, mindful movement)
+        // fitness -> steady (balanced approach)
+        // performance -> beast (high intensity)
+        switch (profile.pathway) {
+          case 'wellness':
+            return 'gentle';
+          case 'fitness':
+            return 'steady';
+          case 'performance':
+            return 'beast';
+          default:
+            return 'steady'; // Default fallback
+        }
+      }
+      return 'steady'; // Default if no profile
+    } catch (error) {
+      console.log('Could not load profile for difficulty:', error);
+      return 'steady'; // Default fallback
+    }
+  };
+
+  // Initialize difficulty from profile on component mount
+  useEffect(() => {
+    getDifficultyFromProfile().then(difficulty => {
+      setSelectedIntensity(difficulty);
+      console.log('🎯 PROFILE-BASED DIFFICULTY:', difficulty);
+    });
+  }, []);
 
   const renderFocusedActions = () => {
     const recommended = getRecommendedWorkout();
@@ -1828,100 +1863,29 @@ export default function EmergencyEnhanced() {
       );
     }
 
-    // 🎯 DEFAULT: Show normal difficulty selection if inline timer not active
+    // 🎯 PROFILE-BASED: Skip difficulty selection - go directly to workouts based on profile
+    // Difficulty is now determined by user's pathway from the profile system
     return (
       <View style={styles.redesignedWorkoutSelection}>
-        {/* HEADER: Pick Your Level */}
+        {/* HEADER: Ready to THRIVE */}
         <View style={styles.selectionHeaderContainer}>
-          <Text style={styles.selectionHeaderTitle}>Pick Your Level</Text>
-          <Text style={styles.selectionHeaderSubtitle}>Choose the intensity that feels right for you today</Text>
+          <Text style={styles.selectionHeaderTitle}>Ready to THRIVE?</Text>
+          <Text style={styles.selectionHeaderSubtitle}>
+            Your {selectedIntensity === 'gentle' ? 'gentle wellness' : 
+                   selectedIntensity === 'steady' ? 'balanced fitness' : 'high-performance'} workouts await
+          </Text>
         </View>
 
-        {/* DIFFICULTY SELECTION: Top priority placement */}
-        <View style={styles.difficultySelectionRow}>
+        {/* DIRECT WORKOUT ACCESS */}
+        <View style={styles.directWorkoutAccess}>
           <TouchableOpacity 
             style={[
-              styles.difficultyCard, 
-              { backgroundColor: theme.colors.gentle },
-              selectedIntensity === 'gentle' && styles.difficultyCardSelected
-            ]}
-            onPress={() => {
-              console.log('🎯 REDESIGNED: Gentle difficulty selected');
-              setSelectedIntensity('gentle');
-            }}
-          >
-            <Text style={styles.difficultyEmoji}>🌱</Text>
-            <Text style={styles.difficultyLabel}>Gentle</Text>
-            <Text style={styles.difficultyDescription}>Easy & mindful</Text>
-            {selectedIntensity === 'gentle' && (
-              <View style={styles.selectedIndicator}>
-                <Text style={styles.selectedCheckmark}>✓</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[
-              styles.difficultyCard, 
-              { backgroundColor: theme.colors.steady },
-              selectedIntensity === 'steady' && styles.difficultyCardSelected
-            ]}
-            onPress={() => {
-              console.log('🎯 REDESIGNED: Steady difficulty selected');
-              setSelectedIntensity('steady');
-            }}
-          >
-            <Text style={styles.difficultyEmoji}>🚶</Text>
-            <Text style={styles.difficultyLabel}>Steady</Text>
-            <Text style={styles.difficultyDescription}>Balanced flow</Text>
-            {selectedIntensity === 'steady' && (
-              <View style={styles.selectedIndicator}>
-                <Text style={styles.selectedCheckmark}>✓</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[
-              styles.difficultyCard, 
-              { backgroundColor: theme.colors.beast },
-              selectedIntensity === 'beast' && styles.difficultyCardSelected
-            ]}
-            onPress={() => {
-              console.log('🎯 REDESIGNED: Intense difficulty selected');
-              setSelectedIntensity('beast');
-            }}
-          >
-            <Text style={styles.difficultyEmoji}>🔥</Text>
-            <Text style={styles.difficultyLabel}>Intense</Text>
-            <Text style={styles.difficultyDescription}>High energy</Text>
-            {selectedIntensity === 'beast' && (
-              <View style={styles.selectedIndicator}>
-                <Text style={styles.selectedCheckmark}>✓</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* START SECTION: Bottom placement with selection info */}
-        <View style={styles.startWorkoutSection}>
-          <View style={styles.readyToThriveContainer}>
-            <Text style={styles.readyToThriveTitle}>Ready to THRIVE?</Text>
-            <Text style={styles.readyToThriveSubtitle}>
-              {selectedIntensity === 'gentle' && "Gentle movement perfect for mindful energy"}
-              {selectedIntensity === 'steady' && "Steady pace for balanced focus and strength"}
-              {selectedIntensity === 'beast' && "High-intensity training to unleash your power"}
-            </Text>
-          </View>
-          
-          <TouchableOpacity 
-            style={[
-              styles.redesignedStartButton,
+              styles.directStartButton,
               { backgroundColor: getDifficultyColor(selectedIntensity) }
             ]}
             onPress={() => {
-              console.log('🚨 DEBUG: START BUTTON CLICKED!');
-              console.log('🚨 DEBUG: Selected intensity:', selectedIntensity);
+              console.log('🚨 DEBUG: DIRECT START BUTTON CLICKED!');
+              console.log('🚨 DEBUG: Profile-based intensity:', selectedIntensity);
               try {
                 console.log('🚨 DEBUG: About to call quickStartWorkout...');
                 quickStartWorkout(selectedIntensity);
@@ -1931,19 +1895,21 @@ export default function EmergencyEnhanced() {
                 console.error('🚨 CRASH: Stack trace:', error.stack);
               }
             }}
-            activeOpacity={0.85} // Smooth press feedback for premium feel
-            onPressIn={() => {
-              console.log('🎨 ANIMATION: Main start button pressed - premium feedback');
-            }}
-            onPressOut={() => {
-              console.log('🎨 ANIMATION: Main start button released');
-            }}
+            activeOpacity={0.85}
           >
-            <Text style={styles.redesignedStartButtonText}>
-              START {selectedIntensity.toUpperCase()}
+            <Text style={styles.directStartButtonEmoji}>
+              {getDifficultyEmoji(selectedIntensity)}
             </Text>
-            <Text style={styles.redesignedStartArrow}>→</Text>
+            <Text style={styles.directStartButtonText}>
+              START {selectedIntensity.toUpperCase()} WORKOUT
+            </Text>
+            <Text style={styles.directStartButtonArrow}>→</Text>
           </TouchableOpacity>
+          
+          <Text style={styles.profileBasedText}>
+            Based on your {selectedIntensity === 'gentle' ? 'Wellness' : 
+                              selectedIntensity === 'steady' ? 'Fitness' : 'Performance'} journey
+          </Text>
         </View>
       </View>
     );
@@ -5458,6 +5424,67 @@ const createStyles = (theme: any) => StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
+  },
+
+  // DIRECT WORKOUT ACCESS STYLES (Profile-based, no selection needed)
+  directWorkoutAccess: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  directStartButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 28, // Bigger than original
+    paddingHorizontal: 40,
+    borderRadius: 24, // More rounded
+    marginHorizontal: 16,
+    minHeight: 72, // Bigger target
+    marginBottom: 16,
+    // Enhanced shadow for prominence
+    shadowColor: theme.isDark ? theme.colors.primary : '#4CAF50',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: theme.isDark ? 0.5 : 0.35,
+    shadowRadius: 16,
+    elevation: 10,
+    // Theme-specific enhancements
+    ...(theme.isDark ? {
+      borderWidth: 1,
+      borderColor: 'rgba(0, 230, 118, 0.4)',
+    } : {
+      shadowColor: '#2E7D32',
+    }),
+  },
+  directStartButtonEmoji: {
+    fontSize: 28,
+    marginRight: 12,
+  },
+  directStartButtonText: {
+    fontSize: 24, // Larger than original
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    letterSpacing: 0.8,
+    textShadowColor: 'rgba(0, 0, 0, 0.4)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  directStartButtonArrow: {
+    fontSize: 28,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    marginLeft: 16,
+    textShadowColor: 'rgba(0, 0, 0, 0.4)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  profileBasedText: {
+    fontSize: 14,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    opacity: 0.8,
+    paddingHorizontal: 20,
   },
   
   // Minimal Feed
