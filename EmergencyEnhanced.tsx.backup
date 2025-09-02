@@ -2279,6 +2279,320 @@ export default function EmergencyEnhanced() {
 
   // MAIN COMPONENT RENDER
   // NUCLEAR RESET: All orphaned code removed
+
+                {/* COMPLETED TASKS SECTION - Compact at top */}
+                {workout.activities.filter((_, index) => {
+                  const activityKey = `${workout.id}-${workout.activities[index].id}`;
+                  return completedActivities[activityKey];
+                }).length > 0 && (
+                  <View style={styles.freshCompletedSection}>
+                    <Text style={styles.freshCompletedSectionTitle}>
+                      Completed Activities ({getCompletedActivitiesCount(workout)})
+                    </Text>
+                  </View>
+                )}
+
+                {workout.activities.map((activity, index) => {
+                  const activityKey = `${workout.id}-${activity.id}`;
+                  const isCompleted = completedActivities[activityKey];
+                  const isActive = activeTimers[activity.id] || activeInlineTimer?.activityId === activity.id;
+                  
+                  // FLEXIBLE TASK SYSTEM: Show all tasks, allow any order completion
+                  const completedCount = getCompletedActivitiesCount(workout);
+                  
+                  // Prepare active timer data for CollapsibleTaskCard
+                  const currentTimer = activeTimers[activity.id] || (activeInlineTimer?.activityId === activity.id ? activeInlineTimer : null);
+                  const activeTimerData = currentTimer ? {
+                    timeLeft: currentTimer.timeLeft,
+                    isRunning: currentTimer.isRunning // Use actual running state
+                  } : null;
+                  
+                  return (
+                    <CollapsibleTaskCard
+                      key={activity.id}
+                      activity={activity}
+                      workoutId={workout.id}
+                      index={index}
+                      isCompleted={isCompleted}
+                      isActive={isActive}
+                      onStartActivity={startInlineActivity}
+                      onShowDetails={showExerciseDetails}
+                      onShowDemo={showVideoDemo}
+                      onPauseResumeTimer={toggleInlineTimer}
+                      onStopTimer={stopInlineActivity}
+                      onCompleteActivity={completeInlineActivity}
+                      activeTimer={activeTimerData}
+                    />
+                  );
+                })}
+
+                {/* WORKOUT COMPLETION CELEBRATION */}
+                {getCompletedActivitiesCount(workout) === workout.activities.length && (
+                  <View style={styles.freshWorkoutComplete}>
+                    <Text style={styles.freshCelebrationTitle}>🎉 Workout Complete!</Text>
+                    <Text style={styles.freshCelebrationText}>
+                      Amazing work! You've completed all {workout.activities.length} activities.
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
+        ))}
+      </View>
+    );
+  };
+
+  // NUCLEAR RESET: Removed renderWorkoutList function (replaced by profile-driven activities)
+  // const renderWorkoutList = () => { /* REMOVED - depends on manual difficulty selection */ };
+    
+    if (!selectedDifficulty) {
+      console.log('❌ No difficulty selected, returning null');
+      return null;
+    }
+
+    const workouts = workoutDatabase[selectedDifficulty];
+    console.log('📝 Workouts for', selectedDifficulty, ':', workouts);
+    
+    if (!workouts || workouts.length === 0) {
+      console.error('❌ No workouts found for difficulty:', selectedDifficulty);
+      return (
+        <View>
+  
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>No workouts available</Text>
+          </View>
+        </View>
+      );
+    }
+
+    return (
+      <View>
+
+        
+        <View style={styles.workoutContainer}>
+          <View style={styles.workoutHeader}>
+            <Text style={styles.workoutTitle}>
+              {getDifficultyEmoji(selectedDifficulty)} {selectedDifficulty.charAt(0).toUpperCase() + selectedDifficulty.slice(1)} Workouts
+            </Text>
+            <TouchableOpacity 
+              style={styles.resetButton}
+              onPress={handleReset}
+            >
+              <Text style={styles.resetButtonText}>Change Level</Text>
+            </TouchableOpacity>
+          </View>
+
+        {workouts.map((workout) => {
+          const isCompleted = completedWorkouts.includes(workout.id);
+          return (
+            <View key={workout.id} style={[
+              styles.workoutCard,
+              isCompleted && styles.completedWorkoutCard
+            ]}>
+              <View style={styles.workoutInfo}>
+                <View style={styles.workoutNameRow}>
+                  <Text style={[
+                    styles.workoutCardName,
+                    isCompleted && styles.completedWorkoutName
+                  ]}>
+                    {workout.name}
+                  </Text>
+                  {isCompleted && (
+                    <View style={styles.completedBadge}>
+                      <Text style={styles.completedBadgeText}>✓</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={[
+                  styles.workoutDuration,
+                  isCompleted && styles.completedText
+                ]}>
+                  {workout.duration} minutes
+                </Text>
+                <Text style={[
+                  styles.workoutCardDescription,
+                  isCompleted && styles.completedText
+                ]}>
+                  {workout.description}
+                </Text>
+
+                {/* MOBILE-OPTIMIZED ACTIVITY LIST */}
+                {workout.activities && (
+                  <View style={styles.activitiesContainer}>
+                    <Text style={styles.activitiesTitle}>Activities:</Text>
+                    {workout.activities.map((activity, index) => {
+                      const activityKey = `${workout.id}-${activity.id}`;
+                      const isCompleted = completedActivities[activityKey];
+                      const isActive = activeTimers[activity.id] || activeInlineTimer?.activityId === activity.id;
+                      const currentTimer = activeTimers[activity.id] || (activeInlineTimer?.activityId === activity.id ? activeInlineTimer : null);
+                      
+                      return (
+                        <View key={activity.id} style={styles.mobileActivityRow}>
+                          {/* Activity Info - Takes most space but prevents overflow */}
+                          <View style={styles.mobileActivityInfo}>
+                            <Text style={styles.mobileActivityText} numberOfLines={2}>
+                              • {activity.name}
+                            </Text>
+                            
+                            {/* ENHANCED TIMER DISPLAY - Clear state indication */}
+                            {isActive && currentTimer ? (
+                              <View style={[
+                                styles.timerDisplay,
+                                currentTimer.isRunning ? styles.timerDisplayActiveState : styles.timerDisplayPausedState
+                              ]}>
+                                <Text style={[
+                                  styles.timerDisplayText,
+                                  currentTimer.isRunning ? styles.timerDisplayRunning : styles.timerDisplayPaused
+                                ]}>
+                                  {currentTimer.isRunning ? '🟢' : '🔵'} {Math.floor(currentTimer.timeLeft / 60)}:{(currentTimer.timeLeft % 60).toString().padStart(2, '0')} 
+                                  {currentTimer.isRunning ? ' Running' : ' Paused'}
+                                </Text>
+                              </View>
+                            ) : (
+                              <Text style={styles.mobileActivityDuration}>
+                                {Math.floor(activity.duration / 60)}:{(activity.duration % 60).toString().padStart(2, '0')}
+                              </Text>
+                            )}
+                          </View>
+                          
+                          {/* DYNAMIC TIMER BUTTON LAYOUT - Adapts based on timer state */}
+                          {!isActive && !isCompleted ? (
+                            // NO TIMER: Show single PLAY button
+                            <TouchableOpacity 
+                              style={[styles.mobileActivityButton, styles.timerPlayState]}
+                              onPress={() => startInlineActivity(activity, workout.id)}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={[styles.mobileActivityButtonText]}>
+                                ▶️ Play
+                              </Text>
+                            </TouchableOpacity>
+                          ) : isCompleted ? (
+                            // COMPLETED: Show COMPLETE button
+                            <TouchableOpacity 
+                              style={[styles.mobileActivityButton, styles.timerCompleteState]}
+                              disabled={true}
+                            >
+                              <Text style={[styles.mobileActivityButtonText, styles.timerCompleteText]}>
+                                ✅ Complete
+                              </Text>
+                            </TouchableOpacity>
+                          ) : (
+                            // TIMER ACTIVE: Show dual buttons (Pause/Resume + Stop)
+                            <View style={styles.mobileTimerButtonGroup}>
+                              <TouchableOpacity 
+                                style={[
+                                  styles.mobileTimerButton,
+                                  currentTimer?.isRunning ? styles.timerPauseState : styles.timerResumeState
+                                ]}
+                                onPress={() => toggleInlineTimer(activity.id)}
+                                activeOpacity={0.7}
+                              >
+                                <Text style={[styles.mobileTimerButtonText]}>
+                                  {currentTimer?.isRunning ? '⏸️ Pause' : '▶️ Resume'}
+                                </Text>
+                              </TouchableOpacity>
+                              
+                              <TouchableOpacity 
+                                style={[styles.mobileTimerButton, styles.mobileStopButton]}
+                                onPress={() => stopInlineActivity(activity.id)}
+                                activeOpacity={0.7}
+                              >
+                                <Text style={[styles.mobileTimerButtonText]}>
+                                  ⏹️ Stop
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
+              
+            </View>
+            
+            {/* SIMPLIFIED MOBILE BUTTON LAYOUT - Essential actions only */}
+            <View style={styles.simplifiedMobileActions}>
+              {/* PRIMARY ACTION: Start/Complete Button */}
+              <TouchableOpacity 
+                style={[
+                  styles.simplifiedPrimaryButton,
+                  completedWorkouts.includes(workout.id) ? styles.simplifiedCompletedButton : styles.simplifiedStartButton
+                ]}
+                onPress={() => {
+                  if (completedWorkouts.includes(workout.id)) {
+                    // If completed, restart
+                    startWorkout(workout);
+                  } else {
+                    // If not started, begin workout
+                    startWorkout(workout);
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.simplifiedPrimaryButtonText}>
+                  {completedWorkouts.includes(workout.id) ? '✅ Complete' : '▶️ Start'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* MORE MENU: Demo & Details */}
+              <TouchableOpacity 
+                style={[styles.simplifiedSecondaryButton]}
+                onPress={() => {
+                  // Show action sheet with Demo and Details options
+                  Alert.alert(
+                    'Workout Options',
+                    'Choose an action:',
+                    [
+                      {
+                        text: '📺 Watch Demo',
+                        onPress: () => showVideoDemo(workout)
+                      },
+                      {
+                        text: '📋 View Details',
+                        onPress: () => {
+                          // Show first activity details as workout preview
+                          if (workout.activities && workout.activities.length > 0) {
+                            showExerciseDetails(workout.activities[0]);
+                          }
+                        }
+                      },
+                      {
+                        text: 'Cancel',
+                        style: 'cancel'
+                      }
+                    ]
+                  );
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.simplifiedSecondaryButtonText}>
+                  ⋯ More
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          );
+        })}
+
+          <View style={styles.progressSummary}>
+            <Text style={styles.progressText}>
+              Completed: {completedWorkouts.length} / {workouts.length} workouts
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <SafeAreaView style={[styles.container, styles.thriveMainBackground]}>
+      {/* Clean Header with Hamburger Menu */}
+      <View style={styles.cleanHeader}>
+        <HamburgerMenu
+          onMorningFlow={() => console.log('🚨 EMERGENCY DISABLE: Morning flow disabled')} // EMERGENCY DISABLE
           onMoodCheckin={quickMoodCheckin}
           onSettings={() => setShowSettings(true)}
           onDemo={startDemoMode}
