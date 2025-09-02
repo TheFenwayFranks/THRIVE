@@ -37,17 +37,17 @@ export default function NavigationDrawer({
   const opacity = React.useRef(new Animated.Value(visible ? 1 : 0)).current;
 
   React.useEffect(() => {
-    // Use spring animation for ultra-smooth, native-feeling motion like page transitions
+    // Use timing animation for perfectly smooth, no-bounce iOS-style motion
     Animated.parallel([
-      Animated.spring(translateX, {
+      Animated.timing(translateX, {
         toValue: visible ? 0 : -DRAWER_WIDTH,
+        duration: 280, // Slightly longer for smoother feel
         useNativeDriver: false, // Required for web compatibility
-        tension: 120, // Higher tension = snappier
-        friction: 8, // Lower friction = less bounce, smoother
+        easing: Easing.out(Easing.cubic), // Smooth deceleration, no bounce
       }),
       Animated.timing(opacity, {
         toValue: visible ? 1 : 0,
-        duration: 200,
+        duration: 240, // Slightly faster fade
         useNativeDriver: false,
         easing: Easing.out(Easing.cubic), // Smooth fade
       })
@@ -76,19 +76,19 @@ export default function NavigationDrawer({
       if (shouldClose) {
         onClose();
       } else {
-        // Spring back to open position with natural bounce
+        // Smooth return to open position, no bounce
         Animated.parallel([
-          Animated.spring(translateX, {
+          Animated.timing(translateX, {
             toValue: 0,
+            duration: 200, // Quick but smooth return
             useNativeDriver: false,
-            tension: 100,
-            friction: 8,
+            easing: Easing.out(Easing.quad), // Gentle deceleration
           }),
-          Animated.spring(opacity, {
+          Animated.timing(opacity, {
             toValue: 1,
+            duration: 150, // Fast fade back
             useNativeDriver: false,
-            tension: 100,
-            friction: 8,
+            easing: Easing.out(Easing.quad),
           })
         ]).start();
       }
