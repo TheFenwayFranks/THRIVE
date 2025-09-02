@@ -254,7 +254,7 @@ export class DailyTaskManager {
       const stats = await ProgressStorageService.getCompletionStats();
       return stats.todayCompleted > 0;
     } catch (error) {
-      console.error('❌ Error checking today\\'s completions:', error);
+      console.error('❌ Error checking today\'s completions:', error);
       return false;
     }
   }
