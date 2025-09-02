@@ -43,13 +43,13 @@ export default function NavigationDrawer({
     Animated.parallel([
       Animated.timing(translateX, {
         toValue: visible ? 0 : -DRAWER_WIDTH,
-        duration: 280, // Slightly longer for smoother feel
+        duration: visible ? 280 : 400, // Slower closing: 280ms open, 400ms close
         useNativeDriver: false, // Required for web compatibility
         easing: Easing.out(Easing.cubic), // Smooth deceleration, no bounce
       }),
       Animated.timing(opacity, {
         toValue: visible ? 1 : 0,
-        duration: 240, // Slightly faster fade
+        duration: visible ? 240 : 350, // Slower fade out: 240ms in, 350ms out
         useNativeDriver: false,
         easing: Easing.out(Easing.cubic), // Smooth fade
       })
