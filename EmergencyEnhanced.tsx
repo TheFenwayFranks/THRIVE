@@ -1382,6 +1382,11 @@ export default function EmergencyEnhanced() {
     Alert.alert('Help & Support', 'Help and Support feature coming soon!');
   };
 
+  const handleDrawerProfile = () => {
+    console.log('👤 Profile selected from drawer');
+    setShowDemoOnboarding(true); // Use demo onboarding to show/edit profile
+  };
+
   // NUCLEAR RESET: Morning flow functions removed - no longer needed
 
   const handleReset = () => {
@@ -2419,6 +2424,7 @@ export default function EmergencyEnhanced() {
       <NavigationDrawer
         visible={showDrawer}
         onClose={handleDrawerClose}
+        onProfile={handleDrawerProfile}
         onMorningFlow={handleDrawerMorningFlow}
         onMood={handleDrawerMood}
         onSettings={() => setShowSettings(true)}

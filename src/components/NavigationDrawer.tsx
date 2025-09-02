@@ -16,6 +16,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 interface NavigationDrawerProps {
   visible: boolean;
   onClose: () => void;
+  onProfile: () => void;
   onMorningFlow: () => void;
   onMood: () => void;
   onSettings: () => void;
@@ -26,6 +27,7 @@ interface NavigationDrawerProps {
 export default function NavigationDrawer({
   visible,
   onClose,
+  onProfile,
   onMorningFlow,
   onMood,
   onSettings,
@@ -76,19 +78,19 @@ export default function NavigationDrawer({
       if (shouldClose) {
         onClose();
       } else {
-        // Smooth return to open position, no bounce
+        // Smooth return to open position - match opening animation exactly
         Animated.parallel([
           Animated.timing(translateX, {
             toValue: 0,
-            duration: 200, // Quick but smooth return
+            duration: 280, // Match opening duration exactly
             useNativeDriver: false,
-            easing: Easing.out(Easing.quad), // Gentle deceleration
+            easing: Easing.out(Easing.cubic), // Match opening easing exactly
           }),
           Animated.timing(opacity, {
             toValue: 1,
-            duration: 150, // Fast fade back
+            duration: 240, // Match opening fade duration exactly
             useNativeDriver: false,
-            easing: Easing.out(Easing.quad),
+            easing: Easing.out(Easing.cubic), // Match opening easing exactly
           })
         ]).start();
       }
@@ -96,6 +98,7 @@ export default function NavigationDrawer({
   });
 
   const menuItems = [
+    { title: 'Profile', onPress: onProfile },
     { title: 'Morning Flow', onPress: onMorningFlow },
     { title: 'Mood', onPress: onMood },
     { title: 'Settings', onPress: onSettings },
