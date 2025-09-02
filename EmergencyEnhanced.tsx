@@ -390,9 +390,43 @@ export default function EmergencyEnhanced() {
     // DISABLED: checkMorningFlowStatus(); // EMERGENCY DISABLE TO PREVENT CONFLICTS
   }, []);
 
+  // MOBILE DETECTION - Simple user agent check for mobile bypass
+  const isMobile = () => {
+    if (typeof window !== 'undefined' && window.navigator) {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent);
+    }
+    return false;
+  };
+
   // EMERGENCY ONBOARDING STATE MANAGER
   const initializeOnboardingState = async () => {
     console.log('🚨 EMERGENCY INIT: Starting clean onboarding state');
+    
+    // MOBILE BYPASS: Skip onboarding on mobile to prevent white screen
+    if (isMobile()) {
+      console.log('📱 MOBILE DETECTED: Bypassing onboarding to prevent white screen');
+      const mobileBypassState = {
+        isFirstTime: false,
+        showOnboarding: false,
+        onboardingType: 'mobile-bypass' as const,
+        hasCompletedOnboarding: true,
+        debugInfo: {
+          bypassReason: 'Mobile compatibility',
+          timestamp: new Date().toISOString()
+        }
+      };
+      setOnboardingState(mobileBypassState);
+      
+      // Set a default mobile-friendly profile
+      setUserProfile({
+        name: 'Mobile User',
+        difficulty: 'steady',
+        bypassMode: true
+      });
+      
+      console.log('📱 MOBILE BYPASS COMPLETE: App ready for mobile use');
+      return;
+    }
     
     try {
       // Clean any potential conflicts automatically
@@ -2105,6 +2139,19 @@ export default function EmergencyEnhanced() {
     );
   };
 
+  // Loading state check - show loading until onboarding state is initialized
+  if (!onboardingState) {
+    return (
+      <SafeAreaView style={[styles.container, styles.thriveMainBackground]}>
+        <View style={styles.loadingContainer}>
+          <Text style={[styles.loadingText, styles.thriveHero]}>
+            {isMobile() ? '📱 Loading THRIVE Mobile...' : '🌟 Loading THRIVE...'}
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   // MAIN COMPONENT RENDER
   return (
     <EdgeSwipeDetector onSwipeFromEdge={handleDrawerOpen}>
@@ -2340,10 +2387,13 @@ export default function EmergencyEnhanced() {
       </Modal>
 
       {/* SLIDE-BASED PROFILE SETUP - NO SCROLLING, ADHD-FRIENDLY */}
-      <SlideBasedProfile
-        visible={onboardingState?.showOnboarding || false}
-        onComplete={handleOnboardingComplete}
-      />
+      {/* Only show onboarding on desktop to prevent mobile white screen */}
+      {!isMobile() && (
+        <SlideBasedProfile
+          visible={onboardingState?.showOnboarding || false}
+          onComplete={handleOnboardingComplete}
+        />
+      )}
       
       {/* DEMO MODE SLIDE-BASED PROFILE - NON-DESTRUCTIVE TUTORIAL */}
       <SlideBasedProfile
@@ -6305,5 +6355,22 @@ const createStyles = (theme: any) => StyleSheet.create({
     color: '#666666',
     textAlign: 'center',
     marginTop: 16,
+  },
+
+  // Mobile-specific loading styles
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    paddingHorizontal: 20,
+  },
+  
+  loadingText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4CAF50',
+    textAlign: 'center',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
   },
 });
