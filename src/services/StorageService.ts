@@ -41,13 +41,25 @@ interface AppSettings {
 }
 
 interface UserProfile {
-  name: string;
-  motivation: 'gentle' | 'energetic' | 'focused';
-  goals: string[];
-  reason: string;
-  morningFlowEnabled: boolean;
-  communityUsername: string;
+  // Legacy fields (for backward compatibility)
+  name?: string;
+  motivation?: 'gentle' | 'energetic' | 'focused';
+  goals?: string[];
+  reason?: string;
+  morningFlowEnabled?: boolean;
+  communityUsername?: string;
   createdAt?: string;
+  
+  // New slide-based profile fields
+  fitnessLevel?: 'beginner' | 'intermediate' | 'advanced' | 'athlete';
+  exerciseFrequency?: 'never' | '1-2x_week' | '3-4x_week' | 'daily';
+  workoutPreferences?: 'strength' | 'cardio' | 'flexibility' | 'mixed';
+  availableTime?: '15min' | '30min' | '45min' | '60min_plus';
+  mentalHealthFocus?: 'adhd' | 'anxiety' | 'depression' | 'general';
+  energyLevels?: 'low' | 'variable' | 'high';
+  motivationTiming?: 'morning' | 'afternoon' | 'evening';
+  ageRange?: '18-25' | '26-35' | '36-45' | '46-55' | '55_plus';
+  equipmentAccess?: 'none' | 'basic' | 'full_gym';
 }
 
 export class StorageService {

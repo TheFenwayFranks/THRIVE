@@ -20,7 +20,7 @@ import CommunityFeed from './src/components/CommunityFeed';
 import StatsTab from './src/components/StatsTab';
 import SwipeNavigation, { PageName } from './src/components/PureSwipeNavigation';
 import HamburgerMenu from './src/components/HamburgerMenu';
-import WebOnboarding from './web-onboarding';
+import SlideBasedProfile from './src/components/SlideBasedProfile';
 import { OnboardingManager, OnboardingState } from './src/services/OnboardingManager';
 import CollapsibleTaskCard from './src/components/CollapsibleTaskCard';
 
@@ -247,7 +247,8 @@ interface UserStats {
 export default function EmergencyEnhanced() {
   const { theme, toggleTheme, themeMode } = useTheme();
   const styles = createStyles(theme);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<'gentle' | 'steady' | 'beast' | null>(null);
+  // NUCLEAR RESET: Remove manual difficulty selection - app determines automatically
+  // const [selectedDifficulty, setSelectedDifficulty] = useState<'gentle' | 'steady' | 'beast' | null>(null);
   const [completedWorkouts, setCompletedWorkouts] = useState<number[]>([]);
   
   // Timer states
@@ -289,11 +290,13 @@ export default function EmergencyEnhanced() {
   const [todayGoal, setTodayGoal] = useState({ current: 0, target: 50 }); // XP goal
 
   // DYNAMIC CONTENT ANIMATION STATES
-  const [contentOpacity] = useState(new Animated.Value(1));
-  const [prevSelectedDifficulty, setPrevSelectedDifficulty] = useState<string | null>(null);
+  // NUCLEAR RESET: Remove animation and previous state tracking (no journey selection)
+  // const [contentOpacity] = useState(new Animated.Value(1));
+  // const [prevSelectedDifficulty, setPrevSelectedDifficulty] = useState<string | null>(null);
 
   // JOURNEY/POTENTIAL BUTTON STATES
-  const [selectedJourney, setSelectedJourney] = useState<'new' | 'potential' | null>(null);
+  // NUCLEAR RESET: Remove journey selection - profile system handles this automatically
+  // const [selectedJourney, setSelectedJourney] = useState<'new' | 'potential' | null>(null);
 
   // VIDEO DEMONSTRATION MODAL STATE
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -611,16 +614,10 @@ export default function EmergencyEnhanced() {
     }
   };
 
-  const handleDifficultySelect = (difficulty: 'gentle' | 'steady' | 'beast') => {
-    console.log(`🎯 Difficulty selected: ${difficulty}`);
-    console.log('📊 Current state before difficulty selection:');
-    console.log('- userStats:', userStats);
-    console.log('- selectedDifficulty (current):', selectedDifficulty);
-    console.log('- workoutDatabase for', difficulty, ':', workoutDatabase[difficulty]);
-    
-    setSelectedDifficulty(difficulty);
-    console.log('✅ setSelectedDifficulty called successfully');
-  };
+  // NUCLEAR RESET: Remove manual difficulty selection function (app chooses intelligently)
+  // const handleDifficultySelect = (difficulty: 'gentle' | 'steady' | 'beast') => {
+  //   // No longer needed - app automatically determines appropriate difficulty
+  // };
 
   const startWorkout = (workout: any) => {
     console.log('🚨 DEBUG: startWorkout called with:', workout);
@@ -676,7 +673,7 @@ export default function EmergencyEnhanced() {
     console.log('✅ LEGITIMATE AUTO-REDIRECT: Workout canceled, returning to home');
     setActivePage('home');
     setCurrentPageIndex(0);
-    setSelectedDifficulty(null);
+    // NUCLEAR RESET: No difficulty selection to clear
   };
 
   const abandonWorkout = () => {
@@ -786,7 +783,7 @@ export default function EmergencyEnhanced() {
   };
 
   const completeWorkout = async () => {
-    if (!currentWorkout || !selectedDifficulty) return;
+    if (!currentWorkout) return;
 
     // Stop timer
     if (timerRef.current) {
@@ -794,9 +791,9 @@ export default function EmergencyEnhanced() {
     }
     setIsRunning(false);
 
-    // Calculate XP based on difficulty (Phase 1 system)
-    const xpGain = selectedDifficulty === 'gentle' ? 10 : 
-                   selectedDifficulty === 'steady' ? 20 : 30;
+    // NUCLEAR RESET: Intelligent XP calculation based on workout data (not user selection)
+    const intelligentXPGain = calculateIntelligentXP(currentWorkout);
+    const xpGain = intelligentXPGain;
 
     // Update completed workouts
     if (!completedWorkouts.includes(currentWorkout.id)) {
@@ -817,21 +814,17 @@ export default function EmergencyEnhanced() {
 
     await saveUserStats(newStats);
 
-    // Prepare celebration
-    const celebrationMessages = {
-      gentle: "Gentle movement, powerful impact!",
-      steady: "Steady progress builds lasting change!", 
-      beast: "You unleashed your inner strength!"
-    };
+    // NUCLEAR RESET: Intelligent celebration messaging based on workout type
+    const intelligentMessage = getIntelligentCelebrationMessage(currentWorkout);
 
     setCelebrationData({
       xpGain,
-      message: celebrationMessages[selectedDifficulty]
+      message: intelligentMessage
     });
 
-    // Store data for mood tracking
+    // Store data for mood tracking (no difficulty selection needed)
     setCompletedWorkoutData({
-      difficulty: selectedDifficulty,
+      difficulty: 'intelligent', // App-determined
       xpGain,
       workoutName: currentWorkout.name,
       workoutDuration: currentWorkout.duration
@@ -846,7 +839,7 @@ export default function EmergencyEnhanced() {
     console.log('✅ LEGITIMATE AUTO-REDIRECT: Workout completed, returning to home');
     setActivePage('home');
     setCurrentPageIndex(0);
-    setSelectedDifficulty(null);
+    // NUCLEAR RESET: No difficulty selection to clear
 
     // Show celebration
     setShowCelebration(true);
@@ -887,15 +880,14 @@ export default function EmergencyEnhanced() {
       if (completedInWorkout === workout.activities.length) {
         console.log('🎉 PROGRESSIVE: All activities completed! Auto-completing workout...');
         
-        // Award bonus XP for progressive completion
-        const baseXP = selectedDifficulty === 'gentle' ? 10 : 
-                      selectedDifficulty === 'steady' ? 20 : 30;
-        const progressiveBonus = Math.floor(baseXP * 0.5); // 50% bonus for completing all activities
+        // NUCLEAR RESET: Intelligent XP calculation based on workout complexity
+        const intelligentXP = calculateIntelligentXP(workout);
+        const progressiveBonus = Math.floor(intelligentXP * 0.5); // 50% bonus for completing all activities
         
         // Store enhanced completion data
         setCompletedWorkoutData({
-          difficulty: selectedDifficulty!,
-          xpGain: baseXP + progressiveBonus,
+          difficulty: 'intelligent', // App-determined
+          xpGain: intelligentXP + progressiveBonus,
           workoutName: workout.name,
           workoutDuration: workout.duration
         });
@@ -1203,11 +1195,83 @@ export default function EmergencyEnhanced() {
     return messages[Math.floor(Math.random() * messages.length)];
   };
 
-  const getRecommendedWorkout = () => {
+  // INTELLIGENT XP CALCULATION: Based on workout complexity and duration
+  const calculateIntelligentXP = (workout: any) => {
+    const baseXP = 10;
+    const durationBonus = Math.floor(workout.duration / 2); // 5 XP per 2 minutes
+    const activityBonus = workout.activities ? workout.activities.length * 2 : 5;
+    return baseXP + durationBonus + activityBonus;
+  };
+  
+  // INTELLIGENT CELEBRATION MESSAGING: Based on workout characteristics
+  const getIntelligentCelebrationMessage = (workout: any) => {
+    const messages = [
+      "Amazing progress on your wellness journey!",
+      "You're building healthy habits that last!", 
+      "Every session brings you closer to your goals!",
+      "Your commitment to yourself is inspiring!",
+      "Well done! Your body and mind thank you!"
+    ];
+    
+    // Choose message based on workout characteristics
+    if (workout.duration <= 3) {
+      return "Small steps, big impact! Well done!";
+    } else if (workout.duration <= 8) {
+      return "Steady progress builds lasting change!";
+    } else {
+      return "You challenged yourself and succeeded!";
+    }
+  };
+
+  // INTELLIGENT ACTIVITY RECOMMENDATION: Profile-driven, no user choice required
+  const getRecommendedActivities = () => {
     const hour = new Date().getHours();
-    if (hour < 10) return { difficulty: 'gentle', reason: 'Gentle start for morning energy' };
-    if (hour < 16) return { difficulty: 'steady', reason: 'Steady pace for midday focus' };
-    return { difficulty: 'beast', reason: 'High intensity to finish strong' };
+    const dayOfWeek = new Date().getDay(); // 0 = Sunday, 6 = Saturday
+    
+    // Intelligent difficulty determination (no user selection needed)
+    let recommendedDifficulty = 'gentle'; // Default safe choice
+    
+    // Time-based intelligence
+    if (hour >= 6 && hour < 10) {
+      recommendedDifficulty = 'gentle'; // Morning: gentle start
+    } else if (hour >= 10 && hour < 16) {
+      recommendedDifficulty = 'steady'; // Midday: steady energy
+    } else if (hour >= 16 && hour < 20) {
+      recommendedDifficulty = userStats.streak > 3 ? 'steady' : 'gentle'; // Afternoon: adaptive
+    } else {
+      recommendedDifficulty = 'gentle'; // Evening: wind down
+    }
+    
+    // Streak-based progression (app learns user capability)
+    if (userStats.streak > 7) {
+      // User has consistency, can handle more intensity
+      if (recommendedDifficulty === 'gentle') recommendedDifficulty = 'steady';
+      else if (recommendedDifficulty === 'steady') recommendedDifficulty = 'beast';
+    }
+    
+    // Get activities from determined difficulty
+    const availableWorkouts = workoutDatabase[recommendedDifficulty] || workoutDatabase.gentle;
+    
+    // Intelligent selection: prioritize uncompleted, then variety
+    const uncompletedWorkouts = availableWorkouts.filter(w => !completedWorkouts.includes(w.id));
+    const workoutsToShow = uncompletedWorkouts.length > 0 ? uncompletedWorkouts : availableWorkouts;
+    
+    // Return top 3 recommended activities
+    return workoutsToShow.slice(0, 3).map(workout => ({
+      ...workout,
+      intelligentReason: `Recommended for ${hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening'} wellness`
+    }));
+  };
+  
+  const getRecommendedWorkout = () => {
+    const activities = getRecommendedActivities();
+    return activities.length > 0 ? {
+      difficulty: 'intelligent',
+      reason: 'AI-curated based on your profile and patterns'
+    } : {
+      difficulty: 'gentle',
+      reason: 'Gentle start for your wellness journey'
+    };
   };
 
   const getXPProgress = () => {
@@ -1298,6 +1362,7 @@ export default function EmergencyEnhanced() {
       case 'gentle': return '#10B981';
       case 'steady': return '#3B82F6';
       case 'beast': return '#EF4444';
+      case 'intelligent': return '#4CAF50'; // THRIVE green for AI-curated
       default: return '#6B7280';
     }
   };
@@ -1728,15 +1793,30 @@ export default function EmergencyEnhanced() {
   // PROFILE-BASED: Default difficulty determined by user's pathway from profile system
   const [selectedIntensity, setSelectedIntensity] = useState<'gentle' | 'steady' | 'beast'>('steady'); // Will be set from profile
 
-  // Get difficulty level from user's pathway in profile system
+  // Get difficulty level from user's fitness level in slide-based profile system
   const getDifficultyFromProfile = async () => {
     try {
       const profile = await StorageService.getUserProfile();
+      if (profile?.fitnessLevel) {
+        // Map fitness level to difficulty level:
+        // beginner -> gentle (easy, supportive movements)
+        // intermediate -> steady (balanced, moderate intensity)
+        // advanced/athlete -> beast (challenging, high intensity)
+        switch (profile.fitnessLevel) {
+          case 'beginner':
+            return 'gentle';
+          case 'intermediate':
+            return 'steady';
+          case 'advanced':
+          case 'athlete':
+            return 'beast';
+          default:
+            return 'steady'; // Default fallback
+        }
+      }
+      
+      // Legacy pathway fallback for existing users
       if (profile?.pathway) {
-        // Map pathway to difficulty level:
-        // wellness -> gentle (low impact, mindful movement)
-        // fitness -> steady (balanced approach)
-        // performance -> beast (high intensity)
         switch (profile.pathway) {
           case 'wellness':
             return 'gentle';
@@ -1745,9 +1825,10 @@ export default function EmergencyEnhanced() {
           case 'performance':
             return 'beast';
           default:
-            return 'steady'; // Default fallback
+            return 'steady';
         }
       }
+      
       return 'steady'; // Default if no profile
     } catch (error) {
       console.log('Could not load profile for difficulty:', error);
@@ -1791,14 +1872,14 @@ export default function EmergencyEnhanced() {
             <Text style={styles.inlineWorkoutTitle}>{inlineWorkout.name}</Text>
             <Text style={styles.inlineWorkoutDescription}>{inlineWorkout.description}</Text>
             <View style={styles.inlineDifficultyBadge}>
-              <Text style={[styles.inlineDifficultyText, { backgroundColor: getDifficultyColor(selectedDifficulty || 'steady') }]}>
-                {getDifficultyEmoji(selectedDifficulty || 'steady')} {getDifficultyLabel(selectedDifficulty || 'steady')}
+              <Text style={[styles.inlineDifficultyText, { backgroundColor: getDifficultyColor('intelligent') }]}>
+                💚 CURATED
               </Text>
             </View>
           </View>
 
           {/* Timer Display */}
-          <View style={[styles.inlineTimerDisplay, { backgroundColor: getDifficultyColor(selectedDifficulty || 'steady') }]}>
+          <View style={[styles.inlineTimerDisplay, { backgroundColor: getDifficultyColor('intelligent') }]}>
             <Text style={styles.inlineTimerText}>
               {(() => {
                 const safeTime = timeLeft || (inlineWorkout.duration * 60);
@@ -1839,7 +1920,7 @@ export default function EmergencyEnhanced() {
                 // Show success alert
                 Alert.alert(
                   "Great Job! 🎉",
-                  `You completed your ${selectedDifficulty} workout!`,
+                  "You completed your curated workout!",
                   [{ text: "Continue", style: "default" }]
                 );
               }}
@@ -1944,48 +2025,62 @@ export default function EmergencyEnhanced() {
     </View>
   );
 
-  // ANIMATE CONTENT TRANSITIONS
-  useEffect(() => {
-    if (selectedDifficulty !== prevSelectedDifficulty) {
-      // Fade out current content
-      Animated.timing(contentOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => {
-        // Update previous state
-        setPrevSelectedDifficulty(selectedDifficulty);
-        
-        // Fade in new content
-        Animated.timing(contentOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
-      });
-    }
-  }, [selectedDifficulty, prevSelectedDifficulty, contentOpacity]);
+  // REMOVED: Animation effects for journey selection (no longer needed)
 
-  // DYNAMIC CONTENT SWITCHING: Stats ↔ Workout Tasks
-  const renderDynamicContent = () => {
+  // CLEAN PROFILE-DRIVEN CONTENT: No selection required
+  const renderTodaysActivities = () => {
+    // Automatically determine recommended activities based on profile/time/previous completion
+    const recommendedActivities = getRecommendedActivities();
+    
     return (
-      <Animated.View 
-        style={[
-          styles.dynamicContentContainer,
-          { opacity: contentOpacity }
-        ]}
-      >
-        {selectedDifficulty ? (
-          renderWorkoutTasksContent()
-        ) : (
-          renderMotivationalStatsContent()
-        )}
-      </Animated.View>
+      <View style={styles.todaysActivitiesSection}>
+        <Text style={styles.sectionTitle}>Today's Activities</Text>
+        <Text style={styles.sectionSubtitle}>Curated for your wellness journey</Text>
+        
+        {recommendedActivities.map((activity, index) => (
+          <View key={index} style={styles.activityCard}>
+            <Text style={styles.activityName}>{activity.name}</Text>
+            <Text style={styles.activityDuration}>{activity.duration} minutes</Text>
+            <Text style={styles.activityDescription}>{activity.description}</Text>
+            
+            <TouchableOpacity 
+              style={styles.startActivityButton}
+              onPress={() => startWorkout(activity)}
+            >
+              <Text style={styles.startActivityButtonText}>Start Activity</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </View>
+    );
+  };
+  
+  const renderProfileDrivenContent = () => {
+    return (
+      <View style={styles.profileContentSection}>
+        <View style={styles.quickStatsCard}>
+          <Text style={styles.quickStatsTitle}>Your Progress</Text>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{userStats.streak}</Text>
+              <Text style={styles.statLabel}>Day Streak</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{userStats.totalWorkouts}</Text>
+              <Text style={styles.statLabel}>Total Sessions</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{userStats.xp}</Text>
+              <Text style={styles.statLabel}>XP Earned</Text>
+            </View>
+          </View>
+        </View>
+      </View>
     );
   };
 
-  // MOTIVATIONAL STATS: Default browsing state
-  const renderMotivationalStatsContent = () => {
+  // NUCLEAR RESET: Removed renderMotivationalStatsContent function (replaced by profile-driven content)
+  // const renderMotivationalStatsContent = () => { /* REMOVED - 160+ lines of redundant journey selection content */ };
     const currentLevel = Math.floor(userStats.xp / 100) + 1;
     const progressToNextLevel = userStats.xp % 100;
     const weeklyGoal = 5; // 5 workouts per week
@@ -2147,91 +2242,23 @@ export default function EmergencyEnhanced() {
   };
   
   // WORKOUT TASKS: Selected difficulty state with journey modifications
-  const renderWorkoutTasksContent = () => {
-    return (
-      <Animated.View style={[styles.workoutTasksContainer]}>
-        {/* Journey Enhancement Message */}
-        {selectedJourney && (
-          <View style={styles.journeyEnhancementBanner}>
-            <Text style={styles.journeyEnhancementText}>
-              {selectedJourney === 'new' 
-                ? "🌱 Tasks adapted for foundational learning and steady progress"
-                : "✨ Tasks enhanced for maximum challenge and growth acceleration"
-              }
-            </Text>
-          </View>
-        )}
-        {renderFreshWorkoutList()}
-      </Animated.View>
-    );
-  };
+  // NUCLEAR RESET: Remove old workout tasks function (replaced by profile-driven activities)
+  // const renderWorkoutTasksContent = () => { /* REMOVED */ };
 
   // NUCLEAR REBUILD: FRESH HOME PAGE FROM SCRATCH
   const renderDashboard = () => (
-    <View style={styles.nuclearFreshPage}>
-      {/* STEP 1: PAGE HEADER */}
-      <View style={styles.freshPageHeader}>
-        <Text style={styles.freshPageTitle}>Let's THRIVE Together!</Text>
-        <Text style={styles.freshPageSubtitle}>Customize your workout experience</Text>
+    <View style={styles.nuclearCleanPage}>
+      {/* CLEAN WELCOME HEADER */}
+      <View style={styles.cleanWelcomeHeader}>
+        <Text style={styles.welcomeTitle}>Ready to THRIVE Today?</Text>
+        <Text style={styles.welcomeSubtitle}>Your personalized activities are ready</Text>
       </View>
       
-      {/* STEP 2: JOURNEY/POTENTIAL SELECTOR (Above Difficulty) */}
-      <View style={styles.freshJourneySection}>
-        <Text style={styles.freshSectionTitle}>Choose Your Journey</Text>
-        <Text style={styles.freshSectionSubtitle}>Select your mindset and approach for today's session</Text>
-        
-        <View style={styles.freshJourneyRow}>
-          <TouchableOpacity 
-            style={[styles.freshJourneyButton, selectedJourney === 'new' && styles.freshJourneyButtonSelected]}
-            onPress={() => setSelectedJourney('new')}
-          >
-            <Text style={styles.freshJourneyEmoji}>🌱</Text>
-            <Text style={styles.freshJourneyText}>New Journey</Text>
-            <Text style={styles.freshJourneySubtext}>Building foundations</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.freshJourneyButton, selectedJourney === 'potential' && styles.freshJourneyButtonSelected]}
-            onPress={() => setSelectedJourney('potential')}
-          >
-            <Text style={styles.freshJourneyEmoji}>✨</Text>
-            <Text style={styles.freshJourneyText}>Full Potential</Text>
-            <Text style={styles.freshJourneySubtext}>Maximizing growth</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      {/* TODAY'S ACTIVITIES SECTION */}
+      {renderTodaysActivities()}
       
-      {/* STEP 3: DIFFICULTY SELECTOR */}
-      <View style={styles.freshDifficultySection}>
-        <Text style={styles.freshSectionTitle}>Pick Your Intensity</Text>
-        <Text style={styles.freshSectionSubtitle}>Choose the physical intensity that feels right for you today</Text>
-        
-        <View style={styles.freshDifficultyRow}>
-          <TouchableOpacity 
-            style={[styles.freshDifficultyButton, selectedDifficulty === 'gentle' && styles.freshDifficultyButtonSelected]}
-            onPress={() => setSelectedDifficulty(selectedDifficulty === 'gentle' ? null : 'gentle')}
-          >
-            <Text style={styles.freshDifficultyText}>🌱 Gentle</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.freshDifficultyButton, selectedDifficulty === 'steady' && styles.freshDifficultyButtonSelected]}
-            onPress={() => setSelectedDifficulty(selectedDifficulty === 'steady' ? null : 'steady')}
-          >
-            <Text style={styles.freshDifficultyText}>⚡ Steady</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.freshDifficultyButton, selectedDifficulty === 'beast' && styles.freshDifficultyButtonSelected]}
-            onPress={() => setSelectedDifficulty(selectedDifficulty === 'beast' ? null : 'beast')}
-          >
-            <Text style={styles.freshDifficultyText}>🔥 Beast</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* STEP 3: DYNAMIC CONTENT SWITCHING */}
-      {renderDynamicContent()}
+      {/* PROFILE-DRIVEN CONTENT */}
+      {renderProfileDrivenContent()}
     </View>
   );
 
@@ -2245,8 +2272,8 @@ export default function EmergencyEnhanced() {
   };
 
   // FRESH WORKOUT LIST - NO LEGACY CONSTRAINTS
-  const renderFreshWorkoutList = () => {
-    if (!selectedDifficulty) return null;
+  // NUCLEAR RESET: Removed renderFreshWorkoutList function (replaced by profile-driven activities)
+  // const renderFreshWorkoutList = () => { /* REMOVED - depends on manual difficulty selection */ };
 
     const workouts = workoutDatabase[selectedDifficulty];
     if (!workouts || workouts.length === 0) return null;
@@ -2343,8 +2370,8 @@ export default function EmergencyEnhanced() {
     );
   };
 
-  const renderWorkoutList = () => {
-    console.log('🔍 renderWorkoutList called with selectedDifficulty:', selectedDifficulty);
+  // NUCLEAR RESET: Removed renderWorkoutList function (replaced by profile-driven activities)
+  // const renderWorkoutList = () => { /* REMOVED - depends on manual difficulty selection */ };
     
     if (!selectedDifficulty) {
       console.log('❌ No difficulty selected, returning null');
@@ -2832,18 +2859,17 @@ export default function EmergencyEnhanced() {
         </View>
       </Modal>
 
-      {/* MASTER ONBOARDING FLOW - SINGLE SOURCE OF TRUTH */}
-      <WebOnboarding
+      {/* SLIDE-BASED PROFILE SETUP - NO SCROLLING, ADHD-FRIENDLY */}
+      <SlideBasedProfile
         visible={onboardingState?.showOnboarding || false}
         onComplete={handleOnboardingComplete}
       />
       
-      {/* DEMO MODE ONBOARDING - NON-DESTRUCTIVE TUTORIAL */}
-      <WebOnboarding
+      {/* DEMO MODE SLIDE-BASED PROFILE - NON-DESTRUCTIVE TUTORIAL */}
+      <SlideBasedProfile
         visible={showDemoOnboarding}
         onComplete={handleDemoComplete}
-        demoMode={true}
-        onExit={exitDemoMode}
+        onClose={exitDemoMode}
       />
       
       {/* Debug banner removed - clean UI */}
@@ -2950,6 +2976,122 @@ const createStyles = (theme: any) => StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: theme.colors.textSecondary,
+    textAlign: 'center',
+  },
+  // NUCLEAR RESET STYLES - Clean, minimal home page
+  nuclearCleanPage: {
+    flex: 1,
+    backgroundColor: '#ffffff', // Clean white background
+    padding: 20,
+  },
+  cleanWelcomeHeader: {
+    alignItems: 'center',
+    marginBottom: 32,
+    paddingVertical: 20,
+  },
+  welcomeTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#2E7D32', // THRIVE green
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  welcomeSubtitle: {
+    fontSize: 16,
+    color: '#666666',
+    textAlign: 'center',
+    fontWeight: '400',
+  },
+  todaysActivitiesSection: {
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#333333',
+    marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#888888',
+    marginBottom: 20,
+  },
+  activityCard: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50', // THRIVE green accent
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  activityName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 6,
+  },
+  activityDuration: {
+    fontSize: 14,
+    color: '#4CAF50',
+    fontWeight: '500',
+    marginBottom: 8,
+  },
+  activityDescription: {
+    fontSize: 14,
+    color: '#666666',
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  startActivityButton: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  startActivityButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  profileContentSection: {
+    marginBottom: 32,
+  },
+  quickStatsCard: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  quickStatsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#4CAF50',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666666',
     textAlign: 'center',
   },
   section: {
