@@ -102,7 +102,7 @@ export default function NavigationDrawer({
     { title: 'Morning Flow', onPress: onMorningFlow },
     { title: 'Mood', onPress: onMood },
     { title: 'Settings', onPress: onSettings },
-    { title: 'Demo Tutorial', onPress: onDemo },
+    { title: 'Profile Set Up', onPress: onDemo },
     { title: 'Help and Support', onPress: onHelp },
   ];
 

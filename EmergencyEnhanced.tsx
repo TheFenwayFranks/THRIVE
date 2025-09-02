@@ -23,6 +23,8 @@ import ActivityPlaceholder from './src/components/ActivityPlaceholder';
 import SlideBasedProfile from './src/components/SlideBasedProfile';
 import { OnboardingManager, OnboardingState } from './src/services/OnboardingManager';
 import CollapsibleTaskCard from './src/components/CollapsibleTaskCard';
+import { DailyTaskManager } from './src/services/DailyTaskManager';
+import { DailyTask, UserProgress } from './src/services/TaskGenerationService';
 
 // ENHANCED THRIVE DASHBOARD - Full ADHD-Optimized Interface
 // Includes: Quick Access + Dashboard + Smart Shortcuts + Minimal Navigation
@@ -305,6 +307,12 @@ export default function EmergencyEnhanced() {
   const [demoMode, setDemoMode] = useState(false);
   const [showDemoOnboarding, setShowDemoOnboarding] = useState(false);
   
+  // DAILY TASK SYSTEM STATE
+  const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([]);
+  const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
+  const [progressStats, setProgressStats] = useState<any>(null);
+  const [tasksLoaded, setTasksLoaded] = useState(false);
+  
   // Removed debug state - no longer needed
   
   // EMERGENCY STATE MONITORING
@@ -389,6 +397,35 @@ export default function EmergencyEnhanced() {
     loadCompletedActivities(); // PROGRESSIVE: Load individual activity completions
     // DISABLED: checkMorningFlowStatus(); // EMERGENCY DISABLE TO PREVENT CONFLICTS
   }, []);
+  
+  // DAILY TASKS INITIALIZATION - Personalized based on user profile
+  useEffect(() => {
+    const initializeDailyTasks = async () => {
+      try {
+        console.log('🎯 INITIALIZING DAILY TASK SYSTEM...');
+        const tasks = await DailyTaskManager.initializeDailyTasks();
+        setDailyTasks(tasks);
+        
+        const { progress, stats } = await DailyTaskManager.getProgressStats();
+        setUserProgress(progress);
+        setProgressStats(stats);
+        
+        setTasksLoaded(true);
+        console.log('✅ Daily task system initialized:', {
+          tasksCount: tasks.length,
+          userLevel: progress.adaptedDifficulty,
+          streak: progress.consistencyStreak
+        });
+      } catch (error) {
+        console.error('❌ Failed to initialize daily tasks:', error);
+        setTasksLoaded(true); // Still set to true to prevent loading state
+      }
+    };
+    
+    // Initialize tasks when user profile is available or after a delay
+    const timer = setTimeout(initializeDailyTasks, 1000);
+    return () => clearTimeout(timer);
+  }, [userProfile]); // Re-initialize when user profile changes
 
   // MOBILE DETECTION - Simple user agent check for mobile bypass
   const isMobile = () => {
@@ -2058,13 +2095,108 @@ export default function EmergencyEnhanced() {
       return renderFocusedActions();
     }
 
-    // Automatically determine recommended activities based on profile/time/previous completion
+    // Show personalized daily tasks if available, otherwise show recommended activities
+    if (tasksLoaded && dailyTasks.length > 0) {
+      return (
+        <View style={styles.todaysActivitiesSection}>
+          <Text style={styles.sectionTitle}>Today's Personalized Tasks</Text>
+          <Text style={styles.sectionSubtitle}>
+            {userProgress ? 
+              `${DailyTaskManager.getProgressLevelDescription(Math.floor((userProgress.fitnessLevel + userProgress.mentalHealthProgress) / 2))}` : 
+              'Curated for your wellness journey'
+            }
+          </Text>
+          
+          {progressStats && (
+            <View style={styles.progressStatsCard}>
+              <Text style={styles.progressStatsText}>
+                🔥 {progressStats.currentStreak} day streak • 
+                ✅ {progressStats.todayCompleted} completed today • 
+                📈 Level {userProgress?.adaptedDifficulty || 'beginner'}
+              </Text>
+            </View>
+          )}
+          
+          {dailyTasks.map((task, index) => (
+            <View key={task.id} style={styles.dailyTaskCard}>
+              <View style={styles.taskHeader}>
+                <Text style={styles.taskType}>
+                  {task.type === 'fitness' ? '💪' : task.type === 'mental_health' ? '🧠' : '🧘'} 
+                  {task.type.replace('_', ' ').toUpperCase()}
+                </Text>
+                <Text style={styles.taskDifficulty}>{task.difficulty}</Text>
+              </View>
+              
+              <Text style={styles.taskTitle}>{task.title}</Text>
+              <Text style={styles.taskDescription}>{task.description}</Text>
+              <Text style={styles.taskDuration}>⏱️ {task.duration} minutes</Text>
+              
+              <View style={styles.taskBenefits}>
+                {task.benefits.slice(0, 2).map((benefit, idx) => (
+                  <Text key={idx} style={styles.benefitTag}>• {benefit}</Text>
+                ))}
+              </View>
+              
+              <TouchableOpacity 
+                style={[styles.startActivityButton, styles.dailyTaskButton]}
+                onPress={async () => {
+                  console.log('🎯 DAILY TASK: Starting task:', task.title);
+                  try {
+                    // Start the task (you can integrate with existing workout system or create new flow)
+                    startWorkout({
+                      id: task.id,
+                      name: task.title,
+                      duration: task.duration,
+                      description: task.description,
+                      instructions: task.instructions,
+                      type: task.type
+                    });
+                  } catch (error) {
+                    console.error('❌ Error starting daily task:', error);
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.startActivityButtonText}>Start Task</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.completeTaskButton}
+                onPress={async () => {
+                  try {
+                    const updatedProgress = await DailyTaskManager.completeTask(task.id, 'good');
+                    setUserProgress(updatedProgress);
+                    
+                    // Refresh stats
+                    const { progress, stats } = await DailyTaskManager.getProgressStats();
+                    setProgressStats(stats);
+                    
+                    Alert.alert(
+                      'Task Completed! 🎉', 
+                      `Great job! Your progress has been updated.\n\nFitness Level: ${updatedProgress.fitnessLevel.toFixed(1)}\nMental Health: ${updatedProgress.mentalHealthProgress.toFixed(1)}\nStreak: ${updatedProgress.consistencyStreak} days`
+                    );
+                  } catch (error) {
+                    console.error('❌ Error completing task:', error);
+                    Alert.alert('Error', 'Failed to mark task as completed');
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.completeTaskButtonText}>Mark Complete</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      );
+    }
+    
+    // Fallback to recommended activities if daily tasks aren't loaded yet
     const recommendedActivities = getRecommendedActivities();
     
     return (
       <View style={styles.todaysActivitiesSection}>
         <Text style={styles.sectionTitle}>Today's Activities</Text>
-        <Text style={styles.sectionSubtitle}>Curated for your wellness journey</Text>
+        <Text style={styles.sectionSubtitle}>Loading personalized tasks...</Text>
         
         {recommendedActivities.map((activity, index) => (
           <View key={index} style={styles.activityCard}>
@@ -2079,7 +2211,7 @@ export default function EmergencyEnhanced() {
                 console.log('🚀 STARTING REAL WORKOUT:', activity);
                 startWorkout(activity);
               }}
-              activeOpacity={0.7} // Visual feedback on press
+              activeOpacity={0.7}
             >
               <Text style={styles.startActivityButtonText}>Start Activity</Text>
             </TouchableOpacity>
@@ -2623,6 +2755,101 @@ const createStyles = (theme: any) => StyleSheet.create({
   startActivityButtonText: {
     color: '#ffffff',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  // Daily Task System Styles
+  progressStatsCard: {
+    backgroundColor: '#F0FDF4',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#4CAF50',
+  },
+  progressStatsText: {
+    fontSize: 14,
+    color: '#2E7D32',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  dailyTaskCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  taskHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  taskType: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#4CAF50',
+    backgroundColor: '#F0FDF4',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  taskDifficulty: {
+    fontSize: 12,
+    color: '#666',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    textTransform: 'capitalize',
+  },
+  taskTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 6,
+  },
+  taskDescription: {
+    fontSize: 14,
+    color: '#666666',
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  taskDuration: {
+    fontSize: 14,
+    color: '#4CAF50',
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  taskBenefits: {
+    marginBottom: 16,
+  },
+  benefitTag: {
+    fontSize: 12,
+    color: '#666',
+    lineHeight: 18,
+  },
+  dailyTaskButton: {
+    marginBottom: 8,
+  },
+  completeTaskButton: {
+    backgroundColor: '#F0FDF4',
+    borderWidth: 2,
+    borderColor: '#4CAF50',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  completeTaskButtonText: {
+    color: '#4CAF50',
+    fontSize: 14,
     fontWeight: '600',
   },
   profileContentSection: {
