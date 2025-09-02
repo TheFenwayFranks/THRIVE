@@ -17,7 +17,9 @@ import SettingsModal from './src/components/SettingsModal';
 import CommunityFeed from './src/components/CommunityFeed';
 import StatsTab from './src/components/StatsTab';
 import SwipeNavigation, { PageName } from './src/components/PureSwipeNavigation';
-import HamburgerMenu from './src/components/HamburgerMenu';
+import NavigationDrawer from './src/components/NavigationDrawer';
+import EdgeSwipeDetector from './src/components/EdgeSwipeDetector';
+import ActivityPlaceholder from './src/components/ActivityPlaceholder';
 import SlideBasedProfile from './src/components/SlideBasedProfile';
 import { OnboardingManager, OnboardingState } from './src/services/OnboardingManager';
 import CollapsibleTaskCard from './src/components/CollapsibleTaskCard';
@@ -368,6 +370,13 @@ export default function EmergencyEnhanced() {
   
   // Settings states
   const [showSettings, setShowSettings] = useState(false);
+
+  // Navigation drawer state
+  const [showDrawer, setShowDrawer] = useState(false);
+
+  // Activity placeholder state
+  const [showActivityPlaceholder, setShowActivityPlaceholder] = useState(false);
+  const [currentActivityName, setCurrentActivityName] = useState('');
 
   // Community states
   const [showCommunity, setShowCommunity] = useState(false);
@@ -1257,11 +1266,7 @@ export default function EmergencyEnhanced() {
     };
   };
 
-  const getXPProgress = () => {
-    const todayXP = userStats.xp % 100; // Simulate daily XP
-    const percentage = (todayXP / 50) * 100; // Daily goal of 50 XP
-    return Math.min(percentage, 100);
-  };
+  // HOME SCREEN REDESIGN: getXPProgress function removed - no longer needed
 
   const showWorkoutVideoDemo = (workout: any) => {
     console.log('🎥 Showing workout video demo for:', workout.name);
@@ -1313,6 +1318,36 @@ export default function EmergencyEnhanced() {
       setShowMorningFlow(true);
     }
     */
+  };
+
+  // NAVIGATION DRAWER HANDLERS
+  const handleDrawerOpen = () => {
+    setShowDrawer(true);
+  };
+
+  const handleDrawerClose = () => {
+    setShowDrawer(false);
+  };
+
+  const handleDrawerMorningFlow = () => {
+    console.log('📅 Morning Flow selected from drawer');
+    // TODO: Navigate to Morning Flow when implemented
+    Alert.alert('Morning Flow', 'Morning Flow feature coming soon!');
+  };
+
+  const handleDrawerMood = () => {
+    console.log('😊 Mood selected from drawer');
+    quickMoodCheckin();
+  };
+
+  const handleDrawerDemo = () => {
+    console.log('🎥 Demo Tutorial selected from drawer');
+    startDemoMode();
+  };
+
+  const handleDrawerHelp = () => {
+    console.log('❓ Help and Support selected from drawer');
+    Alert.alert('Help & Support', 'Help and Support feature coming soon!');
   };
 
   // NUCLEAR RESET: Morning flow functions removed - no longer needed
@@ -1755,12 +1790,7 @@ export default function EmergencyEnhanced() {
         <Text style={styles.streakNumber}>{userStats.streak}</Text>
         <Text style={styles.streakLabel}>day streak</Text>
       </View>
-      <View style={styles.progressDisplay}>
-        <View style={styles.progressCircle}>
-          <Text style={styles.progressPercent}>{Math.round(getXPProgress())}%</Text>
-        </View>
-        <Text style={styles.progressLabel}>daily goal</Text>
-      </View>
+      {/* HOME SCREEN REDESIGN: Daily Goal Percentage removed completely */}
     </View>
   );
 
@@ -1977,18 +2007,7 @@ export default function EmergencyEnhanced() {
         <Text style={styles.inspirationText}>{getMotivationalMessage()}</Text>
       </View>
 
-      {/* Quick Access */}
-      <View style={styles.quickAccessCard}>
-        <TouchableOpacity 
-          style={styles.quickAccessButton}
-          onPress={quickMoodCheckin}
-        >
-          <Text style={styles.quickAccessIcon}>😊</Text>
-          <Text style={styles.quickAccessText}>How are you feeling?</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* NUCLEAR RESET: Morning Flow Status removed - using new onboarding system */}
+      {/* HOME SCREEN REDESIGN: "How are you feeling?" section completely removed */}
     </View>
   );
 
@@ -2012,7 +2031,12 @@ export default function EmergencyEnhanced() {
             
             <TouchableOpacity 
               style={styles.startActivityButton}
-              onPress={() => startWorkout(activity)}
+              onPress={() => {
+                console.log('🎯 HOME REDESIGN: Start Activity pressed:', activity.name);
+                setCurrentActivityName(activity.name);
+                setShowActivityPlaceholder(true);
+              }}
+              activeOpacity={0.7} // Visual feedback on press
             >
               <Text style={styles.startActivityButtonText}>Start Activity</Text>
             </TouchableOpacity>
@@ -2083,23 +2107,16 @@ export default function EmergencyEnhanced() {
 
   // MAIN COMPONENT RENDER
   return (
-    <SafeAreaView style={[styles.container, styles.thriveMainBackground]}>
-      {/* Clean Header with Hamburger Menu */}
-      <View style={styles.cleanHeader}>
-        <HamburgerMenu
-          onMorningFlow={() => console.log('🚨 EMERGENCY DISABLE: Morning flow disabled')} // EMERGENCY DISABLE
-          onMoodCheckin={quickMoodCheckin}
-          onSettings={() => setShowSettings(true)}
-          onDemo={startDemoMode}
-          userStats={userStats}
-        />
-        <View style={styles.logoContainer}>
-          <Text style={[styles.logoText, styles.thriveHero]}>
-            <Text style={[styles.highlight, styles.thrivePrimaryColor]}>THRIVE</Text>
-          </Text>
+    <EdgeSwipeDetector onSwipeFromEdge={handleDrawerOpen}>
+      <SafeAreaView style={[styles.container, styles.thriveMainBackground]}>
+        {/* HOME SCREEN REDESIGN: Clean Header without hamburger menu */}
+        <View style={styles.cleanHeader}>
+          <View style={styles.logoContainer}>
+            <Text style={[styles.logoText, styles.thriveHero]}>
+              <Text style={[styles.highlight, styles.thrivePrimaryColor]}>THRIVE</Text>
+            </Text>
+          </View>
         </View>
-        <View style={styles.headerSpacer} />
-      </View>
 
       {/* Swipe Navigation with Main Content */}
         <SwipeNavigation
@@ -2337,7 +2354,26 @@ export default function EmergencyEnhanced() {
       
       {/* Debug banner removed - clean UI */}
 
+      {/* HOME SCREEN REDESIGN: Activity Placeholder Screen */}
+      <ActivityPlaceholder
+        visible={showActivityPlaceholder}
+        onClose={() => setShowActivityPlaceholder(false)}
+        activityName={currentActivityName}
+      />
+
+      {/* HOME SCREEN REDESIGN: Navigation Drawer */}
+      <NavigationDrawer
+        visible={showDrawer}
+        onClose={handleDrawerClose}
+        onMorningFlow={handleDrawerMorningFlow}
+        onMood={handleDrawerMood}
+        onSettings={() => setShowSettings(true)}
+        onDemo={handleDrawerDemo}
+        onHelp={handleDrawerHelp}
+      />
+
     </SafeAreaView>
+    </EdgeSwipeDetector>
   );
 }
 
@@ -2480,17 +2516,18 @@ const createStyles = (theme: any) => StyleSheet.create({
     marginBottom: 20,
   },
   activityCard: {
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#4CAF50', // THRIVE green accent
+    backgroundColor: '#FFFFFF', // Clean white (Apple Health style)
+    borderRadius: 16, // More rounded (iOS style)
+    padding: 24, // Generous padding
+    marginBottom: 20, // More space between cards
+    marginHorizontal: 4, // Subtle margin for cleaner edges
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOpacity: 0.08, // Subtle shadow (Apple style)
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.04)', // Very subtle border
   },
   activityName: {
     fontSize: 18,
@@ -2511,11 +2548,17 @@ const createStyles = (theme: any) => StyleSheet.create({
     marginBottom: 16,
   },
   startActivityButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
+    backgroundColor: '#4CAF50', // THRIVE green
+    paddingVertical: 14, // Larger touch target (44pt minimum)
+    paddingHorizontal: 28,
+    borderRadius: 12, // More rounded (iOS style)
     alignItems: 'center',
+    minHeight: 44, // Apple accessibility standard
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   startActivityButtonText: {
     color: '#ffffff',
@@ -4158,9 +4201,9 @@ const createStyles = (theme: any) => StyleSheet.create({
   cleanHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    justifyContent: 'center', // CENTER the logo (Apple Health style)
+    paddingHorizontal: 24, // Generous padding (Apple style)
+    paddingVertical: 24,
     backgroundColor: theme.colors.background,
     // Theme-specific styling
     ...(theme.isDark ? {
@@ -4707,10 +4750,21 @@ const createStyles = (theme: any) => StyleSheet.create({
   // Minimal Stats
   minimalStatsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'center', // Center the streak (since we removed daily goal)
     alignItems: 'center',
-    paddingVertical: 20,
-    marginBottom: 20,
+    backgroundColor: '#FFFFFF', // Clean white card
+    borderRadius: 16, // iOS-style rounded corners
+    paddingVertical: 24, // Generous padding
+    paddingHorizontal: 24,
+    marginBottom: 24, // More space
+    marginHorizontal: 4, // Subtle margin
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08, // Apple-style subtle shadow
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.04)', // Very subtle border
   },
   streakDisplay: {
     alignItems: 'center',
@@ -5097,16 +5151,19 @@ const createStyles = (theme: any) => StyleSheet.create({
     gap: 12,
   },
   inspirationCard: {
-    backgroundColor: theme.colors.card,
-    borderRadius: 16,
-    padding: 24,
+    backgroundColor: '#FFFFFF', // Clean white (Apple Health style)
+    borderRadius: 16, // iOS-style rounded corners
+    padding: 24, // Generous padding
     alignItems: 'center',
-    borderWidth: theme.isDark ? 2 : 1, // Subtle border for light theme
-    borderColor: theme.isDark 
-      ? 'rgba(0, 230, 118, 0.3)'
-      : '#E0E0E0', // Clean border for light theme
-    borderLeftWidth: 6, // Accent left border
-    borderLeftColor: theme.colors.primary,
+    marginBottom: 20, // More space
+    marginHorizontal: 4, // Subtle margin
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08, // Apple-style subtle shadow
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.04)', // Very subtle border
     // Theme-specific backgrounds
     backgroundColor: theme.isDark
       ? 'rgba(0, 230, 118, 0.02)' // Subtle green tint for dark
