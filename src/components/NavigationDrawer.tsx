@@ -34,36 +34,64 @@ export default function NavigationDrawer({
 }: NavigationDrawerProps) {
   const { theme } = useTheme();
   const translateX = React.useRef(new Animated.Value(visible ? 0 : -DRAWER_WIDTH)).current;
+  const opacity = React.useRef(new Animated.Value(visible ? 1 : 0)).current;
 
   React.useEffect(() => {
-    Animated.timing(translateX, {
-      toValue: visible ? 0 : -DRAWER_WIDTH,
-      duration: 250, // Slightly faster, smoother
-      useNativeDriver: false, // Set to false for web compatibility
-      easing: Easing.bezier(0.25, 0.46, 0.45, 0.94), // Smooth easing curve like iOS
-    }).start();
+    // Use spring animation for ultra-smooth, native-feeling motion like page transitions
+    Animated.parallel([
+      Animated.spring(translateX, {
+        toValue: visible ? 0 : -DRAWER_WIDTH,
+        useNativeDriver: false, // Required for web compatibility
+        tension: 100, // Higher tension = snappier
+        friction: 8, // Lower friction = less bounce, smoother
+        speed: 20, // Faster animation speed
+      }),
+      Animated.timing(opacity, {
+        toValue: visible ? 1 : 0,
+        duration: 200,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.cubic), // Smooth fade
+      })
+    ]).start();
   }, [visible]);
 
-  // Pan responder for swipe to close
+  // Enhanced pan responder with better native-like feel
   const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => visible,
     onMoveShouldSetPanResponder: (evt, gestureState) => {
-      return visible && Math.abs(gestureState.dx) > 10;
+      return visible && Math.abs(gestureState.dx) > 5; // More sensitive
     },
     onPanResponderMove: (evt, gestureState) => {
       if (gestureState.dx < 0) {
-        translateX.setValue(Math.max(gestureState.dx, -DRAWER_WIDTH));
+        // Follow finger precisely for natural feel
+        const newValue = Math.max(gestureState.dx, -DRAWER_WIDTH);
+        translateX.setValue(newValue);
+        // Also update opacity based on position for better visual feedback
+        const opacityValue = Math.max(0, (DRAWER_WIDTH + newValue) / DRAWER_WIDTH);
+        opacity.setValue(opacityValue);
       }
     },
     onPanResponderRelease: (evt, gestureState) => {
-      if (gestureState.dx < -50 || gestureState.vx < -0.5) {
+      const shouldClose = gestureState.dx < -80 || gestureState.vx < -1;
+      
+      if (shouldClose) {
         onClose();
       } else {
-        Animated.timing(translateX, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: false, // Set to false for web compatibility
-          easing: Easing.bezier(0.25, 0.46, 0.45, 0.94), // Same smooth easing
-        }).start();
+        // Spring back to open position with natural bounce
+        Animated.parallel([
+          Animated.spring(translateX, {
+            toValue: 0,
+            useNativeDriver: false,
+            tension: 100,
+            friction: 8,
+          }),
+          Animated.spring(opacity, {
+            toValue: 1,
+            useNativeDriver: false,
+            tension: 100,
+            friction: 8,
+          })
+        ]).start();
       }
     },
   });
@@ -79,7 +107,7 @@ export default function NavigationDrawer({
   if (!visible) return null;
 
   return (
-    <View style={styles.overlay}>
+    <Animated.View style={[styles.overlay, { opacity }]}>
       {/* Scrim/Background */}
       <TouchableOpacity
         style={styles.scrim}
@@ -124,7 +152,7 @@ export default function NavigationDrawer({
           ))}
         </View>
       </Animated.View>
-    </View>
+    </Animated.View>
   );
 }
 

@@ -2047,6 +2047,12 @@ export default function EmergencyEnhanced() {
 
   // CLEAN PROFILE-DRIVEN CONTENT: No selection required
   const renderTodaysActivities = () => {
+    // 🚨 WORKOUT ACTIVE: Show inline timer if workout is running
+    if (showInlineTimer && inlineWorkout) {
+      console.log('🚨 WORKOUT ACTIVE: Rendering inline timer instead of activities');
+      return renderFocusedActions();
+    }
+
     // Automatically determine recommended activities based on profile/time/previous completion
     const recommendedActivities = getRecommendedActivities();
     
