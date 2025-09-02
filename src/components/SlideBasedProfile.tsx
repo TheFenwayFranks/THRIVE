@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   Dimensions,
   Alert,
+  TextInput,
+  Image,
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 
@@ -16,6 +18,14 @@ interface SlideBasedProfileProps {
 }
 
 interface UserProfile {
+  // Personal Information
+  name: string;
+  profilePicture: string;
+  dateOfBirth: string;
+  sex: 'male' | 'female' | 'other' | 'prefer_not_to_say' | '';
+  weight: string;
+  height: string;
+  // Fitness Information
   fitnessLevel: 'beginner' | 'intermediate' | 'advanced' | 'athlete' | '';
   exerciseFrequency: 'never' | '1-2x_week' | '3-4x_week' | 'daily' | '';
   workoutPreferences: 'strength' | 'cardio' | 'flexibility' | 'mixed' | '';
@@ -27,7 +37,7 @@ interface UserProfile {
   equipmentAccess: 'none' | 'basic' | 'full_gym' | '';
 }
 
-const TOTAL_SLIDES = 10;
+const TOTAL_SLIDES = 11; // Added personal info slide
 
 export default function SlideBasedProfile({ visible, onComplete, onClose }: SlideBasedProfileProps) {
   const { theme } = useTheme();
@@ -37,6 +47,14 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
   
   const [currentSlide, setCurrentSlide] = useState(1);
   const [profile, setProfile] = useState<UserProfile>({
+    // Personal Information
+    name: '',
+    profilePicture: '',
+    dateOfBirth: '',
+    sex: '',
+    weight: '',
+    height: '',
+    // Fitness Information  
     fitnessLevel: '',
     exerciseFrequency: '',
     workoutPreferences: '',
@@ -73,7 +91,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
   const handleComplete = () => {
     // Basic validation
     const requiredFields = [
-      'fitnessLevel', 'exerciseFrequency', 'workoutPreferences', 
+      'name', 'fitnessLevel', 'exerciseFrequency', 'workoutPreferences', 
       'availableTime', 'mentalHealthFocus'
     ];
     
@@ -104,16 +122,17 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
 
   const canProceed = () => {
     switch (currentSlide) {
-      case 1: return profile.fitnessLevel !== '';
-      case 2: return profile.exerciseFrequency !== '';
-      case 3: return profile.workoutPreferences !== '';
-      case 4: return profile.availableTime !== '';
-      case 5: return profile.mentalHealthFocus !== '';
-      case 6: return profile.energyLevels !== '';
-      case 7: return profile.motivationTiming !== '';
-      case 8: return profile.ageRange !== '';
-      case 9: return profile.equipmentAccess !== '';
-      case 10: return true; // Summary slide
+      case 1: return profile.name.trim() !== ''; // Personal info - name required
+      case 11: return profile.fitnessLevel !== '';
+      case 11: return profile.exerciseFrequency !== '';
+      case 11: return profile.workoutPreferences !== '';
+      case 11: return profile.availableTime !== '';
+      case 11: return profile.mentalHealthFocus !== '';
+      case 11: return profile.energyLevels !== '';
+      case 11: return profile.motivationTiming !== '';
+      case 11: return profile.ageRange !== '';
+      case 11: return profile.equipmentAccess !== '';
+      case 11: return true; // Summary slide
       default: return false;
     }
   };
@@ -121,6 +140,98 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
   const renderSlide = () => {
     switch (currentSlide) {
       case 1:
+        return (
+          <View style={styles.slideContent}>
+            <Text style={styles.questionTitle}>Let's get to know you! 👋</Text>
+            <Text style={styles.questionSubtitle}>Personal information helps us personalize your experience</Text>
+            
+            {/* Profile Picture */}
+            <TouchableOpacity style={styles.profilePictureContainer}>
+              {profile.profilePicture ? (
+                <Image source={{ uri: profile.profilePicture }} style={styles.profilePicture} />
+              ) : (
+                <View style={styles.profilePicturePlaceholder}>
+                  <Text style={styles.profilePictureIcon}>👤</Text>
+                  <Text style={styles.profilePictureText}>Add Photo</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {/* Personal Info Inputs */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Name *</Text>
+              <TextInput
+                style={styles.textInput}
+                placeholder="Enter your name"
+                value={profile.name}
+                onChangeText={(text) => updateProfile('name', text)}
+                placeholderTextColor="#9CA3AF"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Date of Birth</Text>
+              <TextInput
+                style={styles.textInput}
+                placeholder="MM/DD/YYYY"
+                value={profile.dateOfBirth}
+                onChangeText={(text) => updateProfile('dateOfBirth', text)}
+                placeholderTextColor="#9CA3AF"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Sex (Optional)</Text>
+              <View style={styles.genderContainer}>
+                {['male', 'female', 'other', 'prefer_not_to_say'].map((option) => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.genderOption, 
+                      profile.sex === option && styles.selectedGenderOption
+                    ]}
+                    onPress={() => updateProfile('sex', option)}
+                  >
+                    <Text style={[
+                      styles.genderText,
+                      profile.sex === option && styles.selectedGenderText
+                    ]}>
+                      {option === 'prefer_not_to_say' ? 'Prefer not to say' : 
+                       option.charAt(0).toUpperCase() + option.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.measurementRow}>
+              <View style={[styles.inputContainer, styles.halfWidth]}>
+                <Text style={styles.inputLabel}>Weight</Text>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="lbs"
+                  value={profile.weight}
+                  onChangeText={(text) => updateProfile('weight', text)}
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="numeric"
+                />
+              </View>
+
+              <View style={[styles.inputContainer, styles.halfWidth]}>
+                <Text style={styles.inputLabel}>Height</Text>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="5'8"
+                  value={profile.height}
+                  onChangeText={(text) => updateProfile('height', text)}
+                  placeholderTextColor="#9CA3AF"
+                />
+              </View>
+            </View>
+          </View>
+        );
+
+      case 11:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>What's your fitness level?</Text>
@@ -174,7 +285,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 2:
+      case 11:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>How often do you exercise?</Text>
@@ -228,7 +339,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 3:
+      case 11:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>What type of workouts do you prefer?</Text>
@@ -282,7 +393,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 4:
+      case 11:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>How much time can you commit?</Text>
@@ -336,7 +447,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 5:
+      case 11:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>What's your mental health focus?</Text>
@@ -390,7 +501,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 6:
+      case 11:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>How are your energy levels?</Text>
@@ -433,7 +544,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 7:
+      case 11:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>When do you feel most motivated?</Text>
@@ -476,7 +587,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 8:
+      case 11:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>What's your age range?</Text>
@@ -536,7 +647,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 9:
+      case 11:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>What equipment do you have access to?</Text>
@@ -579,7 +690,7 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
           </View>
         );
 
-      case 10:
+      case 11:
         return (
           <View style={styles.slideContent}>
             <Text style={styles.questionTitle}>You're all set! 🎉</Text>
@@ -885,5 +996,91 @@ const createStyles = (theme: any) => StyleSheet.create({
   },
   disabledText: {
     color: '#9CA3AF',
+  },
+
+  // Personal Info Styles
+  profilePictureContainer: {
+    alignSelf: 'center',
+    marginBottom: 24,
+  },
+  profilePicture: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#E5E7EB',
+  },
+  profilePicturePlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profilePictureIcon: {
+    fontSize: 32,
+    color: '#9CA3AF',
+  },
+  profilePictureText: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 4,
+    fontWeight: '500',
+  },
+  inputContainer: {
+    width: '100%',
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.text || '#374151',
+    marginBottom: 6,
+  },
+  textInput: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: theme.colors.text || '#1F2937',
+  },
+  measurementRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  halfWidth: {
+    flex: 1,
+  },
+  genderContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  genderOption: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  selectedGenderOption: {
+    borderColor: '#4CAF50',
+    backgroundColor: '#F0FDF4',
+  },
+  genderText: {
+    fontSize: 14,
+    color: theme.colors.text || '#374151',
+    fontWeight: '500',
+  },
+  selectedGenderText: {
+    color: '#4CAF50',
   },
 });
