@@ -2067,8 +2067,8 @@ export default function EmergencyEnhanced() {
               style={styles.startActivityButton}
               onPress={() => {
                 console.log('🎯 HOME REDESIGN: Start Activity pressed:', activity.name);
-                setCurrentActivityName(activity.name);
-                setShowActivityPlaceholder(true);
+                console.log('🚀 STARTING REAL WORKOUT:', activity);
+                startWorkout(activity);
               }}
               activeOpacity={0.7} // Visual feedback on press
             >
