@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const EDGE_DETECTION_WIDTH = SCREEN_WIDTH * 0.5; // Entire left half of screen for natural gesture
+const EDGE_DETECTION_WIDTH = SCREEN_WIDTH * 0.3; // Left third of screen for natural gesture
 
 interface EdgeSwipeDetectorProps {
   onSwipeFromEdge: () => void;
@@ -18,7 +18,7 @@ export default function EdgeSwipeDetector({ onSwipeFromEdge, children }: EdgeSwi
     onStartShouldSetPanResponder: (evt, gestureState) => {
       const { pageX, locationX } = evt.nativeEvent;
       const startX = pageX || locationX || 0;
-      // Natural gesture zone - entire left half of screen
+      // Natural gesture zone - left third of screen
       return startX <= EDGE_DETECTION_WIDTH;
     },
     
@@ -75,22 +75,7 @@ export default function EdgeSwipeDetector({ onSwipeFromEdge, children }: EdgeSwi
         {children}
       </View>
       
-      {/* Optional: Visual debug overlay to show gesture zone (remove in production) */}
-      {__DEV__ && (
-        <View 
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: EDGE_DETECTION_WIDTH,
-            height: '100%',
-            backgroundColor: 'rgba(76, 175, 80, 0.1)', // Light green overlay
-            pointerEvents: 'none',
-            borderRightWidth: 1,
-            borderRightColor: 'rgba(76, 175, 80, 0.3)',
-          }}
-        />
-      )}
+
     </View>
   );
 }
