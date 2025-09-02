@@ -709,59 +709,58 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontWeight: '500',
   },
   
-  // Slide Container - Fixed to prevent overlap with buttons
+  // Slide Container - Better mobile layout
   slideContainer: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingBottom: 120, // Extra space to prevent overlap with navigation buttons
+    paddingBottom: 140, // More space for navigation buttons
   },
   
   slideContent: {
-    flex: 1,
-    justifyContent: 'center',
+    paddingTop: 20, // Move content up
+    paddingBottom: 20,
     alignItems: 'center',
-    minHeight: '100%',
   },
   
-  // Question
+  // Question - Smaller spacing for mobile
   questionTitle: {
-    fontSize: 28,
+    fontSize: 24, // Slightly smaller
     fontWeight: 'bold',
     color: theme.colors.text || '#1F2937',
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 8, // Reduced spacing
   },
   questionSubtitle: {
     fontSize: 16,
     color: theme.colors.textSecondary || '#6B7280',
     textAlign: 'center',
-    marginBottom: 40,
-    lineHeight: 24,
+    marginBottom: 20, // Reduced from 40
+    lineHeight: 22,
   },
   
-  // Options - Improved mobile layout
+  // Options - Compact mobile layout
   optionsContainer: {
     width: '100%',
-    gap: 12,
-    marginTop: 20,
-    paddingBottom: 20, // Extra space for button clearance
+    gap: 8, // Reduced gap between options
+    marginTop: 10, // Reduced top margin
+    paddingBottom: 10,
   },
   optionButton: {
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#E5E7EB',
-    borderRadius: 16,
-    padding: 20, // Slightly reduced padding
+    borderRadius: 12, // Slightly smaller radius
+    padding: 16, // More compact padding
     alignItems: 'center',
-    minHeight: 70, // Slightly reduced height
+    minHeight: 60, // Smaller height for mobile
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.05, // Lighter shadow
+    shadowRadius: 2,
+    elevation: 2,
   },
   selectedOption: {
     borderColor: '#4CAF50',
@@ -769,22 +768,23 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderWidth: 3,
   },
   optionEmoji: {
-    fontSize: 24,
-    marginBottom: 8,
+    fontSize: 20, // Slightly smaller
+    marginBottom: 4, // Reduced spacing
   },
   optionText: {
-    fontSize: 18,
+    fontSize: 16, // Smaller text
     fontWeight: '600',
     color: theme.colors.text || '#1F2937',
-    marginBottom: 4,
+    marginBottom: 2, // Reduced spacing
   },
   selectedText: {
     color: '#4CAF50',
   },
   optionDesc: {
-    fontSize: 14,
+    fontSize: 12, // Smaller description text
     color: theme.colors.textSecondary || '#6B7280',
     textAlign: 'center',
+    lineHeight: 16,
   },
   
   // Summary
