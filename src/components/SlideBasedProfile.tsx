@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -119,6 +119,8 @@ export default function SlideBasedProfile({ visible, onComplete, onClose }: Slid
   const isSelected = (field: keyof UserProfile, value: string) => {
     return profile[field] === value;
   };
+  
+
 
   const canProceed = () => {
     switch (currentSlide) {
@@ -820,58 +822,67 @@ const createStyles = (theme: any) => StyleSheet.create({
     fontWeight: '500',
   },
   
-  // Slide Container - Better mobile layout
+  // Slide Container - Optimized for space efficiency
   slideContainer: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingBottom: 140, // More space for navigation buttons
+    paddingBottom: 120, // Reduced space for navigation
   },
   
   slideContent: {
-    paddingTop: 20, // Move content up
-    paddingBottom: 20,
+    flex: 1, // Use all available space
+    paddingTop: 10, // Reduced top padding
+    paddingBottom: 10,
     alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   
-  // Question - Smaller spacing for mobile
+  // Question - Compact spacing for maximum option space
   questionTitle: {
-    fontSize: 24, // Slightly smaller
+    fontSize: 22, // Smaller for more space
     fontWeight: 'bold',
     color: theme.colors.text || '#1F2937',
     textAlign: 'center',
-    marginBottom: 8, // Reduced spacing
+    marginBottom: 6, // Minimal spacing
   },
   questionSubtitle: {
-    fontSize: 16,
+    fontSize: 14, // Smaller subtitle
     color: theme.colors.textSecondary || '#6B7280',
     textAlign: 'center',
-    marginBottom: 20, // Reduced from 40
-    lineHeight: 22,
+    marginBottom: 16, // Reduced margin
+    lineHeight: 20,
   },
   
-  // Options - Compact mobile layout
+  // Options - Responsive layout that uses available space efficiently
   optionsContainer: {
     width: '100%',
-    gap: 8, // Reduced gap between options
-    marginTop: 10, // Reduced top margin
-    paddingBottom: 10,
+    flex: 1, // Take all available space
+    justifyContent: 'space-evenly', // Distribute evenly
+    paddingVertical: 8,
   },
+  // Dynamic option button - size adjusts to fill available space evenly
   optionButton: {
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#E5E7EB',
-    borderRadius: 12, // Slightly smaller radius
-    padding: 16, // More compact padding
+    borderRadius: 10, // Slightly smaller radius
     alignItems: 'center',
-    minHeight: 60, // Smaller height for mobile
+    justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.05, // Lighter shadow
+    shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 2,
+    // Flex sizing - each option takes equal share of available space
+    flex: 1,
+    marginVertical: 3, // Minimal vertical margin
+    minHeight: 44, // Accessibility minimum
+    maxHeight: 65, // Prevent options from becoming too large
+    paddingHorizontal: 8,
+    paddingVertical: 6,
   },
   selectedOption: {
     borderColor: '#4CAF50',
@@ -879,23 +890,24 @@ const createStyles = (theme: any) => StyleSheet.create({
     borderWidth: 3,
   },
   optionEmoji: {
-    fontSize: 20, // Slightly smaller
-    marginBottom: 4, // Reduced spacing
+    fontSize: 16, // Consistent smaller emoji
+    marginBottom: 2,
   },
   optionText: {
-    fontSize: 16, // Smaller text
+    fontSize: 14, // Consistent smaller text
     fontWeight: '600',
     color: theme.colors.text || '#1F2937',
-    marginBottom: 2, // Reduced spacing
+    marginBottom: 1,
+    textAlign: 'center',
   },
   selectedText: {
     color: '#4CAF50',
   },
   optionDesc: {
-    fontSize: 12, // Smaller description text
+    fontSize: 11, // Smaller description
     color: theme.colors.textSecondary || '#6B7280',
     textAlign: 'center',
-    lineHeight: 16,
+    lineHeight: 13,
   },
   
   // Summary
