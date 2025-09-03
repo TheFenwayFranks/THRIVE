@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, Animated, PanResponder, TextInput, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Animated, PanResponder, TextInput, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import CalendarSyncService, { CalendarEvent, SyncStatus } from './CalendarSyncService';
 import CalendarSettings from './CalendarSettings';
 import EventCreationModal, { EventFormData, EVENT_CATEGORIES } from './EventCreationModal';
+import AICoachModal from './AICoachModal';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -206,6 +207,9 @@ const ThriveSwipeAppWeb = () => {
   // Calendar sync state
   const [showCalendarSettings, setShowCalendarSettings] = useState(false);
   const [showEventCreation, setShowEventCreation] = useState(false);
+  
+  // AI Coach state
+  const [showAICoach, setShowAICoach] = useState(false);
   const [syncedEvents, setSyncedEvents] = useState<CalendarEvent[]>([]);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
     lastSync: null,
@@ -2416,6 +2420,15 @@ const ThriveSwipeAppWeb = () => {
           <Text style={styles.pageSubtitle}>{pages[currentPage]}</Text>
         </View>
         
+        {/* AI Coach Button */}
+        <TouchableOpacity
+          style={styles.aiCoachButton}
+          onPress={() => setShowAICoach(true)}
+        >
+          <View style={styles.aiCoachAvatar}>
+            <Text style={styles.aiCoachAvatarText}>🏃‍♂️</Text>
+          </View>
+        </TouchableOpacity>
 
       </View>
       
@@ -5276,6 +5289,12 @@ const ThriveSwipeAppWeb = () => {
         </View>
       )}
       
+      {/* AI Coach Modal */}
+      <AICoachModal
+        visible={showAICoach}
+        onClose={() => setShowAICoach(false)}
+      />
+      
       {/* Personal Chat Modal */}
       {showPersonalChat && (
         <View style={styles.modalOverlay}>
@@ -6998,6 +7017,38 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: 'bold',
   },
+  
+  // AI Coach Button Styles
+  aiCoachButton: {
+    position: 'absolute',
+    right: 16,
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    cursor: 'pointer',
+  },
+  
+  aiCoachAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: THRIVE_COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: THRIVE_COLORS.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 2,
+    borderColor: THRIVE_COLORS.white,
+  },
+  
+  aiCoachAvatarText: {
+    fontSize: 20,
+  },
+  
   headerCenter: {
     alignItems: 'center',
     justifyContent: 'center',
