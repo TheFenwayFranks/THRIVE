@@ -315,31 +315,58 @@ class CalendarSyncService {
     this.syncStatus.errors = [];
 
     try {
+      console.log('🔄 Starting calendar synchronization...');
+      
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 30); // 30 days ago
       const endDate = new Date();
       endDate.setDate(endDate.getDate() + 90); // 90 days future
 
-      // Get events from all sources
+      console.log(`📅 Syncing events from ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}`);
+
+      // Get device calendars first
+      const calendars = await this.getDeviceCalendars();
+      console.log(`📱 Found ${calendars.length} device calendars`);
+
+      // Get events from device calendars
       const deviceEvents = await this.getDeviceEvents(startDate, endDate);
+      console.log(`📋 Found ${deviceEvents.length} device events`);
       
       // If Google Calendar is connected, sync with it too
       let googleEvents: CalendarEvent[] = [];
       if (this.accessToken) {
+        console.log('🔗 Syncing with Google Calendar...');
         googleEvents = await this.getGoogleCalendarEvents(startDate, endDate);
+        console.log(`☁️ Found ${googleEvents.length} Google Calendar events`);
       }
 
-      // Store combined events (for now, we'll just return them)
-      // In a real implementation, you'd want to handle conflicts and merge intelligently
+      // Combine all events
       const allEvents = [...deviceEvents, ...googleEvents];
+      
+      // Remove duplicates based on title and start time
+      const uniqueEvents = allEvents.reduce((unique: CalendarEvent[], event) => {
+        const exists = unique.find(e => 
+          e.title === event.title && 
+          e.startDate.getTime() === event.startDate.getTime()
+        );
+        if (!exists) {
+          unique.push(event);
+        }
+        return unique;
+      }, []);
 
       this.syncStatus.lastSync = new Date();
       this.syncStatus.isEnabled = true;
+      this.syncStatus.connectedCalendars = calendars.map(cal => cal.id);
 
-      console.log(`Sync completed: ${allEvents.length} events found`);
+      console.log(`✅ Sync completed successfully!`);
+      console.log(`📊 Total events: ${allEvents.length} (${uniqueEvents.length} unique)`);
+      console.log(`🔗 Connected calendars: ${this.syncStatus.connectedCalendars.length}`);
+      
     } catch (error) {
-      console.error('Sync error:', error);
+      console.error('❌ Sync error:', error);
       this.syncStatus.errors.push(`Sync error: ${error}`);
+      throw error; // Re-throw so the UI can handle it
     } finally {
       this.syncStatus.syncInProgress = false;
     }

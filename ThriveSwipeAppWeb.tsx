@@ -1008,14 +1008,52 @@ const ThriveSwipeAppWeb = () => {
   
   const handleCalendarSync = async () => {
     try {
+      // Set sync status to in progress
+      setSyncStatus(prev => ({ ...prev, syncInProgress: true, errors: [] }));
+      
+      console.log('🔄 Starting calendar sync...');
+      
+      // Request permissions first
+      const hasPermission = await calendarService.requestCalendarPermissions();
+      if (!hasPermission) {
+        throw new Error('Calendar permission not granted. Please enable calendar access in your device settings.');
+      }
+      
+      // Perform the sync
       await calendarService.syncCalendars();
+      
+      // Reload events
       await loadSyncedEvents();
+      
+      // Update sync status
       const newStatus = calendarService.getSyncStatus();
       setSyncStatus(newStatus);
       
-      Alert.alert('Sync Complete', 'Your calendar has been synchronized.');
+      // Show success message
+      const eventCount = getCombinedEvents().length;
+      console.log(`✅ Sync complete: ${eventCount} events loaded`);
+      Alert.alert(
+        'Sync Complete! 🎉', 
+        `Successfully synchronized your calendar.\n\nFound ${eventCount} events across your calendars.`,
+        [{ text: 'Great!', style: 'default' }]
+      );
+      
     } catch (error) {
-      Alert.alert('Sync Error', 'There was an error syncing your calendar.');
+      console.error('❌ Sync error:', error);
+      setSyncStatus(prev => ({ 
+        ...prev, 
+        syncInProgress: false, 
+        errors: [String(error)] 
+      }));
+      
+      Alert.alert(
+        'Sync Error', 
+        error instanceof Error ? error.message : 'There was an error syncing your calendar. Please try again.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Retry', onPress: () => handleCalendarSync() }
+        ]
+      );
     }
   };
   
