@@ -3279,23 +3279,7 @@ const ThriveSwipeAppWeb = () => {
                 </View>
               </View>
               
-              {/* Progress Circles */}
-              <View style={styles.progressCircles}>
-                {[
-                  { label: 'Mindset', progress: 0.7, color: THRIVE_COLORS.accent },
-                  { label: 'Workouts', progress: 0.5, color: THRIVE_COLORS.primary },
-                  { label: 'Meals', progress: 0.8, color: '#FF9500' },
-                  { label: 'Wins', progress: 0.6, color: THRIVE_COLORS.highlight },
-                  { label: 'Routines', progress: 0.4, color: '#AF52DE' },
-                ].map((item, index) => (
-                  <View key={index} style={styles.progressCircleItem}>
-                    <View style={styles.progressCircle}>
-                      <View style={[styles.progressCircleInner, { borderColor: item.color }]} />
-                    </View>
-                    <Text style={styles.progressLabel}>{item.label}</Text>
-                  </View>
-                ))}
-              </View>
+
               
               {/* Tab Navigation - Now Interactive */}
               <View style={styles.profileTabs}>
@@ -9326,42 +9310,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   
-  progressCircles: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-    backgroundColor: THRIVE_COLORS.white,
-    marginTop: 8,
-  },
-  
-  progressCircleItem: {
-    alignItems: 'center',
-  },
-  
-  progressCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  
-  progressCircleInner: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 3,
-    backgroundColor: 'transparent',
-  },
-  
-  progressLabel: {
-    fontSize: 10,
-    color: '#666',
-    fontWeight: '600',
-  },
+
   
   profileTabs: {
     flexDirection: 'row',
