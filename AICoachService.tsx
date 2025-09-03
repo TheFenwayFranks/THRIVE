@@ -607,8 +607,12 @@ class AICoachService {
       const needsWebSearch = this.shouldUseWebSearch(userMessage);
       
       if (this.openaiClient && this.isValidForLiveAI(userMessage)) {
+        console.log('🚀 Using live OpenAI API for:', userMessage);
         return await this.generateLiveAIResponse(userMessage, needsWebSearch, onStream);
       } else {
+        console.log('🎭 Using enhanced mock response for:', userMessage);
+        console.log('  - OpenAI client available:', !!this.openaiClient);
+        console.log('  - Message valid for live AI:', this.isValidForLiveAI(userMessage));
         // Enhanced mock responses with simulated streaming
         return await this.generateEnhancedMockResponse(userMessage, onStream);
       }
@@ -805,7 +809,42 @@ You provide personalized, evidence-based recommendations. Always cite scientific
   
   // Enhanced mock response with simulated streaming
   private async generateEnhancedMockResponse(userMessage: string, onStream?: (chunk: string) => void): Promise<string> {
-    const mockResponse = this.generateMockCoachResponse(userMessage);
+    let mockResponse = this.generateMockCoachResponse(userMessage);
+    
+    // Demo function calling for workout requests
+    const message = userMessage.toLowerCase();
+    if ((message.includes('help') && message.includes('workout')) || 
+        (message.includes('create') && message.includes('workout')) ||
+        message.includes('workout plan')) {
+      
+      // Simulate function calling
+      try {
+        console.log('🎯 Demo: Simulating workout generation function call');
+        const workoutResult = await this.generateWorkout({
+          goal: 'general_fitness',
+          duration: 30,
+          fitnessLevel: 'beginner',
+          equipment: ['bodyweight']
+        });
+        
+        mockResponse += '\n\n📊 *Demo Function Call Result:*\n\n';
+        mockResponse += `💪 **${workoutResult.name}**\n`;
+        mockResponse += `Duration: ${workoutResult.duration} minutes\n\n`;
+        mockResponse += '**Exercises:**\n';
+        workoutResult.exercises.forEach((exercise, index) => {
+          mockResponse += `${index + 1}. ${exercise.name}: ${exercise.sets} sets × ${exercise.reps}\n   Rest: ${exercise.restTime} | ${exercise.instructions}\n\n`;
+        });
+        mockResponse += '**Notes:**\n';
+        workoutResult.notes.forEach(note => {
+          mockResponse += `• ${note}\n`;
+        });
+        mockResponse += '\n*This was generated using Bene\'s workout function tool! 🛠️*';
+        
+      } catch (error) {
+        console.error('Demo function call failed:', error);
+      }
+    }
+    
     console.log('💬 Bene enhanced mock response:', mockResponse);
     
     // Simulate streaming for better UX
@@ -840,6 +879,14 @@ You provide personalized, evidence-based recommendations. Always cite scientific
     
     if ((message.includes('no') || message.includes('skip') || message.includes('later')) && !this.userAssessment.hasCompletedAssessment) {
       return "No problem at all! I'm here to help either way. What's on your mind regarding your health and wellness? 🧬";
+    }
+    
+    // Check for workout-related requests first (regardless of question format)
+    if ((message.includes('help') && message.includes('workout')) || 
+        (message.includes('create') && message.includes('workout')) ||
+        (message.includes('make') && message.includes('workout')) ||
+        message.includes('workout plan')) {
+      return "I'd love to help you create a personalized workout plan! 💪\n\nTo design the best workout for you, I need to know:\n• Your fitness goals (strength, weight loss, muscle gain, etc.)\n• Your current fitness level\n• How much time you have\n• What equipment you have access to\n• Any injuries or limitations\n\nWhat's your main fitness goal right now?";
     }
     
     // Direct question analysis - look for question words and respond accordingly
@@ -962,7 +1009,15 @@ You provide personalized, evidence-based recommendations. Always cite scientific
       return "Thanks for sharing how you're feeling. Understanding where you're at helps me provide better guidance. What would be most helpful for you right now?";
     }
     
-    // Responding to statements about goals or desires
+    // Responding to workout creation requests
+    if ((message.includes('help') && message.includes('workout')) || 
+        (message.includes('create') && message.includes('workout')) ||
+        (message.includes('make') && message.includes('workout')) ||
+        message.includes('workout plan')) {
+      return "I'd love to help you create a personalized workout plan! 💪\n\nTo design the best workout for you, I need to know:\n• Your fitness goals (strength, weight loss, muscle gain, etc.)\n• Your current fitness level\n• How much time you have\n• What equipment you have access to\n• Any injuries or limitations\n\nWhat's your main fitness goal right now?";
+    }
+    
+    // Responding to statements about goals or desires  
     if (message.includes('want') || message.includes('need') || message.includes('trying')) {
       return "I appreciate you sharing what you're working toward. Let's figure out the best approach for your specific situation. What have you tried so far, and what's been challenging?";
     }
