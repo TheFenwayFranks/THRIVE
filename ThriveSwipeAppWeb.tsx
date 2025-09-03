@@ -6912,7 +6912,7 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: 65,
     paddingBottom: 25,
-    paddingHorizontal: 20,
+    paddingHorizontal: 0, // Remove horizontal padding to avoid conflicts
     backgroundColor: THRIVE_COLORS.white,
     borderBottomWidth: 1,
     borderBottomColor: THRIVE_COLORS.neutral,
@@ -6920,16 +6920,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center', // Center the content
     position: 'relative', // Allow absolute positioning of side elements
+    minHeight: 100, // Ensure adequate height for larger elements
     zIndex: 10,
   },
   hamburgerButton: {
     position: 'absolute', // Position absolutely on left side
-    left: 16, // Move 16px in from the edge for better spacing
+    left: 20, // More spacing from edge
+    top: '50%', // Center vertically
+    marginTop: -15, // Half of height for perfect vertical centering
     width: 30,
     height: 30,
     justifyContent: 'space-between',
     paddingVertical: 4,
     cursor: 'pointer',
+    zIndex: 10, // Ensure it stays on top
   },
   hamburgerLine: {
     width: 25,
@@ -6960,12 +6964,15 @@ const styles = StyleSheet.create({
   // AI Coach Button Styles
   aiCoachButton: {
     position: 'absolute',
-    right: 16,
+    right: 20, // More spacing from edge
+    top: '50%', // Center vertically
+    marginTop: -22, // Half of height for perfect vertical centering
     width: 44,
     height: 44,
     justifyContent: 'center',
     alignItems: 'center',
     cursor: 'pointer',
+    zIndex: 10, // Ensure it stays on top
   },
   
   aiCoachAvatar: {
@@ -6993,10 +7000,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'column', // Stack logo and title vertically
     paddingVertical: 8, // More vertical padding for bigger logo
-    flex: 1, // Take full width for perfect centering
-    position: 'absolute', // Position absolutely for perfect centering
-    left: 0,
-    right: 0, // Full width between left and right edges
+    flex: 1, // Take available space for centering
+    marginHorizontal: 60, // Leave space for hamburger (left) and brain button (right)
   },
   
   /* 🌱 EXACT THRIVE LOGO STYLES */
