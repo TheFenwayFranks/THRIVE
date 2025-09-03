@@ -31,7 +31,7 @@ const AICoachModal: React.FC<AICoachModalProps> = ({ visible, onClose }) => {
   const [showAssessment, setShowAssessment] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [assessmentData, setAssessmentData] = useState<any>({});
-  const [capabilities, setCapabilities] = useState({ hasOpenAI: false, streaming: true, webSearch: true });
+  const [capabilities, setCapabilities] = useState({ hasOpenAI: false, streaming: true, webSearch: true, agents: 0, mcp: false });
   
   const scrollViewRef = useRef<ScrollView>(null);
   const modalAnimation = useRef(new Animated.Value(0)).current;
@@ -181,13 +181,19 @@ const AICoachModal: React.FC<AICoachModalProps> = ({ visible, onClose }) => {
               {/* Enhanced capabilities indicators */}
               <View style={styles.capabilitiesContainer}>
                 {capabilities.hasOpenAI && (
-                  <Text style={styles.capabilityBadge}>🤖 GPT-5</Text>
+                  <Text style={styles.capabilityBadge}>🤖 GPT-4.1</Text>
                 )}
                 {capabilities.streaming && (
                   <Text style={styles.capabilityBadge}>⚡ Streaming</Text>
                 )}
                 {capabilities.webSearch && (
                   <Text style={styles.capabilityBadge}>🔍 Web Search</Text>
+                )}
+                {capabilities.agents > 0 && (
+                  <Text style={styles.capabilityBadge}>👥 {capabilities.agents} Agents</Text>
+                )}
+                {capabilities.mcp && (
+                  <Text style={styles.capabilityBadge}>🔗 MCP</Text>
                 )}
                 {!capabilities.hasOpenAI && (
                   <Text style={styles.capabilityBadge}>📝 Mock Mode</Text>

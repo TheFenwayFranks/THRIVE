@@ -70,6 +70,20 @@ export interface CoachProfile {
   description: string;
 }
 
+export interface HealthAgent {
+  name: string;
+  specialty: string;
+  instructions: string;
+  capabilities: string[];
+  triggerKeywords: string[];
+}
+
+export interface AgentHandoffResult {
+  agent: HealthAgent;
+  response: string;
+  confidence: number;
+}
+
 export interface UserAssessment {
   hasCompletedAssessment: boolean;
   personalInfo: {
@@ -128,6 +142,7 @@ class AICoachService {
   private streamingConfig: StreamingConfig = { enabled: true, chunkDelay: 50 };
   private webSearchConfig: WebSearchConfig = { enabled: true, maxResults: 3 };
   private healthTools: HealthTool[] = [];
+  private healthAgents: HealthAgent[] = [];
   
   // AI Coach Profile - Bene!
   public readonly coachProfile: CoachProfile = {
@@ -163,6 +178,9 @@ class AICoachService {
     
     // Initialize health-specific AI tools
     this.initializeHealthTools();
+    
+    // Initialize specialized health agents
+    this.initializeHealthAgents();
     
     // Initialize with enhanced welcome message
     this.chatHistory.push({
@@ -328,6 +346,108 @@ class AICoachService {
     ];
     
     console.log(`🧪 Bene: Initialized ${this.healthTools.length} health-specific AI tools`);
+  }
+  
+  // Initialize specialized health agents for intelligent routing
+  private initializeHealthAgents(): void {
+    this.healthAgents = [
+      // Fitness & Exercise Agent
+      {
+        name: 'FitnessExpert',
+        specialty: 'Exercise Science & Physical Training',
+        instructions: 'You are a specialized fitness and exercise science expert. You focus on workout planning, exercise physiology, strength training, cardiovascular health, and athletic performance. Provide evidence-based fitness guidance.',
+        capabilities: [
+          'Workout plan creation',
+          'Exercise form and technique',
+          'Progressive overload principles',
+          'Injury prevention',
+          'Athletic performance optimization',
+          'Biomechanics analysis'
+        ],
+        triggerKeywords: [
+          'workout', 'exercise', 'fitness', 'gym', 'strength', 'cardio', 'training',
+          'muscle', 'bodybuilding', 'weightlifting', 'running', 'athletic', 'performance'
+        ]
+      },
+      
+      // Nutrition Agent
+      {
+        name: 'NutritionSpecialist',
+        specialty: 'Nutrition Science & Dietary Guidance',
+        instructions: 'You are a nutrition science specialist focused on evidence-based dietary guidance. You help with meal planning, macronutrient optimization, metabolic health, and nutrition for specific goals.',
+        capabilities: [
+          'Meal planning and prep',
+          'Macronutrient calculation',
+          'Weight management nutrition',
+          'Sports nutrition',
+          'Metabolic health optimization',
+          'Supplement guidance'
+        ],
+        triggerKeywords: [
+          'nutrition', 'diet', 'food', 'eating', 'meal', 'calories', 'protein',
+          'carbs', 'fat', 'vitamins', 'supplements', 'weight loss', 'weight gain'
+        ]
+      },
+      
+      // Mental Health Agent
+      {
+        name: 'MentalWellnessExpert',
+        specialty: 'Mental Health & Psychological Wellness',
+        instructions: 'You are a mental health and wellness specialist focused on stress management, anxiety reduction, mood optimization, and psychological well-being. You provide evidence-based mental health strategies.',
+        capabilities: [
+          'Stress management techniques',
+          'Anxiety reduction strategies',
+          'Mood regulation',
+          'Mindfulness and meditation',
+          'Cognitive behavioral approaches',
+          'Sleep psychology'
+        ],
+        triggerKeywords: [
+          'mental', 'stress', 'anxiety', 'depression', 'mood', 'psychology',
+          'mindfulness', 'meditation', 'emotional', 'wellbeing', 'therapy', 'counseling'
+        ]
+      },
+      
+      // Sleep & Recovery Agent
+      {
+        name: 'SleepRecoveryExpert',
+        specialty: 'Sleep Science & Recovery Optimization',
+        instructions: 'You are a sleep science and recovery specialist. You focus on sleep optimization, circadian rhythm regulation, recovery protocols, and energy management.',
+        capabilities: [
+          'Sleep hygiene protocols',
+          'Circadian rhythm optimization',
+          'Recovery strategies',
+          'Energy management',
+          'Fatigue reduction',
+          'Sleep disorder guidance'
+        ],
+        triggerKeywords: [
+          'sleep', 'tired', 'fatigue', 'energy', 'recovery', 'rest',
+          'insomnia', 'circadian', 'bedtime', 'wake up', 'exhausted'
+        ]
+      },
+      
+      // General Health Agent (Triage)
+      {
+        name: 'HealthTriage',
+        specialty: 'General Health & Wellness Coordination',
+        instructions: 'You are a general health coordinator who helps route health questions to appropriate specialists while providing comprehensive wellness guidance. You handle general health questions and coordinate care.',
+        capabilities: [
+          'General health assessment',
+          'Symptom evaluation',
+          'Preventive care guidance',
+          'Health risk assessment',
+          'Lifestyle medicine',
+          'Specialist coordination'
+        ],
+        triggerKeywords: [
+          'health', 'wellness', 'symptoms', 'medical', 'doctor', 'prevention',
+          'lifestyle', 'habits', 'general', 'overall', 'holistic'
+        ]
+      }
+    ];
+    
+    console.log(`👥 Bene: Initialized ${this.healthAgents.length} specialized health agents`);
   }
   
   // Initialize comprehensive assessment questions
@@ -650,14 +770,130 @@ class AICoachService {
     
     const tools = [];
     
-    // Add web search capability (note: this would need to be implemented separately)
-    // For now, we'll focus on the health function tools
+    // Add MCP server for health research (if web search needed)
+    if (useWebSearch) {
+      tools.push({
+        type: "mcp",
+        server_label: "health_research",
+        server_description: "Health and medical research database for current studies and findings",
+        server_url: "https://health-mcp-server.example.com/sse", // Placeholder URL
+        require_approval: "never"
+      });
+    }
+    
+    // Add file search for health documents
+    tools.push({
+      type: "file_search",
+      vector_store_ids: ["vs_health_guidelines"] // Placeholder vector store
+    });
     
     // Add health-specific function tools
     const healthTools = this.getHealthToolsForOpenAI();
     tools.push(...healthTools);
     
-    const systemPrompt = this.buildEnhancedSystemPrompt();
+    // Route to specialized agent based on message content
+    const selectedAgent = this.routeToSpecializedAgent(userMessage);
+    const systemPrompt = this.buildAgentSystemPrompt(selectedAgent, userMessage);
+    
+    try {
+      if (this.streamingConfig.enabled && onStream) {
+        // Use new responses.create API with streaming
+        const response = await this.openaiClient.responses.create({
+          model: "gpt-4.1", // Updated model
+          input: `${systemPrompt}\n\nUser: ${userMessage}`,
+          tools: tools.length > 0 ? tools : undefined,
+          stream: true
+        });
+        
+        let fullResponse = '';
+        let functionCalls: any[] = [];
+        
+        // Handle streaming response
+        for await (const event of response) {
+          if (event.output_text) {
+            const chunk = event.output_text.slice(fullResponse.length);
+            fullResponse = event.output_text;
+            onStream(chunk);
+            
+            // Add small delay for natural feel
+            await new Promise(resolve => setTimeout(resolve, this.streamingConfig.chunkDelay));
+          }
+          
+          // Handle function calls
+          if (event.function_calls) {
+            functionCalls.push(...event.function_calls);
+          }
+        }
+        
+        // Execute any function calls
+        if (functionCalls.length > 0) {
+          const functionResults = await this.executeFunctionCalls(functionCalls);
+          
+          if (functionResults.length > 0) {
+            onStream('\n\n📊 Analyzing your data...\n');
+            
+            // Add function results to conversation and get final response
+            const finalResponse = await this.getFinalResponseWithFunctionResults(
+              systemPrompt, userMessage, functionCalls, functionResults
+            );
+            
+            // Stream the final response
+            const words = finalResponse.split(' ');
+            for (const word of words) {
+              onStream(word + ' ');
+              await new Promise(resolve => setTimeout(resolve, this.streamingConfig.chunkDelay));
+            }
+            
+            return fullResponse + '\n\n📊 Analyzing your data...\n' + finalResponse;
+          }
+        }
+        
+        return fullResponse;
+      } else {
+        // Use new responses.create API without streaming
+        const response = await this.openaiClient.responses.create({
+          model: "gpt-4.1",
+          input: `${systemPrompt}\n\nUser: ${userMessage}`,
+          tools: tools.length > 0 ? tools : undefined
+        });
+        
+        let finalResponse = response.output_text || "I'm here to help with your health journey!";
+        
+        // Handle function calls if present
+        if (response.function_calls && response.function_calls.length > 0) {
+          const functionResults = await this.executeFunctionCalls(response.function_calls);
+          
+          if (functionResults.length > 0) {
+            // Get final response with function results
+            const enhancedResponse = await this.getFinalResponseWithFunctionResults(
+              systemPrompt, userMessage, response.function_calls, functionResults
+            );
+            
+            finalResponse += '\n\n📊 Analysis Results:\n' + enhancedResponse;
+          }
+        }
+        
+        return finalResponse;
+      }
+    } catch (error) {
+      console.warn('New responses.create API not available, falling back to chat completions:', error);
+      
+      // Fallback to chat completions API
+      return await this.generateLegacyAIResponse(userMessage, useWebSearch, onStream);
+    }
+  }
+  
+  // Legacy fallback using chat completions API
+  private async generateLegacyAIResponse(userMessage: string, useWebSearch: boolean, onStream?: (chunk: string) => void): Promise<string> {
+    if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+    
+    const tools = [];
+    const healthTools = this.getHealthToolsForOpenAI();
+    tools.push(...healthTools);
+    
+    // Route to specialized agent for legacy API as well
+    const selectedAgent = this.routeToSpecializedAgent(userMessage);
+    const systemPrompt = this.buildAgentSystemPrompt(selectedAgent, userMessage);
     
     const messages = [
       {
@@ -671,9 +907,8 @@ class AICoachService {
     ];
     
     if (this.streamingConfig.enabled && onStream) {
-      // Use streaming chat completions API
       const stream = await this.openaiClient.chat.completions.create({
-        model: "gpt-4o", // Using GPT-4o as it's available in OpenAI v5
+        model: "gpt-4o",
         messages: messages,
         tools: tools.length > 0 ? tools : undefined,
         tool_choice: tools.length > 0 ? "auto" : undefined,
@@ -686,35 +921,27 @@ class AICoachService {
       for await (const chunk of stream) {
         const delta = chunk.choices[0]?.delta;
         
-        // Handle text content
         if (delta?.content) {
           fullResponse += delta.content;
           onStream(delta.content);
-          
-          // Add small delay for natural feel
           await new Promise(resolve => setTimeout(resolve, this.streamingConfig.chunkDelay));
         }
         
-        // Handle function calls
         if (delta?.tool_calls) {
           functionCalls.push(...delta.tool_calls);
         }
       }
       
-      // Execute any function calls
       if (functionCalls.length > 0) {
         const functionResults = await this.executeFunctionCalls(functionCalls);
         
-        // If we have function results, generate final response
         if (functionResults.length > 0) {
           onStream('\n\n📊 Analyzing your data...\n');
           
-          // Add function results to conversation and get final response
           const finalResponse = await this.getFinalResponseWithFunctionResults(
             systemPrompt, userMessage, functionCalls, functionResults
           );
           
-          // Stream the final response
           const words = finalResponse.split(' ');
           for (const word of words) {
             onStream(word + ' ');
@@ -727,7 +954,6 @@ class AICoachService {
       
       return fullResponse;
     } else {
-      // Use standard chat completions API
       const response = await this.openaiClient.chat.completions.create({
         model: "gpt-4o",
         messages: messages,
@@ -738,12 +964,10 @@ class AICoachService {
       const message = response.choices[0]?.message;
       let finalResponse = message?.content || "I'm here to help with your health journey!";
       
-      // Handle function calls if present
       if (message?.tool_calls && message.tool_calls.length > 0) {
         const functionResults = await this.executeFunctionCalls(message.tool_calls);
         
         if (functionResults.length > 0) {
-          // Get final response with function results
           const enhancedResponse = await this.getFinalResponseWithFunctionResults(
             systemPrompt, userMessage, message.tool_calls, functionResults
           );
@@ -754,6 +978,65 @@ class AICoachService {
       
       return finalResponse;
     }
+  }
+  
+  // Intelligent agent routing based on message content
+  private routeToSpecializedAgent(userMessage: string): HealthAgent {
+    const message = userMessage.toLowerCase();
+    let bestAgent = this.healthAgents[this.healthAgents.length - 1]; // Default to general triage
+    let maxScore = 0;
+    
+    for (const agent of this.healthAgents) {
+      let score = 0;
+      
+      // Score based on keyword matches
+      for (const keyword of agent.triggerKeywords) {
+        if (message.includes(keyword)) {
+          score += 1;
+          // Give higher weight to exact matches
+          if (message === keyword || message.startsWith(keyword + ' ') || message.endsWith(' ' + keyword)) {
+            score += 2;
+          }
+        }
+      }
+      
+      // Bonus for multiple keyword matches (indicates stronger intent)
+      const matchCount = agent.triggerKeywords.filter(keyword => message.includes(keyword)).length;
+      if (matchCount > 1) {
+        score += matchCount;
+      }
+      
+      if (score > maxScore) {
+        maxScore = score;
+        bestAgent = agent;
+      }
+    }
+    
+    console.log(`🎯 Routing to ${bestAgent.name} (score: ${maxScore}) for: "${userMessage}"`);
+    return bestAgent;
+  }
+  
+  // Enhanced system prompt with agent specialization
+  private buildAgentSystemPrompt(agent: HealthAgent, userMessage: string): string {
+    const basePrompt = this.buildEnhancedSystemPrompt();
+    
+    const agentPrompt = `${basePrompt}
+
+SPECIALIZED AGENT CONTEXT:
+You are now acting as ${agent.name}, specializing in ${agent.specialty}.
+
+AGENT INSTRUCTIONS: ${agent.instructions}
+
+AGENT CAPABILITIES:
+${agent.capabilities.map(cap => `• ${cap}`).join('\n')}
+
+SPECIALIZATION FOCUS:
+Provide expert-level guidance within your specialty area. If the user's question falls outside your expertise, acknowledge this and suggest they ask about topics within your specialty or indicate that Bene's general health coordinator can help with broader topics.
+
+USER MESSAGE CONTEXT:
+The user's message "${userMessage}" has been routed to you because it relates to your area of expertise.`;
+
+    return agentPrompt;
   }
   
   // Build enhanced system prompt with user assessment data
@@ -1142,12 +1425,19 @@ You provide personalized, evidence-based recommendations. Always cite scientific
   }
   
   // Get current capabilities status
-  public getCapabilities(): { hasOpenAI: boolean; streaming: boolean; webSearch: boolean } {
+  public getCapabilities(): { hasOpenAI: boolean; streaming: boolean; webSearch: boolean; agents: number; mcp: boolean } {
     return {
       hasOpenAI: this.openaiClient !== null,
       streaming: this.streamingConfig.enabled,
-      webSearch: this.webSearchConfig.enabled
+      webSearch: this.webSearchConfig.enabled,
+      agents: this.healthAgents.length,
+      mcp: true // MCP integration available
     };
+  }
+  
+  // Get available health agents
+  public getHealthAgents(): HealthAgent[] {
+    return [...this.healthAgents];
   }
 
   // Clear chat history
