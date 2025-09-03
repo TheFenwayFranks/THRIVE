@@ -9104,9 +9104,9 @@ const styles = StyleSheet.create({
   profileAvatarContainerTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 16,
+    paddingTop: 12,
     paddingLeft: 20,
-    paddingBottom: 8,
+    paddingBottom: 4,
   },
   
   profileAvatarContainer: {
@@ -9116,13 +9116,13 @@ const styles = StyleSheet.create({
   },
   
   profileAvatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: '#E0E0E0',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,
+    borderWidth: 3,
     borderColor: THRIVE_COLORS.white,
     shadowColor: THRIVE_COLORS.shadow,
     shadowOffset: { width: 0, height: 2 },
@@ -9132,7 +9132,7 @@ const styles = StyleSheet.create({
   },
   
   profileAvatarText: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
     color: '#666',
   },
@@ -9159,69 +9159,69 @@ const styles = StyleSheet.create({
   
   profileInfo: {
     paddingHorizontal: 20,
-    paddingTop: 5,
+    paddingTop: 2,
   },
   
   profileName: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '700',
     color: '#1A1A1A',
-    marginBottom: 4,
-  },
-  
-  profileUsername: {
-    fontSize: 14,
-    color: '#666',
     marginBottom: 2,
   },
   
-  profileLocation: {
-    fontSize: 14,
+  profileUsername: {
+    fontSize: 13,
     color: '#666',
-    marginBottom: 8,
+    marginBottom: 1,
+  },
+  
+  profileLocation: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 6,
   },
   
   profileStats: {
     flexDirection: 'row',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   
   statItem: {
-    marginRight: 24,
+    marginRight: 20,
     alignItems: 'center',
   },
   
   statNumber: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: '#1A1A1A',
   },
   
   statLabel: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#666',
-    marginTop: 2,
+    marginTop: 1,
   },
   
   profileBio: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#1A1A1A',
-    lineHeight: 20,
-    marginBottom: 8,
+    lineHeight: 18,
+    marginBottom: 6,
   },
   
   profileLinks: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   
   profileLink: {
-    fontSize: 14,
+    fontSize: 13,
     color: THRIVE_COLORS.accent,
-    marginRight: 16,
-    marginBottom: 4,
+    marginRight: 12,
+    marginBottom: 2,
   },
   
   profileTag: {
@@ -9241,30 +9241,30 @@ const styles = StyleSheet.create({
   
   profileActions: {
     flexDirection: 'row',
-    marginBottom: 8,
-    gap: 12,
+    marginBottom: 6,
+    gap: 8,
   },
   
   followButton: {
     backgroundColor: THRIVE_COLORS.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 18,
     flex: 1,
     alignItems: 'center',
   },
   
   followButtonText: {
     color: THRIVE_COLORS.white,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
   
   messageButton: {
     backgroundColor: 'transparent',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: THRIVE_COLORS.primary,
     flex: 1,
@@ -9274,16 +9274,16 @@ const styles = StyleSheet.create({
   
   messageButtonText: {
     color: THRIVE_COLORS.primary,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
   
   // 🎨 Editable Card System Styles
   editableCard: {
-    borderRadius: 8,
-    marginVertical: 4,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    borderRadius: 6,
+    marginVertical: 2,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   
   editableCardActive: {
@@ -9420,11 +9420,11 @@ const styles = StyleSheet.create({
   
   challengeButton: {
     backgroundColor: THRIVE_COLORS.highlight,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 24,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 2,
     shadowColor: THRIVE_COLORS.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -9435,7 +9435,7 @@ const styles = StyleSheet.create({
   
   challengeButtonText: {
     color: THRIVE_COLORS.white,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
   },
   
@@ -9450,7 +9450,7 @@ const styles = StyleSheet.create({
   
   profileTab: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 8,
     alignItems: 'center',
   },
   
@@ -9473,21 +9473,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: THRIVE_COLORS.white,
     paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingTop: 8,
   },
   
   contentGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 16,
-    gap: 8,
+    marginBottom: 10,
+    gap: 6,
   },
   
   contentGridItem: {
     width: '31%',
     aspectRatio: 1,
     backgroundColor: '#F5F5F5',
-    borderRadius: 8,
+    borderRadius: 6,
     position: 'relative',
   },
   
@@ -9513,7 +9513,7 @@ const styles = StyleSheet.create({
   },
   
   profileSection: {
-    marginBottom: 16,
+    marginBottom: 10,
   },
   
   sectionTitle: {
