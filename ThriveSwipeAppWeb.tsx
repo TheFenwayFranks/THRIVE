@@ -94,7 +94,7 @@ const ThriveLogoComponent = ({ size = 40, showText = false, textSize = 24 }) => 
 };
 
 const ThriveSwipeAppWeb = () => {
-  const [currentPage, setCurrentPage] = useState(2); // 0: Schedule, 1: Profile, 2: Dashboard, 3: Goals, 4: Social
+  const [currentPage, setCurrentPage] = useState(2); // 0: Calendar, 1: Profile, 2: Dashboard, 3: Goals, 4: Social
   const translateX = useRef(new Animated.Value(-screenWidth * 2)).current; // Start at Dashboard (third page)
   const lastGestureState = useRef(0);
   
@@ -1686,7 +1686,7 @@ const ThriveSwipeAppWeb = () => {
     };
   }, [isTaskRunning, activeTask]);
 
-  const pages = ['Schedule', 'Profile', 'Dashboard', 'Goals', 'Social'];
+  const pages = ['Calendar', 'Profile', 'Dashboard', 'Goals', 'Social'];
 
   // Handle page indicator clicks
   const goToPage = (pageIndex: number) => {
@@ -6941,7 +6941,7 @@ const styles = StyleSheet.create({
   },
   hamburgerButton: {
     position: 'absolute', // Position absolutely on left side
-    left: 0, // Align to left edge (accounting for header padding)
+    left: 16, // Move 16px in from the edge for better spacing
     width: 30,
     height: 30,
     justifyContent: 'space-between',
