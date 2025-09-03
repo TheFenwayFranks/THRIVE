@@ -24,12 +24,12 @@ class AICoachService {
   private static instance: AICoachService;
   private chatHistory: ChatMessage[] = [];
   
-  // AI Coach Profile
+  // AI Coach Profile - Bene!
   public readonly coachProfile: CoachProfile = {
-    name: "Coach Alex",
-    avatar: "🏃‍♂️",
-    specialty: "Fitness & Wellness",
-    description: "Your personal AI fitness and wellness coach, here to help you reach your health goals!"
+    name: "Bene",
+    avatar: "🧠",
+    specialty: "Advanced Health Science & Wellness",
+    description: "Your beneficial AI health coach with deep expertise in physical and mental wellness science!"
   };
 
   public static getInstance(): AICoachService {
@@ -43,7 +43,7 @@ class AICoachService {
     // Initialize with welcome message
     this.chatHistory.push({
       id: Date.now().toString(),
-      text: "Hi! I'm Coach Alex, your personal AI fitness and wellness coach. I'm here to help you with workout plans, nutrition advice, motivation, and achieving your health goals. How can I assist you today?",
+      text: "Hello! I'm Bene, your beneficial AI health coach with deep expertise in health science, fitness, and mental wellness. 🧠💪\n\nBefore we begin your personalized health journey, I'd love to get to know you better through a comprehensive assessment. This will help me provide you with evidence-based, personalized recommendations.\n\nWould you like to start your health assessment now? It takes about 5-7 minutes and covers your fitness background, mental wellness, and lifestyle factors.",
       sender: 'coach',
       timestamp: new Date()
     });
@@ -82,6 +82,7 @@ class AICoachService {
 
   // Generate AI response using OpenAI (with your provided structure)
   public async generateCoachResponse(userMessage: string): Promise<string> {
+    console.log('🤖 Bene generating response for:', userMessage);
     try {
       // Option 1: Use actual OpenAI API (requires API key)
       // Uncomment and configure this section for production use:
@@ -143,11 +144,12 @@ You have access to the user's comprehensive assessment data and should provide p
       // Option 2: For demo purposes, use enhanced mock responses
       // This provides realistic coaching responses without requiring API keys
       const mockResponse = this.generateMockCoachResponse(userMessage);
+      console.log('💬 Bene response generated:', mockResponse);
       return mockResponse;
       
     } catch (error) {
       console.error('Error generating coach response:', error);
-      return "I'm having trouble connecting right now. Can you try asking me again? I'm here to help with your fitness and wellness journey!";
+      return "I'm having trouble processing that right now. Can you try asking me again? I'm here to help with your health and wellness journey!";
     }
   }
 
@@ -330,7 +332,7 @@ You have access to the user's comprehensive assessment data and should provide p
     // Re-add welcome message
     this.chatHistory.push({
       id: Date.now().toString(),
-      text: "Hi! I'm Coach Alex, your personal AI fitness and wellness coach. I'm here to help you with workout plans, nutrition advice, motivation, and achieving your health goals. How can I assist you today?",
+      text: "Hello! I'm Bene, your beneficial AI health coach with deep expertise in health science, fitness, and mental wellness. 🧠💪\n\nBefore we begin your personalized health journey, I'd love to get to know you better through a comprehensive assessment. This will help me provide you with evidence-based, personalized recommendations.\n\nWould you like to start your health assessment now? It takes about 5-7 minutes and covers your fitness background, mental wellness, and lifestyle factors.",
       sender: 'coach',
       timestamp: new Date()
     });
