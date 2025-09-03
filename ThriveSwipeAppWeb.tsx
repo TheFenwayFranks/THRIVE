@@ -102,9 +102,7 @@ const ThriveSwipeAppWeb = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuTranslateX = useRef(new Animated.Value(-260)).current; // Menu starts hidden (260px wide, fully off-screen)
   
-  // Profile menu state and animation
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const profileMenuTranslateX = useRef(new Animated.Value(300)).current; // Profile menu starts hidden (300px to the right, completely off-screen)
+
   
   // Profile data state
   const [profileData, setProfileData] = useState({
@@ -1702,33 +1700,7 @@ const ThriveSwipeAppWeb = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Toggle profile menu function
-  const toggleProfileMenu = () => {
-    // Auto-save any editing field when closing the menu
-    if (isProfileMenuOpen && editingField && tempValue !== '') {
-      setProfileData(prev => ({
-        ...prev,
-        [editingField]: tempValue
-      }));
-      setEditingField(null);
-      setTempValue('');
-    }
-    
-    // Close dropdowns when closing menu
-    if (isProfileMenuOpen) {
-      closeAllDropdowns();
-    }
-    
-    const toValue = isProfileMenuOpen ? 300 : 0; // Slide completely off-screen (300px)
-    
-    Animated.timing(profileMenuTranslateX, {
-      toValue,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-    
-    setIsProfileMenuOpen(!isProfileMenuOpen);
-  };
+
 
   // Handle field editing with auto-save
   const startEditing = (fieldName, currentValue) => {
@@ -2392,28 +2364,7 @@ const ThriveSwipeAppWeb = () => {
           <Text style={styles.pageSubtitle}>{pages[currentPage]}</Text>
         </View>
         
-        {/* Profile Photo */}
-        <View style={styles.profilePhotoContainer}>
-          <View 
-            style={styles.profilePhoto}
-            onTouchStart={toggleProfileMenu}
-            onClick={toggleProfileMenu}
-          >
-            <Text style={styles.profileInitial}>T</Text>
-          </View>
-          
-          {/* Notification badge removed - now only on hamburger menu */}
-          
-          {/* Edit Icon - Shows when profile menu is open */}
-          {isProfileMenuOpen && (
-            <View 
-              style={styles.profileEditIcon}
-              onClick={() => setShowPhotoEdit(true)}
-            >
-              <Text style={styles.profileEditIconText}>✏️</Text>
-            </View>
-          )}
-        </View>
+
       </View>
       
       {/* Sliding Menu */}
@@ -2556,239 +2507,7 @@ const ThriveSwipeAppWeb = () => {
         />
       )}
       
-      {/* Profile Slide Menu */}
-      <Animated.View
-        style={[
-          styles.profileSlideMenu,
-          {
-            transform: [{ translateX: profileMenuTranslateX }],
-          },
-        ]}
-      >
-            <View style={styles.profileMenuContent}>
-              {/* Header with X button */}
-              <View style={styles.profileHeader}>
-                <Text style={styles.profileMenuTitle}>Profile Settings</Text>
-                <View 
-                  style={styles.closeButton}
-                  onTouchStart={toggleProfileMenu}
-                  onClick={toggleProfileMenu}
-                >
-                  <Text style={styles.closeButtonText}>✗</Text>
-                </View>
-              </View>
-              
-              {/* Profile Photo Section */}
-              <View style={styles.profilePhotoSection}>
-                <View style={styles.profilePhotoLarge}>
-                  <Text style={styles.profileInitialLarge}>
-                    {profileData.name ? profileData.name.charAt(0).toUpperCase() : 'T'}
-                  </Text>
-                </View>
-                <Text style={styles.photoLabel}>Profile Photo</Text>
-              </View>
-              
-              {/* Interactive Profile Options */}
-              {/* Name */}
-              <View 
-                style={styles.profileOption}
-                onTouchStart={() => startEditing('name', profileData.name)}
-                onClick={() => startEditing('name', profileData.name)}
-              >
-                <Text style={styles.optionLabel}>Name</Text>
-                {editingField === 'name' ? (
-                  <View style={styles.editContainer}>
-                    <TextInput
-                      style={styles.textInput}
-                      value={tempValue}
-                      onChangeText={handleTextChange}
-                      placeholder="Enter name"
-                      autoFocus
-                    />
-                    <View style={styles.buttonContainer}>
-                      <Text style={styles.saveButton} onTouchStart={saveField} onClick={saveField}>✓</Text>
-                      <Text style={styles.cancelButton} onTouchStart={cancelEditing} onClick={cancelEditing}>✗</Text>
-                    </View>
-                  </View>
-                ) : (
-                  <Text style={styles.optionValue}>{profileData.name || 'Tap to set'}</Text>
-                )}
-              </View>
-              
-              {/* Weight */}
-              <View 
-                style={styles.profileOption}
-                onTouchStart={() => startEditing('weight', profileData.weight)}
-                onClick={() => startEditing('weight', profileData.weight)}
-              >
-                <Text style={styles.optionLabel}>Weight</Text>
-                {editingField === 'weight' ? (
-                  <View style={styles.editContainer}>
-                    <TextInput
-                      style={styles.textInput}
-                      value={tempValue}
-                      onChangeText={(value) => handleFormattedTextChange(value, 'weight')}
-                      placeholder="Enter weight (lb)"
-                      keyboardType="numeric"
-                      autoFocus
-                    />
-                    <View style={styles.buttonContainer}>
-                      <Text style={styles.saveButton} onTouchStart={saveField} onClick={saveField}>✓</Text>
-                      <Text style={styles.cancelButton} onTouchStart={cancelEditing} onClick={cancelEditing}>✗</Text>
-                    </View>
-                  </View>
-                ) : (
-                  <Text style={styles.optionValue}>{profileData.weight ? `${profileData.weight} lb` : 'Tap to set'}</Text>
-                )}
-              </View>
-              
-              {/* Height */}
-              <View 
-                style={styles.profileOption}
-                onTouchStart={() => startEditing('height', profileData.height)}
-                onClick={() => startEditing('height', profileData.height)}
-              >
-                <Text style={styles.optionLabel}>Height</Text>
-                {editingField === 'height' ? (
-                  <View style={styles.editContainer}>
-                    <TextInput
-                      style={styles.textInput}
-                      value={tempValue}
-                      onChangeText={(value) => handleFormattedTextChange(value, 'height')}
-                      placeholder="5'8 or 5 ft 8 in"
-                      autoFocus
-                    />
-                    <View style={styles.buttonContainer}>
-                      <Text style={styles.saveButton} onTouchStart={saveField} onClick={saveField}>✓</Text>
-                      <Text style={styles.cancelButton} onTouchStart={cancelEditing} onClick={cancelEditing}>✗</Text>
-                    </View>
-                  </View>
-                ) : (
-                  <Text style={styles.optionValue}>{profileData.height ? `${profileData.height}` : 'Tap to set'}</Text>
-                )}
-              </View>
-              
-              {/* Birthday */}
-              <View 
-                style={styles.profileOption}
-                onTouchStart={() => startEditing('birthday', profileData.birthday)}
-                onClick={() => startEditing('birthday', profileData.birthday)}
-              >
-                <Text style={styles.optionLabel}>Birthday</Text>
-                {editingField === 'birthday' ? (
-                  <View style={styles.editContainer}>
-                    <TextInput
-                      style={styles.textInput}
-                      value={tempValue}
-                      onChangeText={(value) => handleFormattedTextChange(value, 'birthday')}
-                      placeholder="MM/DD/YY"
-                      keyboardType="numeric"
-                      maxLength={8}
-                      autoFocus
-                    />
-                    <View style={styles.buttonContainer}>
-                      <Text style={styles.saveButton} onTouchStart={saveField} onClick={saveField}>✓</Text>
-                      <Text style={styles.cancelButton} onTouchStart={cancelEditing} onClick={cancelEditing}>✗</Text>
-                    </View>
-                  </View>
-                ) : (
-                  <Text style={styles.optionValue}>{profileData.birthday || 'Tap to set'}</Text>
-                )}
-              </View>
-              
-              {/* Fitness Level */}
-              <View style={styles.profileOption}>
-                <Text style={styles.optionLabel}>Fitness Level</Text>
-                <View style={styles.dropdownWrapper}>
-                  <View 
-                    style={styles.dropdownContainer}
-                    onTouchStart={() => openDropdown('fitness')}
-                    onClick={() => openDropdown('fitness')}
-                  >
-                    <Text style={styles.dropdownValue}>
-                      {profileData.fitnessLevel || 'Select Level'}
-                    </Text>
-                    <Text style={styles.dropdownArrow}>▼</Text>
-                  </View>
-                  
-                  {/* Fitness Level Dropdown Menu */}
-                  {showFitnessDropdown && (
-                    <View style={styles.dropdownMenu}>
-                      {fitnessOptions.map((option) => (
-                        <View
-                          key={option}
-                          style={styles.dropdownItem}
-                          onTouchStart={() => selectFitnessLevel(option)}
-                          onClick={() => selectFitnessLevel(option)}
-                        >
-                          <Text style={styles.dropdownItemText}>{option}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              </View>
-              
-              {/* Main Goal */}
-              <View style={styles.profileOption}>
-                <Text style={styles.optionLabel}>Main Goal</Text>
-                <View style={styles.dropdownWrapper}>
-                  <View 
-                    style={styles.dropdownContainer}
-                    onTouchStart={() => openDropdown('mainGoal')}
-                    onClick={() => openDropdown('mainGoal')}
-                  >
-                    <Text style={styles.dropdownValue}>
-                      {profileData.mainGoal || 'Select Goal'}
-                    </Text>
-                    <Text style={styles.dropdownArrow}>▼</Text>
-                  </View>
-                  
-                  {/* Main Goal Dropdown Menu */}
-                  {showMainGoalDropdown && (
-                    <View style={styles.dropdownMenu}>
-                      {goalOptions.map((option) => (
-                        <View
-                          key={option}
-                          style={styles.dropdownItem}
-                          onTouchStart={() => selectMainGoal(option)}
-                          onClick={() => selectMainGoal(option)}
-                        >
-                          <Text style={styles.dropdownItemText}>{option}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              </View>
-              
-              {/* Email */}
-              <View 
-                style={styles.profileOption}
-                onTouchStart={() => startEditing('email', profileData.email)}
-                onClick={() => startEditing('email', profileData.email)}
-              >
-                <Text style={styles.optionLabel}>Email</Text>
-                {editingField === 'email' ? (
-                  <View style={styles.editContainer}>
-                    <TextInput
-                      style={styles.textInput}
-                      value={tempValue}
-                      onChangeText={handleTextChange}
-                      placeholder="Enter email"
-                      autoFocus
-                    />
-                    <View style={styles.buttonContainer}>
-                      <Text style={styles.saveButton} onTouchStart={saveField} onClick={saveField}>✓</Text>
-                      <Text style={styles.cancelButton} onTouchStart={cancelEditing} onClick={cancelEditing}>✗</Text>
-                    </View>
-                  </View>
-                ) : (
-                  <Text style={styles.optionValue}>{profileData.email || 'Tap to set'}</Text>
-                )}
-              </View>
-        </View>
-      </Animated.View>
+
       
       {/* Modal Dropdown Overlays */}
       {(showFitnessDropdown || showMainGoalDropdown) && (
@@ -3196,6 +2915,15 @@ const ThriveSwipeAppWeb = () => {
               
               {/* Profile Header - No Cover Background */}
               <View style={styles.profileHeader}>
+                {/* Profile Settings Button - Top Right */}
+                <View 
+                  style={styles.profileSettingsButton}
+                  onStartShouldSetResponder={() => true}
+                  onResponderGrant={() => setShowProfileSettings(true)}
+                >
+                  <Text style={styles.profileSettingsIcon}>✏️</Text>
+                </View>
+                
                 {/* Avatar moved to top */}
                 <View style={styles.profileAvatarContainerTop}>
                   <View style={styles.profileAvatar}>
@@ -6945,6 +6673,257 @@ const ThriveSwipeAppWeb = () => {
         </View>
       )}
       
+      {/* Profile Settings Modal */}
+      {showProfileSettings && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.profileSettingsModal}>
+            <ScrollView style={styles.profileSettingsContent} showsVerticalScrollIndicator={false}>
+              {/* Header with X button */}
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Profile Settings</Text>
+                <View 
+                  style={styles.modalCloseButton}
+                  onStartShouldSetResponder={() => true}
+                  onResponderGrant={() => setShowProfileSettings(false)}
+                >
+                  <Text style={styles.modalCloseText}>×</Text>
+                </View>
+              </View>
+              
+              {/* Profile Photo Section */}
+              <View style={styles.profilePhotoSection}>
+                <View style={styles.profilePhotoLarge}>
+                  <Text style={styles.profileInitialLarge}>
+                    {profileData.name ? profileData.name.charAt(0).toUpperCase() : 'T'}
+                  </Text>
+                </View>
+                <Text style={styles.photoLabel}>Profile Photo</Text>
+              </View>
+              
+              {/* Interactive Profile Options */}
+              {/* Name */}
+              <View 
+                style={styles.profileOption}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => startEditing('name', profileData.name)}
+              >
+                <Text style={styles.optionLabel}>Name</Text>
+                {editingField === 'name' ? (
+                  <View style={styles.editContainer}>
+                    <TextInput
+                      style={styles.textInput}
+                      value={tempValue}
+                      onChangeText={handleTextChange}
+                      placeholder="Enter name"
+                      autoFocus
+                    />
+                    <View style={styles.buttonContainer}>
+                      <View style={styles.saveButton} onStartShouldSetResponder={() => true} onResponderGrant={saveField}>
+                        <Text style={styles.saveButtonText}>✓</Text>
+                      </View>
+                      <View style={styles.cancelButton} onStartShouldSetResponder={() => true} onResponderGrant={cancelEditing}>
+                        <Text style={styles.cancelButtonText}>✗</Text>
+                      </View>
+                    </View>
+                  </View>
+                ) : (
+                  <Text style={styles.optionValue}>{profileData.name || 'Tap to set'}</Text>
+                )}
+              </View>
+              
+              {/* Weight */}
+              <View 
+                style={styles.profileOption}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => startEditing('weight', profileData.weight)}
+              >
+                <Text style={styles.optionLabel}>Weight</Text>
+                {editingField === 'weight' ? (
+                  <View style={styles.editContainer}>
+                    <TextInput
+                      style={styles.textInput}
+                      value={tempValue}
+                      onChangeText={(value) => handleFormattedTextChange(value, 'weight')}
+                      placeholder="Enter weight (lb)"
+                      keyboardType="numeric"
+                      autoFocus
+                    />
+                    <View style={styles.buttonContainer}>
+                      <View style={styles.saveButton} onStartShouldSetResponder={() => true} onResponderGrant={saveField}>
+                        <Text style={styles.saveButtonText}>✓</Text>
+                      </View>
+                      <View style={styles.cancelButton} onStartShouldSetResponder={() => true} onResponderGrant={cancelEditing}>
+                        <Text style={styles.cancelButtonText}>✗</Text>
+                      </View>
+                    </View>
+                  </View>
+                ) : (
+                  <Text style={styles.optionValue}>{profileData.weight ? `${profileData.weight} lb` : 'Tap to set'}</Text>
+                )}
+              </View>
+              
+              {/* Height */}
+              <View 
+                style={styles.profileOption}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => startEditing('height', profileData.height)}
+              >
+                <Text style={styles.optionLabel}>Height</Text>
+                {editingField === 'height' ? (
+                  <View style={styles.editContainer}>
+                    <TextInput
+                      style={styles.textInput}
+                      value={tempValue}
+                      onChangeText={(value) => handleFormattedTextChange(value, 'height')}
+                      placeholder="5'8 or 5 ft 8 in"
+                      autoFocus
+                    />
+                    <View style={styles.buttonContainer}>
+                      <View style={styles.saveButton} onStartShouldSetResponder={() => true} onResponderGrant={saveField}>
+                        <Text style={styles.saveButtonText}>✓</Text>
+                      </View>
+                      <View style={styles.cancelButton} onStartShouldSetResponder={() => true} onResponderGrant={cancelEditing}>
+                        <Text style={styles.cancelButtonText}>✗</Text>
+                      </View>
+                    </View>
+                  </View>
+                ) : (
+                  <Text style={styles.optionValue}>{profileData.height ? `${profileData.height}` : 'Tap to set'}</Text>
+                )}
+              </View>
+              
+              {/* Birthday */}
+              <View 
+                style={styles.profileOption}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => startEditing('birthday', profileData.birthday)}
+              >
+                <Text style={styles.optionLabel}>Birthday</Text>
+                {editingField === 'birthday' ? (
+                  <View style={styles.editContainer}>
+                    <TextInput
+                      style={styles.textInput}
+                      value={tempValue}
+                      onChangeText={(value) => handleFormattedTextChange(value, 'birthday')}
+                      placeholder="MM/DD/YY"
+                      keyboardType="numeric"
+                      maxLength={8}
+                      autoFocus
+                    />
+                    <View style={styles.buttonContainer}>
+                      <View style={styles.saveButton} onStartShouldSetResponder={() => true} onResponderGrant={saveField}>
+                        <Text style={styles.saveButtonText}>✓</Text>
+                      </View>
+                      <View style={styles.cancelButton} onStartShouldSetResponder={() => true} onResponderGrant={cancelEditing}>
+                        <Text style={styles.cancelButtonText}>✗</Text>
+                      </View>
+                    </View>
+                  </View>
+                ) : (
+                  <Text style={styles.optionValue}>{profileData.birthday || 'Tap to set'}</Text>
+                )}
+              </View>
+              
+              {/* Fitness Level */}
+              <View style={styles.profileOption}>
+                <Text style={styles.optionLabel}>Fitness Level</Text>
+                <View style={styles.dropdownWrapper}>
+                  <View 
+                    style={styles.dropdownContainer}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => openDropdown('fitness')}
+                  >
+                    <Text style={styles.dropdownValue}>
+                      {profileData.fitnessLevel || 'Select Level'}
+                    </Text>
+                    <Text style={styles.dropdownArrow}>▼</Text>
+                  </View>
+                  
+                  {/* Fitness Level Dropdown Menu */}
+                  {showFitnessDropdown && (
+                    <View style={styles.dropdownMenu}>
+                      {fitnessOptions.map((option) => (
+                        <View
+                          key={option}
+                          style={styles.dropdownItem}
+                          onStartShouldSetResponder={() => true}
+                          onResponderGrant={() => selectFitnessLevel(option)}
+                        >
+                          <Text style={styles.dropdownItemText}>{option}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              </View>
+              
+              {/* Main Goal */}
+              <View style={styles.profileOption}>
+                <Text style={styles.optionLabel}>Main Goal</Text>
+                <View style={styles.dropdownWrapper}>
+                  <View 
+                    style={styles.dropdownContainer}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => openDropdown('mainGoal')}
+                  >
+                    <Text style={styles.dropdownValue}>
+                      {profileData.mainGoal || 'Select Goal'}
+                    </Text>
+                    <Text style={styles.dropdownArrow}>▼</Text>
+                  </View>
+                  
+                  {/* Main Goal Dropdown Menu */}
+                  {showMainGoalDropdown && (
+                    <View style={styles.dropdownMenu}>
+                      {goalOptions.map((option) => (
+                        <View
+                          key={option}
+                          style={styles.dropdownItem}
+                          onStartShouldSetResponder={() => true}
+                          onResponderGrant={() => selectMainGoal(option)}
+                        >
+                          <Text style={styles.dropdownItemText}>{option}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              </View>
+              
+              {/* Email */}
+              <View 
+                style={styles.profileOption}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => startEditing('email', profileData.email)}
+              >
+                <Text style={styles.optionLabel}>Email</Text>
+                {editingField === 'email' ? (
+                  <View style={styles.editContainer}>
+                    <TextInput
+                      style={styles.textInput}
+                      value={tempValue}
+                      onChangeText={handleTextChange}
+                      placeholder="Enter email"
+                      autoFocus
+                    />
+                    <View style={styles.buttonContainer}>
+                      <View style={styles.saveButton} onStartShouldSetResponder={() => true} onResponderGrant={saveField}>
+                        <Text style={styles.saveButtonText}>✓</Text>
+                      </View>
+                      <View style={styles.cancelButton} onStartShouldSetResponder={() => true} onResponderGrant={cancelEditing}>
+                        <Text style={styles.cancelButtonText}>✗</Text>
+                      </View>
+                    </View>
+                  </View>
+                ) : (
+                  <Text style={styles.optionValue}>{profileData.email || 'Tap to set'}</Text>
+                )}
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      )}
+      
     </View>
   );
 };
@@ -7110,41 +7089,7 @@ const styles = StyleSheet.create({
     top: -2,
     alignSelf: 'center',
   },
-  profilePhotoContainer: {
-    position: 'absolute', // Position absolutely on right side
-    right: 0, // Align to right edge (accounting for header padding)
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profilePhoto: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: THRIVE_COLORS.primary, // Changed to THRIVE green
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: THRIVE_COLORS.white,
-    shadowColor: THRIVE_COLORS.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
-    shadowColor: THRIVE_COLORS.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-    cursor: 'pointer',
-  },
-  profileInitial: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: THRIVE_COLORS.white,
-    letterSpacing: 1,
-  },
+
   thriveTitle: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -7342,33 +7287,7 @@ const styles = StyleSheet.create({
     zIndex: 15,
   },
 
-  profileSlideMenu: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 300,
-    height: '100%',
-    backgroundColor: THRIVE_COLORS.white,
-    borderLeftWidth: 1,
-    borderLeftColor: THRIVE_COLORS.neutral,
-    zIndex: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: -2, height: 0 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  profileMenuContent: {
-    flex: 1,
-    paddingTop: 100, // Account for header height
-    paddingHorizontal: 20,
-  },
-  profileMenuTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: THRIVE_COLORS.primary,
-    flex: 1,
-  },
+
   profilePhotoSection: {
     alignItems: 'center',
     marginBottom: 20,
@@ -7438,23 +7357,31 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     backgroundColor: '#4CAF50',
-    color: THRIVE_COLORS.white,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    cursor: 'pointer',
+  },
+  saveButtonText: {
+    color: THRIVE_COLORS.white,
     fontSize: 12,
     fontWeight: 'bold',
-    cursor: 'pointer',
   },
   cancelButton: {
     backgroundColor: '#FF4444',
-    color: THRIVE_COLORS.white,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    cursor: 'pointer',
+  },
+  cancelButtonText: {
+    color: THRIVE_COLORS.white,
     fontSize: 12,
     fontWeight: 'bold',
-    cursor: 'pointer',
   },
   profileHeader: {
     flexDirection: 'row',
@@ -9111,6 +9038,30 @@ const styles = StyleSheet.create({
   
   profileHeader: {
     backgroundColor: THRIVE_COLORS.white,
+    position: 'relative',
+  },
+  
+  profileSettingsButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: THRIVE_COLORS.neutral,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: THRIVE_COLORS.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    cursor: 'pointer',
+    zIndex: 10,
+  },
+  
+  profileSettingsIcon: {
+    fontSize: 18,
   },
   
   profileAvatarContainerTop: {
@@ -10729,30 +10680,7 @@ const styles = StyleSheet.create({
   },
   
   // 📸 PHOTO EDIT STYLES
-  profileEditIcon: {
-    position: 'absolute',
-    bottom: -5,
-    right: -5,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: THRIVE_COLORS.highlight,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: THRIVE_COLORS.white,
-    shadowColor: THRIVE_COLORS.shadow,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
-    cursor: 'pointer',
-  },
-  
-  profileEditIconText: {
-    fontSize: 12,
-    color: THRIVE_COLORS.white,
-  },
+
   
   photoEditModal: {
     backgroundColor: THRIVE_COLORS.white,
@@ -13749,6 +13677,21 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  
+  // Profile Settings Modal Styles
+  profileSettingsModal: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    width: '90%',
+    maxWidth: 500,
+    maxHeight: '85%',
+    overflow: 'hidden',
+  },
+  
+  profileSettingsContent: {
+    maxHeight: 500,
+    paddingBottom: 20,
   },
 
 });
