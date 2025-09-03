@@ -3282,154 +3282,109 @@ const ThriveSwipeAppWeb = () => {
                 {activeProfileTab === 0 && (
                   <View>
                 
-                {/* Content Grid - Photo Upload System */}
-                <View style={styles.contentGrid}>
+                {/* New Facebook-Inspired Photo Sharing Section */}
+                <View style={styles.photoSharingSection}>
+                  <Text style={styles.sectionTitle}>Share Your Journey</Text>
                   
-                  {/* Top-Left: Pinned Photo */}
-                  <View 
-                    style={[styles.contentGridItem, styles.pinnedContent]}
-                    onStartShouldSetResponder={() => true}
-                    onResponderGrant={() => {
-                      if (pinnedPhoto) {
-                        setShowPhotoDetail(pinnedPhoto);
-                      }
-                    }}
-                  >
-                    {pinnedPhoto ? (
-                      <View style={styles.pinnedPhotoContainer}>
-                        <View style={styles.photoImage}>
-                          {pinnedPhoto.url && pinnedPhoto.url.startsWith('data:') ? (
-                            <img 
-                              src={pinnedPhoto.url} 
-                              alt={pinnedPhoto.caption || 'Pinned Photo'}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                borderRadius: 8
-                              }}
-                            />
-                          ) : pinnedPhoto.isPlaceholder ? (
-                            <View style={styles.captionOnlyPhoto}>
-                              <Text style={styles.captionOnlyIcon}>📝</Text>
-                              <Text style={styles.captionOnlyLabel}>Caption</Text>
-                            </View>
-                          ) : (
-                            <Text style={styles.photoPlaceholder}>📸</Text>
-                          )}
-                        </View>
-                        <View style={styles.pinnedBadge}>
-                          <Text style={styles.pinnedBadgeText}>📌</Text>
-                        </View>
-                        <View 
-                          style={styles.unpinButton}
-                          onStartShouldSetResponder={() => true}
-                          onResponderGrant={(e) => {
-                            e.stopPropagation();
-                            handlePhotoPinRemove();
-                          }}
-                        >
-                          <Text style={styles.unpinButtonText}>×</Text>
-                        </View>
+                  {/* Main Post Creation Card - Facebook Inspired */}
+                  <View style={styles.postCreationCard}>
+                    <View style={styles.postCardHeader}>
+                      <View style={styles.userAvatarContainer}>
+                        <Text style={styles.userAvatar}>{profileData.name ? profileData.name.charAt(0).toUpperCase() : 'U'}</Text>
                       </View>
-                    ) : (
-                      <View style={styles.emptyPinnedContainer}>
-                        <View style={styles.pinnedLabel}>
-                          <Text style={styles.pinnedLabelText}>Pinned</Text>
-                        </View>
-                        <Text style={styles.emptyPinnedText}>Pin a photo to keep it here</Text>
-                      </View>
-                    )}
-                  </View>
-                  
-                  {/* Top-Right: Photo Slot 1 */}
-                  {getDisplayPhotos().map((photo, index) => {
-                    if (index >= 4) return null;
-                    return (
                       <View 
-                        key={photo.id}
-                        style={[styles.contentGridItem, styles.photoGridItem]}
+                        style={styles.postInputContainer}
                         onStartShouldSetResponder={() => true}
-                        onResponderGrant={() => setShowPhotoDetail(photo)}
+                        onResponderGrant={() => setShowPhotoUpload(true)}
                       >
-                        <View style={styles.photoContainer}>
-                          <View style={styles.photoImage}>
-                            {photo.url && photo.url.startsWith('data:') ? (
-                              <img 
-                                src={photo.url} 
-                                alt={photo.caption || 'Photo'}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover',
-                                  borderRadius: 8
-                                }}
-                              />
-                            ) : photo.isPlaceholder ? (
-                              <View style={styles.captionOnlyPhoto}>
-                                <Text style={styles.captionOnlyIcon}>📝</Text>
-                                <Text style={styles.captionOnlyLabel}>Caption</Text>
-                              </View>
-                            ) : (
-                              <Text style={styles.photoPlaceholder}>📸</Text>
-                            )}
-                          </View>
-                          <View style={styles.photoOverlay}>
-                            <View 
-                              style={styles.pinPhotoButton}
-                              onStartShouldSetResponder={() => true}
-                              onResponderGrant={(e) => {
-                                e.stopPropagation();
-                                handlePhotoPin(photo.id);
-                              }}
-                            >
-                              <Text style={styles.pinPhotoButtonText}>📌</Text>
-                            </View>
-                            <View 
-                              style={styles.deletePhotoButton}
-                              onStartShouldSetResponder={() => true}
-                              onResponderGrant={(e) => {
-                                e.stopPropagation();
-                                handlePhotoDelete(photo.id);
-                              }}
-                            >
-                              <Text style={styles.deletePhotoButtonText}>×</Text>
-                            </View>
-                          </View>
-                          {photo.tags && photo.tags.length > 0 && (
-                            <View style={styles.photoTagsIndicator}>
-                              <Text style={styles.photoTagsText}>#{photo.tags[0]}</Text>
-                            </View>
-                          )}
-                        </View>
+                        <Text style={styles.postInputPlaceholder}>What's happening in your wellness journey?</Text>
                       </View>
-                    );
-                  })}
-                  
-                  {/* Fill empty slots */}
-                  {Array.from({ length: Math.max(0, 4 - getDisplayPhotos().length) }).map((_, index) => (
-                    <View key={`empty-${index}`} style={[styles.contentGridItem, styles.emptyPhotoSlot]}>
-                      <Text style={styles.emptyPhotoText}>Empty</Text>
                     </View>
-                  ))}
-                  
-                  {/* Bottom-Right: Photo Upload Button */}
-                  <View 
-                    style={[styles.contentGridItem, styles.photoUploadButton]}
-                    onStartShouldSetResponder={() => true}
-                    onResponderGrant={(e) => {
-                      e.stopPropagation();
-                      handlePhotoUpload();
-                    }}
-                    onResponderMove={() => false}
-                    onResponderEnd={() => true}
-                  >
-                    <View style={styles.uploadButtonContainer}>
-                      <Text style={styles.uploadButtonIcon}>📷</Text>
-                      <Text style={styles.uploadButtonText}>Add Photo</Text>
-                      <Text style={styles.uploadButtonSubtext}>Camera or Library</Text>
+                    
+                    <View style={styles.postActionsContainer}>
+                      <View 
+                        style={styles.postActionButton}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={() => setShowPhotoUpload(true)}
+                      >
+                        <Text style={styles.postActionIcon}>📸</Text>
+                        <Text style={styles.postActionText}>Photo</Text>
+                      </View>
+                      <View 
+                        style={styles.postActionButton}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={() => setShowPhotoUpload(true)}
+                      >
+                        <Text style={styles.postActionIcon}>💭</Text>
+                        <Text style={styles.postActionText}>Thought</Text>
+                      </View>
+                      <View 
+                        style={styles.postActionButton}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={() => setShowPhotoUpload(true)}
+                      >
+                        <Text style={styles.postActionIcon}>🏆</Text>
+                        <Text style={styles.postActionText}>Achievement</Text>
+                      </View>
                     </View>
                   </View>
+                  
+                  {/* Recent Posts Feed */}
+                  {uploadedPhotos.length > 0 && (
+                    <View style={styles.recentPostsContainer}>
+                      <Text style={styles.recentPostsTitle}>Your Recent Posts</Text>
+                      {uploadedPhotos.slice(0, 3).map((photo) => (
+                        <View key={photo.id} style={styles.postCard}>
+                          <View style={styles.postHeader}>
+                            <View style={styles.postUserInfo}>
+                              <Text style={styles.postUserAvatar}>{profileData.name ? profileData.name.charAt(0).toUpperCase() : 'U'}</Text>
+                              <View>
+                                <Text style={styles.postUserName}>{profileData.name || 'User'}</Text>
+                                <Text style={styles.postTimestamp}>{new Date(photo.timestamp).toLocaleDateString()}</Text>
+                              </View>
+                            </View>
+                            <View 
+                              style={styles.postMenuButton}
+                              onStartShouldSetResponder={() => true}
+                              onResponderGrant={() => setShowPhotoDetail(photo)}
+                            >
+                              <Text style={styles.postMenuIcon}>⋯</Text>
+                            </View>
+                          </View>
+                          
+                          {photo.caption && (
+                            <Text style={styles.postCaption}>{photo.caption}</Text>
+                          )}
+                          
+                          {photo.url && (
+                            <View style={styles.postImageContainer}
+                              onStartShouldSetResponder={() => true}
+                              onResponderGrant={() => setShowPhotoDetail(photo)}
+                            >
+                              {photo.url.startsWith('data:') ? (
+                                <img 
+                                  src={photo.url} 
+                                  alt={photo.caption || 'Post image'}
+                                  style={styles.postImage}
+                                />
+                              ) : (
+                                <View style={styles.postPlaceholder}>
+                                  <Text style={styles.postPlaceholderIcon}>📸</Text>
+                                </View>
+                              )}
+                            </View>
+                          )}
+                          
+                          <View style={styles.postEngagement}>
+                            <View style={styles.postStats}>
+                              <Text style={styles.postStatsText}>❤️ {Math.floor(Math.random() * 20) + 1}</Text>
+                              <Text style={styles.postStatsText}>💬 {Math.floor(Math.random() * 5)}</Text>
+                            </View>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  )}
                 </View>
                 
                 {/* Success Routines - Customizable Playlists */}
@@ -9511,23 +9466,207 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   
-  contentGrid: {
+  // Facebook-Inspired Photo Sharing Styles
+  photoSharingSection: {
+    marginBottom: 20,
+  },
+  
+  postCreationCard: {
+    backgroundColor: THRIVE_COLORS.white,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  
+  postCardHeader: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 10,
-    gap: 6,
+    alignItems: 'center',
+    marginBottom: 12,
   },
   
-  contentGridItem: {
-    width: '31%',
-    aspectRatio: 1,
-    backgroundColor: '#F5F5F5',
+  userAvatarContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: THRIVE_COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  
+  userAvatar: {
+    color: THRIVE_COLORS.white,
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  
+  postInputContainer: {
+    flex: 1,
+    backgroundColor: '#F0F2F5',
+    borderRadius: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    cursor: 'pointer',
+  },
+  
+  postInputPlaceholder: {
+    color: '#65676B',
+    fontSize: 16,
+  },
+  
+  postActionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5E5',
+  },
+  
+  postActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 6,
-    position: 'relative',
+    cursor: 'pointer',
   },
   
-  pinnedContent: {
-    // Removed red border for cleaner appearance
+  postActionIcon: {
+    fontSize: 20,
+    marginRight: 6,
+  },
+  
+  postActionText: {
+    color: '#65676B',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  
+  recentPostsContainer: {
+    marginTop: 8,
+  },
+  
+  recentPostsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: THRIVE_COLORS.black,
+    marginBottom: 12,
+  },
+  
+  postCard: {
+    backgroundColor: THRIVE_COLORS.white,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  
+  postHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  
+  postUserInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  
+  postUserAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: THRIVE_COLORS.primary,
+    color: THRIVE_COLORS.white,
+    textAlign: 'center',
+    lineHeight: 32,
+    fontWeight: '600',
+    fontSize: 14,
+    marginRight: 8,
+  },
+  
+  postUserName: {
+    fontWeight: '600',
+    fontSize: 15,
+    color: THRIVE_COLORS.black,
+  },
+  
+  postTimestamp: {
+    color: '#65676B',
+    fontSize: 13,
+  },
+  
+  postMenuButton: {
+    padding: 4,
+    cursor: 'pointer',
+  },
+  
+  postMenuIcon: {
+    fontSize: 18,
+    color: '#65676B',
+  },
+  
+  postCaption: {
+    fontSize: 15,
+    lineHeight: 20,
+    color: THRIVE_COLORS.black,
+    marginBottom: 12,
+  },
+  
+  postImageContainer: {
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 12,
+    cursor: 'pointer',
+  },
+  
+  postImage: {
+    width: '100%',
+    height: 200,
+    objectFit: 'cover',
+  },
+  
+  postPlaceholder: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#F0F2F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  postPlaceholderIcon: {
+    fontSize: 48,
+    opacity: 0.5,
+  },
+  
+  postEngagement: {
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5E5',
+  },
+  
+  postStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  
+  postStatsText: {
+    color: '#65676B',
+    fontSize: 14,
   },
   
   pinnedLabel: {
@@ -13891,6 +14030,211 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   
+  // Modern Facebook-Inspired Modal Styles
+  modernModalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    padding: 20,
+  },
+  
+  modernPostModal: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    width: '90%',
+    maxWidth: 500,
+    maxHeight: '85%',
+    overflow: 'hidden',
+  },
+  
+  modernModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5E5',
+  },
+  
+  modernModalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: THRIVE_COLORS.black,
+  },
+  
+  modernCloseButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F0F2F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+  },
+  
+  modernCloseButtonText: {
+    fontSize: 18,
+    color: '#65676B',
+  },
+  
+  modernModalContent: {
+    flex: 1,
+    padding: 20,
+  },
+  
+  modalUserHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  
+  modalUserAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: THRIVE_COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  
+  modalUserAvatarText: {
+    color: THRIVE_COLORS.white,
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  
+  modalUserName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: THRIVE_COLORS.black,
+  },
+  
+  modalUserSubtext: {
+    fontSize: 14,
+    color: '#65676B',
+  },
+  
+  modernCaptionSection: {
+    marginBottom: 20,
+  },
+  
+  modernCaptionInput: {
+    fontSize: 16,
+    color: THRIVE_COLORS.black,
+    borderWidth: 0,
+    padding: 12,
+    backgroundColor: '#F0F2F5',
+    borderRadius: 8,
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  
+  mediaPreviewContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  
+  mediaPreviewLabel: {
+    fontSize: 14,
+    color: '#1976D2',
+    fontWeight: '500',
+  },
+  
+  removeMediaButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#F44336',
+    borderRadius: 6,
+    cursor: 'pointer',
+  },
+  
+  removeMediaText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  
+  modernMediaOptions: {
+    marginBottom: 24,
+  },
+  
+  mediaOptionsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: THRIVE_COLORS.black,
+    marginBottom: 12,
+  },
+  
+  mediaButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  
+  modernMediaButton: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    backgroundColor: '#F0F2F5',
+    minWidth: 70,
+    cursor: 'pointer',
+  },
+  
+  modernMediaIcon: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  
+  modernMediaText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#65676B',
+  },
+  
+  modernPostButtonContainer: {
+    alignItems: 'center',
+  },
+  
+  modernPostButton: {
+    width: '100%',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    cursor: 'pointer',
+  },
+  
+  modernPostButtonActive: {
+    backgroundColor: THRIVE_COLORS.primary,
+  },
+  
+  modernPostButtonInactive: {
+    backgroundColor: '#E5E5E5',
+  },
+  
+  modernPostButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  
+  modernPostButtonTextActive: {
+    color: THRIVE_COLORS.white,
+  },
+  
+  modernPostButtonTextInactive: {
+    color: '#999',
+  },
 
 
 });
