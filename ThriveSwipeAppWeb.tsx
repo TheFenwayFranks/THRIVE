@@ -2414,8 +2414,8 @@ const ThriveSwipeAppWeb = () => {
         </View>
         
         <View style={styles.headerCenter}>
-          {/* New THRIVE Logo Implementation - Prominently Centered */}
-          <ThriveLogoComponent size={32} showText={true} textSize={20} />
+          {/* New THRIVE Logo Implementation - Prominently Centered - BIGGER! */}
+          <ThriveLogoComponent size={50} showText={true} textSize={28} />
           {/* Page title moved to subtitle position */}
           <Text style={styles.pageSubtitle}>{pages[currentPage]}</Text>
         </View>
@@ -2442,8 +2442,8 @@ const ThriveSwipeAppWeb = () => {
         ]}
       >
         <View style={styles.menuContent}>
-          {/* New THRIVE Logo Implementation */}
-          <ThriveLogoComponent size={35} showText={true} textSize={20} />
+          {/* New THRIVE Logo Implementation - BIGGER! */}
+          <ThriveLogoComponent size={45} showText={true} textSize={24} />
           
           {/* Quick Actions */}
           <Text style={styles.sectionTitle}>Quick Actions</Text>
@@ -6971,8 +6971,8 @@ const styles = StyleSheet.create({
     transform: 'scale(1)', // Force scale
   },
   header: {
-    paddingTop: 60,
-    paddingBottom: 20,
+    paddingTop: 65,
+    paddingBottom: 25,
     paddingHorizontal: 20,
     backgroundColor: THRIVE_COLORS.white,
     borderBottomWidth: 1,
@@ -7053,7 +7053,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'column', // Stack logo and title vertically
-    paddingVertical: 4, // Add some vertical padding for better spacing
+    paddingVertical: 8, // More vertical padding for bigger logo
     // Remove flex: 1 to allow true centering
   },
   
