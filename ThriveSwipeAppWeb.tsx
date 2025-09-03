@@ -1995,6 +1995,55 @@ const ThriveSwipeAppWeb = () => {
     return tags.map(tag => `#${tag}`).join(' ');
   };
 
+  // Simple native attachment handler
+  const handleNativeAttachment = () => {
+    try {
+      // Create input that accepts both photos and camera
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*,video/*'; // Accept images and videos
+      input.capture = 'environment'; // Use camera when available
+      
+      input.onchange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          // Convert to data URL for preview
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            setSelectedPhotoFile(e.target.result);
+            console.log('File attached:', file.name);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      
+      input.click();
+    } catch (error) {
+      console.error('Error opening attachment picker:', error);
+      alert('Unable to open attachment picker. Please try again.');
+    }
+  };
+
+  // Simple post submission
+  const handleSimplePostSubmit = () => {
+    if (newPhotoCaption.trim() || selectedPhotoFile) {
+      const newPost = {
+        id: Date.now(),
+        url: selectedPhotoFile,
+        caption: newPhotoCaption.trim(),
+        tags: newPhotoCaption.match(/#\w+/g) || [],
+        timestamp: new Date(),
+        isPinned: false
+      };
+      
+      setUploadedPhotos(prev => [newPost, ...prev]);
+      setNewPhotoCaption('');
+      setSelectedPhotoFile(null);
+      
+      console.log('Post shared successfully!');
+    }
+  };
+
   const handleCameraCapture = () => {
     try {
       // Create camera input with better error handling
@@ -3282,51 +3331,67 @@ const ThriveSwipeAppWeb = () => {
                 {activeProfileTab === 0 && (
                   <View>
                 
-                {/* New Facebook-Inspired Photo Sharing Section */}
-                <View style={styles.photoSharingSection}>
+                {/* Simple Clean Post Creation */}
+                <View style={styles.simplePostSection}>
                   <Text style={styles.sectionTitle}>Share Your Journey</Text>
                   
-                  {/* Main Post Creation Card - Facebook Inspired */}
-                  <View style={styles.postCreationCard}>
-                    <View style={styles.postCardHeader}>
-                      <View style={styles.userAvatarContainer}>
-                        <Text style={styles.userAvatar}>{profileData.name ? profileData.name.charAt(0).toUpperCase() : 'U'}</Text>
+                  {/* Clean Post Creation Card */}
+                  <View style={styles.cleanPostCard}>
+                    <View style={styles.postInputRow}>
+                      <View style={styles.userAvatarSmall}>
+                        <Text style={styles.userAvatarText}>{profileData.name ? profileData.name.charAt(0).toUpperCase() : 'U'}</Text>
                       </View>
+                      <TextInput
+                        style={styles.postTextInput}
+                        placeholder="Share your wellness journey..."
+                        value={newPhotoCaption}
+                        onChangeText={setNewPhotoCaption}
+                        multiline
+                        numberOfLines={3}
+                        textAlignVertical="top"
+                      />
+                    </View>
+                    
+                    <View style={styles.postBottomRow}>
                       <View 
-                        style={styles.postInputContainer}
+                        style={styles.attachButton}
                         onStartShouldSetResponder={() => true}
-                        onResponderGrant={() => setShowPhotoUpload(true)}
+                        onResponderGrant={handleNativeAttachment}
                       >
-                        <Text style={styles.postInputPlaceholder}>What's happening in your wellness journey?</Text>
+                        <Text style={styles.attachIcon}>📎</Text>
+                        <Text style={styles.attachText}>Attach</Text>
+                      </View>
+                      
+                      <View 
+                        style={[
+                          styles.shareButton, 
+                          newPhotoCaption.trim() ? styles.shareButtonActive : styles.shareButtonInactive
+                        ]}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={handleSimplePostSubmit}
+                      >
+                        <Text style={[
+                          styles.shareButtonText,
+                          newPhotoCaption.trim() ? styles.shareButtonTextActive : styles.shareButtonTextInactive
+                        ]}>
+                          Share
+                        </Text>
                       </View>
                     </View>
                     
-                    <View style={styles.postActionsContainer}>
-                      <View 
-                        style={styles.postActionButton}
-                        onStartShouldSetResponder={() => true}
-                        onResponderGrant={() => setShowPhotoUpload(true)}
-                      >
-                        <Text style={styles.postActionIcon}>📸</Text>
-                        <Text style={styles.postActionText}>Photo</Text>
+                    {/* Show attached media preview */}
+                    {selectedPhotoFile && (
+                      <View style={styles.attachmentPreview}>
+                        <Text style={styles.attachmentLabel}>📷 Photo attached</Text>
+                        <View 
+                          style={styles.removeAttachment}
+                          onStartShouldSetResponder={() => true}
+                          onResponderGrant={() => setSelectedPhotoFile(null)}
+                        >
+                          <Text style={styles.removeAttachmentText}>Remove</Text>
+                        </View>
                       </View>
-                      <View 
-                        style={styles.postActionButton}
-                        onStartShouldSetResponder={() => true}
-                        onResponderGrant={() => setShowPhotoUpload(true)}
-                      >
-                        <Text style={styles.postActionIcon}>💭</Text>
-                        <Text style={styles.postActionText}>Thought</Text>
-                      </View>
-                      <View 
-                        style={styles.postActionButton}
-                        onStartShouldSetResponder={() => true}
-                        onResponderGrant={() => setShowPhotoUpload(true)}
-                      >
-                        <Text style={styles.postActionIcon}>🏆</Text>
-                        <Text style={styles.postActionText}>Achievement</Text>
-                      </View>
-                    </View>
+                    )}
                   </View>
                   
                   {/* Recent Posts Feed */}
@@ -3343,13 +3408,6 @@ const ThriveSwipeAppWeb = () => {
                                 <Text style={styles.postTimestamp}>{new Date(photo.timestamp).toLocaleDateString()}</Text>
                               </View>
                             </View>
-                            <View 
-                              style={styles.postMenuButton}
-                              onStartShouldSetResponder={() => true}
-                              onResponderGrant={() => setShowPhotoDetail(photo)}
-                            >
-                              <Text style={styles.postMenuIcon}>⋯</Text>
-                            </View>
                           </View>
                           
                           {photo.caption && (
@@ -3357,10 +3415,7 @@ const ThriveSwipeAppWeb = () => {
                           )}
                           
                           {photo.url && (
-                            <View style={styles.postImageContainer}
-                              onStartShouldSetResponder={() => true}
-                              onResponderGrant={() => setShowPhotoDetail(photo)}
-                            >
+                            <View style={styles.postImageContainer}>
                               {photo.url.startsWith('data:') ? (
                                 <img 
                                   src={photo.url} 
@@ -3374,13 +3429,6 @@ const ThriveSwipeAppWeb = () => {
                               )}
                             </View>
                           )}
-                          
-                          <View style={styles.postEngagement}>
-                            <View style={styles.postStats}>
-                              <Text style={styles.postStatsText}>❤️ {Math.floor(Math.random() * 20) + 1}</Text>
-                              <Text style={styles.postStatsText}>💬 {Math.floor(Math.random() * 5)}</Text>
-                            </View>
-                          </View>
                         </View>
                       ))}
                     </View>
@@ -5595,8 +5643,8 @@ const ThriveSwipeAppWeb = () => {
         </View>
       )}
       
-      {/* Photo Upload Modal */}
-      {showPhotoUpload && (
+      {/* Photo Upload Modal - DISABLED - Using simplified interface instead */}
+      {false && showPhotoUpload && (
         <View style={styles.photoModalOverlay}>
           <View style={styles.photoUploadModal}>
             <View style={styles.photoUploadHeader}>
@@ -9474,9 +9522,145 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   
-  // Facebook-Inspired Photo Sharing Styles
-  photoSharingSection: {
+  // Simple Clean Post Creation Styles
+  simplePostSection: {
     marginBottom: 20,
+  },
+  
+  cleanPostCard: {
+    backgroundColor: THRIVE_COLORS.white,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  
+  postInputRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  
+  userAvatarSmall: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: THRIVE_COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  
+  userAvatarText: {
+    color: THRIVE_COLORS.white,
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  
+  postTextInput: {
+    flex: 1,
+    fontSize: 16,
+    color: THRIVE_COLORS.black,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 8,
+    padding: 12,
+    minHeight: 60,
+    textAlignVertical: 'top',
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  
+  postBottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  
+  attachButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    cursor: 'pointer',
+  },
+  
+  attachIcon: {
+    fontSize: 18,
+    marginRight: 6,
+  },
+  
+  attachText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#65676B',
+  },
+  
+  shareButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    cursor: 'pointer',
+  },
+  
+  shareButtonActive: {
+    backgroundColor: THRIVE_COLORS.primary,
+  },
+  
+  shareButtonInactive: {
+    backgroundColor: '#E5E5E5',
+  },
+  
+  shareButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  
+  shareButtonTextActive: {
+    color: THRIVE_COLORS.white,
+  },
+  
+  shareButtonTextInactive: {
+    color: '#999',
+  },
+  
+  attachmentPreview: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    padding: 10,
+    borderRadius: 6,
+    marginTop: 12,
+  },
+  
+  attachmentLabel: {
+    fontSize: 13,
+    color: '#1976D2',
+    fontWeight: '500',
+  },
+  
+  removeAttachment: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: '#F44336',
+    borderRadius: 4,
+    cursor: 'pointer',
+  },
+  
+  removeAttachmentText: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: '600',
   },
   
   postCreationCard: {
