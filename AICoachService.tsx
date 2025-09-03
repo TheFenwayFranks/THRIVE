@@ -1034,9 +1034,33 @@ You provide personalized, evidence-based recommendations. Always cite scientific
       return "I'd love to help you create a personalized workout plan! 💪\n\nTo design the best workout for you, I need to know:\n• Your fitness goals (strength, weight loss, muscle gain, etc.)\n• Your current fitness level\n• How much time you have\n• What equipment you have access to\n• Any injuries or limitations\n\nWhat's your main fitness goal right now?";
     }
     
+    // Responding to mental health topics
+    if (message.includes('mental') || message.includes('mind') || message.includes('brain') || 
+        message.includes('psychology') || message.includes('wellbeing') || message.includes('wellness')) {
+      return "Mental health and wellness are so important! I can help you with stress management, mindfulness techniques, sleep optimization, mood regulation, and building healthy mental habits. What aspect of mental wellness interests you most? 🧠✨";
+    }
+    
     // Responding to statements about goals or desires  
-    if (message.includes('want') || message.includes('need') || message.includes('trying')) {
+    if (message.includes('want') || message.includes('need') || message.includes('trying') || 
+        message.includes('first') || message.includes('start') || message.includes('begin')) {
       return "I appreciate you sharing what you're working toward. Let's figure out the best approach for your specific situation. What have you tried so far, and what's been challenging?";
+    }
+    
+    // Analyze for health-related keywords and provide contextual response
+    if (message.includes('fitness') || message.includes('exercise') || message.includes('gym')) {
+      return "Great to focus on fitness! I can help you with workout planning, exercise science, strength training, cardio, and building sustainable fitness habits. What's your main fitness goal? 💪";
+    }
+    
+    if (message.includes('food') || message.includes('eat') || message.includes('nutrition') || message.includes('diet')) {
+      return "Nutrition is foundational to health! I can guide you through meal planning, macronutrients, healthy eating habits, and nutrition science. What aspect of nutrition would you like to explore? 🥗";
+    }
+    
+    if (message.includes('sleep') || message.includes('tired') || message.includes('energy')) {
+      return "Sleep and energy are crucial for optimal health! I can help with sleep optimization, circadian rhythm regulation, and natural energy-boosting strategies. What's your main concern - sleep quality or energy levels? 😴⚡";
+    }
+    
+    if (message.includes('stress') || message.includes('anxiety') || message.includes('mental') || message.includes('mind')) {
+      return "Mental wellness is so important! I specialize in stress management, anxiety reduction, mindfulness techniques, and building mental resilience. What aspect of mental health would you like to focus on? 🧠💙";
     }
     
     // General conversational response
