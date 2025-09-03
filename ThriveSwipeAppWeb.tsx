@@ -2498,14 +2498,7 @@ const ThriveSwipeAppWeb = () => {
         />
       )}
       
-      {/* Profile Menu Overlay */}
-      {isProfileMenuOpen && (
-        <View
-          style={styles.menuOverlay}
-          onTouchStart={toggleProfileMenu}
-          onClick={toggleProfileMenu}
-        />
-      )}
+
       
 
       
