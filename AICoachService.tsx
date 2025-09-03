@@ -636,12 +636,12 @@ class AICoachService {
     );
   }
   
-  // Check if message is suitable for live AI (avoid simple greetings for API efficiency)
+  // Check if message is suitable for live AI - allow most messages for natural conversation
   private isValidForLiveAI(userMessage: string): boolean {
     const message = userMessage.toLowerCase().trim();
-    const simpleGreetings = ['hi', 'hello', 'hey', 'yes', 'no', 'ok', 'thanks'];
     
-    return message.length > 10 && !simpleGreetings.includes(message);
+    // Only filter out extremely short or empty messages
+    return message.length > 1;
   }
   
   // Generate response using live OpenAI API with enhanced features
@@ -871,6 +871,23 @@ You provide personalized, evidence-based recommendations. Always cite scientific
   private generateMockCoachResponse(userMessage: string): string {
     const message = userMessage.toLowerCase();
     const words = message.split(' ');
+    
+    // Handle simple greetings and conversational responses
+    if (message === 'hello' || message === 'hi' || message === 'hey') {
+      return "Hello! Great to see you! I'm Bene, your AI health coach. How are you feeling today? 😊";
+    }
+    
+    if (message === 'thanks' || message === 'thank you' || message.includes('thanks')) {
+      return "You're very welcome! I'm here whenever you need health and wellness guidance. What else can I help you with? 🌟";
+    }
+    
+    if (message === 'yes' || message === 'ok' || message === 'okay') {
+      return "Perfect! What would you like to explore together? I can help with fitness, nutrition, mental wellness, or any other health topics. 💪";
+    }
+    
+    if (message === 'no') {
+      return "No worries at all! I'm here if you change your mind. Feel free to ask me anything about health and wellness whenever you're ready! 🌱";
+    }
     
     // Handle assessment flow more naturally
     if ((message.includes('yes') || message.includes('start') || message.includes('assessment')) && !this.userAssessment.hasCompletedAssessment) {

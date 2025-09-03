@@ -2423,7 +2423,7 @@ const ThriveSwipeAppWeb = () => {
         {/* AI Coach Button */}
         <TouchableOpacity
           style={styles.aiCoachButton}
-          onPress={() => setShowAICoach(true)}
+          onPress={() => setShowAICoach(!showAICoach)}
         >
           <View style={styles.aiCoachAvatar}>
             <Text style={styles.aiCoachAvatarText}>🧠</Text>

@@ -500,9 +500,15 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     padding: 8,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 16,
+    minWidth: 32,
+    minHeight: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   closeButtonText: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     color: THRIVE_COLORS.mediumGray,
   },
