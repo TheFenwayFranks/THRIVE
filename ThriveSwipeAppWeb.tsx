@@ -2619,82 +2619,34 @@ const ThriveSwipeAppWeb = () => {
             {/* Calendar Container */}
             <View style={styles.calendarContainer}>
               
-              {/* Calendar Header with Sync Button */}
-              <View style={styles.calendarHeaderContainer}>
-                {/* Week/Month Toggle Buttons */}
-                <View style={styles.calendarToggleContainer}>
-                  <View 
-                    style={[styles.calendarToggleButton, calendarView === 'week' ? styles.activeCalendarButton : styles.inactiveCalendarButton]}
-                    onStartShouldSetResponder={() => true}
-                    onResponderGrant={() => {
-                      console.log('Week view selected');
-                      setCalendarView('week');
-                    }}
-                  >
-                    <Text style={[styles.calendarToggleText, calendarView === 'week' ? styles.activeCalendarText : styles.inactiveCalendarText]}>
-                      WEEK
-                    </Text>
-                  </View>
-                  
-                  <View 
-                    style={[styles.calendarToggleButton, calendarView === 'month' ? styles.activeCalendarButton : styles.inactiveCalendarButton]}
-                    onStartShouldSetResponder={() => true}
-                    onResponderGrant={() => {
-                      console.log('Month view selected');
-                      setCalendarView('month');
-                    }}
-                  >
-                    <Text style={[styles.calendarToggleText, calendarView === 'month' ? styles.activeCalendarText : styles.inactiveCalendarText]}>
-                      MONTH
-                    </Text>
-                  </View>
-                </View>
-                
-                {/* iPhone Calendar Sync Button */}
+              {/* Week/Month Toggle Buttons */}
+              <View style={styles.calendarToggleContainer}>
                 <View 
-                  style={[
-                    styles.iPhoneCalendarSyncButton, 
-                    syncStatus.syncInProgress && styles.syncButtonLoading
-                  ]}
+                  style={[styles.calendarToggleButton, calendarView === 'week' ? styles.activeCalendarButton : styles.inactiveCalendarButton]}
                   onStartShouldSetResponder={() => true}
                   onResponderGrant={() => {
-                    handleCalendarSync();
+                    console.log('Week view selected');
+                    setCalendarView('week');
                   }}
                 >
-                  <Text style={styles.iPhoneCalendarSyncIcon}>
-                    {syncStatus.syncInProgress ? '🔄' : '📱'}
+                  <Text style={[styles.calendarToggleText, calendarView === 'week' ? styles.activeCalendarText : styles.inactiveCalendarText]}>
+                    WEEK
                   </Text>
-                  <Text style={styles.iPhoneCalendarSyncText}>
-                    {syncStatus.syncInProgress ? 'Syncing...' : 'Sync iPhone'}
+                </View>
+                
+                <View 
+                  style={[styles.calendarToggleButton, calendarView === 'month' ? styles.activeCalendarButton : styles.inactiveCalendarButton]}
+                  onStartShouldSetResponder={() => true}
+                  onResponderGrant={() => {
+                    console.log('Month view selected');
+                    setCalendarView('month');
+                  }}
+                >
+                  <Text style={[styles.calendarToggleText, calendarView === 'month' ? styles.activeCalendarText : styles.inactiveCalendarText]}>
+                    MONTH
                   </Text>
                 </View>
               </View>
-              
-              {/* Sync Status Banner */}
-              {syncStatus.isEnabled && syncStatus.lastSync && (
-                <View style={styles.syncStatusBanner}>
-                  <Text style={styles.syncStatusBannerIcon}>✅</Text>
-                  <Text style={styles.syncStatusBannerText}>
-                    Last synced: {syncStatus.lastSync.toLocaleTimeString()} • {getCombinedEvents().length} events
-                  </Text>
-                </View>
-              )}
-              
-              {syncStatus.errors.length > 0 && (
-                <View style={styles.syncErrorBanner}>
-                  <Text style={styles.syncErrorBannerIcon}>⚠️</Text>
-                  <Text style={styles.syncErrorBannerText}>
-                    Sync issue: {syncStatus.errors[0]}
-                  </Text>
-                  <View 
-                    style={styles.retryButton}
-                    onStartShouldSetResponder={() => true}
-                    onResponderGrant={() => handleCalendarSync()}
-                  >
-                    <Text style={styles.retryButtonText}>Retry</Text>
-                  </View>
-                </View>
-              )}
               
               {/* Calendar Content Area */}
               <View style={styles.calendarContent}>
@@ -8249,147 +8201,12 @@ const styles = StyleSheet.create({
     maxWidth: 600,
   },
   
-  calendarHeaderContainer: {
-    marginBottom: 20,
-  },
-  
   calendarToggleContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
     gap: 8,
-  },
-  
-  // iPhone Calendar Sync Button Styles
-  iPhoneCalendarSyncButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: THRIVE_COLORS.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
-    cursor: 'pointer',
-  },
-  
-  syncButtonLoading: {
-    backgroundColor: THRIVE_COLORS.secondary,
-    opacity: 0.8,
-  },
-  
-  iPhoneCalendarSyncIcon: {
-    fontSize: 18,
-    marginRight: 8,
-  },
-  
-  iPhoneCalendarSyncText: {
-    color: THRIVE_COLORS.white,
-    fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  
-  // Sync Status Banner Styles
-  syncStatusBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E8F5E8',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#4CAF50',
-  },
-  
-  syncStatusBannerIcon: {
-    fontSize: 14,
-    marginRight: 8,
-  },
-  
-  syncStatusBannerText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#2E7D32',
-    fontWeight: '500',
-  },
-  
-  syncErrorBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFEBEE',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#F44336',
-  },
-  
-  syncErrorBannerIcon: {
-    fontSize: 14,
-    marginRight: 8,
-  },
-  
-  syncErrorBannerText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#C62828',
-    fontWeight: '500',
-    marginRight: 8,
-  },
-  
-  retryButton: {
-    backgroundColor: THRIVE_COLORS.primary,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-    cursor: 'pointer',
-  },
-  
-  retryButtonText: {
-    color: THRIVE_COLORS.white,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  
-  // Calendar Integration Tip Styles
-  calendarTipCard: {
-    backgroundColor: '#F0F9FF',
-    padding: 20,
-    borderRadius: 16,
-    alignItems: 'center',
-    marginVertical: 20,
-    borderWidth: 2,
-    borderColor: '#E3F2FD',
-    borderStyle: 'dashed',
-  },
-  
-  calendarTipIcon: {
-    fontSize: 32,
-    marginBottom: 12,
-  },
-  
-  calendarTipTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: THRIVE_COLORS.black,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  
-  calendarTipSubtitle: {
-    fontSize: 14,
-    color: THRIVE_COLORS.secondary,
-    textAlign: 'center',
-    lineHeight: 20,
   },
   
   calendarToggleButton: {

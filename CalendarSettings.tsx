@@ -70,20 +70,52 @@ const CalendarSettings: React.FC<CalendarSettingsProps> = ({ onClose }) => {
   const handleManualSync = async () => {
     setLoading(true);
     try {
+      // Request permissions first
+      const hasPermission = await calendarService.requestCalendarPermissions();
+      if (!hasPermission) {
+        const instructions = calendarService.getPermissionInstructions();
+        Alert.alert(
+          'Calendar Access Needed',
+          `Calendar permission not granted. Please enable calendar access in your device settings.\n\n${instructions}`,
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+      
+      // Update sync status to show progress
+      setSyncStatus(prev => ({ ...prev, syncInProgress: true, errors: [] }));
+      
       await calendarService.syncCalendars();
       const newStatus = calendarService.getSyncStatus();
       setSyncStatus(newStatus);
       
+      const summary = calendarService.getCalendarSummary();
+      const eventCount = newStatus.connectedCalendars.length; // This would need actual event count
+      
       Alert.alert(
-        'Sync Complete',
-        'Your calendar has been synchronized successfully.',
-        [{ text: 'OK' }]
+        `${summary.platformName} Calendar Synced! 🎉`,
+        `Successfully synchronized your ${summary.platformName} calendar.\n\n📱 ${newStatus.connectedCalendars.length} calendars connected\n\nYour events are now synced with THRIVE!`,
+        [{ text: 'Great!' }]
       );
     } catch (error) {
+      setSyncStatus(prev => ({ 
+        ...prev, 
+        syncInProgress: false, 
+        errors: [String(error)] 
+      }));
+      
+      const summary = calendarService.getCalendarSummary();
+      const instructions = calendarService.getPermissionInstructions();
+      
       Alert.alert(
-        'Sync Error',
-        'There was an error syncing your calendar. Please try again.',
-        [{ text: 'OK' }]
+        `${summary.platformName} Calendar Sync Error`,
+        error instanceof Error ? error.message : `There was an error syncing your ${summary.platformName} calendar.\n\n${instructions}`,
+        [
+          { text: 'Settings', onPress: () => {
+            console.log('User should check device settings');
+          }},
+          { text: 'Retry', onPress: () => handleManualSync() }
+        ]
       );
     } finally {
       setLoading(false);
@@ -142,6 +174,49 @@ const CalendarSettings: React.FC<CalendarSettingsProps> = ({ onClose }) => {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Prominent Sync iPhone Button */}
+        <TouchableOpacity 
+          style={[
+            styles.prominentSyncButton, 
+            (loading || syncStatus.syncInProgress) && styles.disabledButton
+          ]} 
+          onPress={handleManualSync}
+          disabled={loading || syncStatus.syncInProgress}
+        >
+          <Text style={styles.prominentSyncIcon}>
+            {loading || syncStatus.syncInProgress ? '🔄' : '📱'}
+          </Text>
+          <Text style={styles.prominentSyncText}>
+            {loading || syncStatus.syncInProgress ? 'Syncing...' : 'Sync iPhone'}
+          </Text>
+        </TouchableOpacity>
+        
+        {/* Sync Status Banner */}
+        {syncStatus.isEnabled && syncStatus.lastSync && !syncStatus.syncInProgress && (
+          <View style={styles.syncStatusBanner}>
+            <Text style={styles.syncStatusBannerIcon}>✅</Text>
+            <Text style={styles.syncStatusBannerText}>
+              Last synced: {formatLastSync(syncStatus.lastSync)} • {syncStatus.connectedCalendars.length} calendars connected
+            </Text>
+          </View>
+        )}
+        
+        {/* Error Banner */}
+        {syncStatus.errors.length > 0 && (
+          <View style={styles.syncErrorBanner}>
+            <Text style={styles.syncErrorBannerIcon}>⚠️</Text>
+            <Text style={styles.syncErrorBannerText}>
+              Sync issue: {syncStatus.errors[0]}
+            </Text>
+            <TouchableOpacity 
+              style={styles.retryButton}
+              onPress={handleManualSync}
+            >
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Calendar Sync Toggle */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -189,18 +264,7 @@ const CalendarSettings: React.FC<CalendarSettingsProps> = ({ onClose }) => {
           </View>
         )}
 
-        {/* Manual Sync Button */}
-        {syncStatus.isEnabled && (
-          <TouchableOpacity 
-            style={[styles.actionButton, loading && styles.disabledButton]} 
-            onPress={handleManualSync}
-            disabled={loading || syncStatus.syncInProgress}
-          >
-            <Text style={styles.actionButtonText}>
-              {loading ? '🔄 Syncing...' : '🔄 Sync Now'}
-            </Text>
-          </TouchableOpacity>
-        )}
+
 
         {/* Connected Calendars */}
         {deviceCalendars.length > 0 && (
@@ -432,6 +496,98 @@ const styles = StyleSheet.create({
     color: '#666',
     lineHeight: 20,
     marginBottom: 4,
+  },
+  
+  // Prominent Sync Button Styles
+  prominentSyncButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#34C759',
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  
+  prominentSyncIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  
+  prominentSyncText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  
+  // Status Banners
+  syncStatusBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E8',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50',
+  },
+  
+  syncStatusBannerIcon: {
+    fontSize: 16,
+    marginRight: 10,
+  },
+  
+  syncStatusBannerText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#2E7D32',
+    fontWeight: '500',
+  },
+  
+  syncErrorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFEBEE',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#F44336',
+  },
+  
+  syncErrorBannerIcon: {
+    fontSize: 16,
+    marginRight: 10,
+  },
+  
+  syncErrorBannerText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#C62828',
+    fontWeight: '500',
+    marginRight: 8,
+  },
+  
+  retryButton: {
+    backgroundColor: '#34C759',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 
