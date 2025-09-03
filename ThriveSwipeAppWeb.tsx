@@ -9104,9 +9104,9 @@ const styles = StyleSheet.create({
   profileAvatarContainerTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 20,
+    paddingTop: 16,
     paddingLeft: 20,
-    paddingBottom: 15,
+    paddingBottom: 8,
   },
   
   profileAvatarContainer: {
@@ -9159,7 +9159,7 @@ const styles = StyleSheet.create({
   
   profileInfo: {
     paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingTop: 5,
   },
   
   profileName: {
@@ -9178,12 +9178,12 @@ const styles = StyleSheet.create({
   profileLocation: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   
   profileStats: {
     flexDirection: 'row',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   
   statItem: {
@@ -9207,14 +9207,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#1A1A1A',
     lineHeight: 20,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   
   profileLinks: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-    marginBottom: 20,
+    marginBottom: 12,
   },
   
   profileLink: {
@@ -9241,7 +9241,7 @@ const styles = StyleSheet.create({
   
   profileActions: {
     flexDirection: 'row',
-    marginBottom: 12,
+    marginBottom: 8,
     gap: 12,
   },
   
@@ -9281,9 +9281,9 @@ const styles = StyleSheet.create({
   // 🎨 Editable Card System Styles
   editableCard: {
     borderRadius: 8,
-    marginVertical: 6,
+    marginVertical: 4,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   
   editableCardActive: {
@@ -9421,9 +9421,10 @@ const styles = StyleSheet.create({
   challengeButton: {
     backgroundColor: THRIVE_COLORS.highlight,
     paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderRadius: 24,
     alignItems: 'center',
+    marginTop: 4,
     shadowColor: THRIVE_COLORS.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -9472,13 +9473,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: THRIVE_COLORS.white,
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 12,
   },
   
   contentGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 24,
+    marginBottom: 16,
     gap: 8,
   },
   
@@ -9512,7 +9513,7 @@ const styles = StyleSheet.create({
   },
   
   profileSection: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   
   sectionTitle: {
