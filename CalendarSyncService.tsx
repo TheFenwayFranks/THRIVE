@@ -63,24 +63,36 @@ class CalendarSyncService {
   // Check and request calendar permissions
   public async requestCalendarPermissions(): Promise<boolean> {
     try {
+      console.log('🔐 Checking calendar permissions...');
+      
       // Check if calendar is available
       const isAvailable = await Calendar.isAvailableAsync();
       if (!isAvailable) {
-        this.syncStatus.errors.push('Calendar not available on this device');
+        const errorMsg = 'Calendar not available on this device';
+        console.log(`❌ ${errorMsg}`);
+        this.syncStatus.errors.push(errorMsg);
         return false;
       }
+      
+      console.log('✅ Calendar API is available');
 
       // Request calendar permissions
       const { status } = await Calendar.requestCalendarPermissionsAsync();
+      console.log(`🔐 Permission status: ${status}`);
       
       if (status !== 'granted') {
-        this.syncStatus.errors.push('Calendar permission not granted');
+        const errorMsg = Platform.OS === 'ios' 
+          ? 'iPhone calendar access denied. Please enable in Settings → Privacy & Security → Calendars → THRIVE'
+          : 'Calendar permission not granted. Please allow calendar access in your device settings.';
+        console.log(`❌ ${errorMsg}`);
+        this.syncStatus.errors.push(errorMsg);
         return false;
       }
 
+      console.log('✅ Calendar permissions granted');
       return true;
     } catch (error) {
-      console.error('Error requesting calendar permissions:', error);
+      console.error('❌ Error requesting calendar permissions:', error);
       this.syncStatus.errors.push(`Permission error: ${error}`);
       return false;
     }
@@ -94,19 +106,32 @@ class CalendarSyncService {
         return [];
       }
 
+      console.log('📅 Fetching device calendars...');
       // Get all calendars
       const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
       this.deviceCalendars = calendars;
       
-      // Filter writable calendars
+      console.log(`📅 Found ${calendars.length} total calendars`);
+      calendars.forEach(cal => {
+        console.log(`  - ${cal.title} (${cal.source.name}) - Writable: ${cal.allowsModifications}`);
+      });
+      
+      // Filter writable calendars (exclude system calendars like Birthdays)
       const writableCalendars = calendars.filter(cal => 
-        cal.allowsModifications && cal.source.name !== 'Birthdays'
+        cal.allowsModifications && 
+        cal.source.name !== 'Birthdays' &&
+        !cal.title.toLowerCase().includes('birthday')
       );
+      
+      console.log(`✅ ${writableCalendars.length} writable calendars available:`);
+      writableCalendars.forEach(cal => {
+        console.log(`  ✓ ${cal.title} (${cal.source.name})`);
+      });
 
       this.syncStatus.connectedCalendars = writableCalendars.map(cal => cal.id);
       return writableCalendars;
     } catch (error) {
-      console.error('Error getting device calendars:', error);
+      console.error('❌ Error getting device calendars:', error);
       this.syncStatus.errors.push(`Error getting calendars: ${error}`);
       return [];
     }
@@ -315,7 +340,8 @@ class CalendarSyncService {
     this.syncStatus.errors = [];
 
     try {
-      console.log('🔄 Starting calendar synchronization...');
+      const platformEmoji = Platform.OS === 'ios' ? '📱' : Platform.OS === 'android' ? '🤖' : '💻';
+      console.log(`🔄 Starting ${Platform.OS === 'ios' ? 'iPhone' : Platform.OS === 'android' ? 'Android' : 'device'} calendar synchronization...`);
       
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 30); // 30 days ago
@@ -326,11 +352,23 @@ class CalendarSyncService {
 
       // Get device calendars first
       const calendars = await this.getDeviceCalendars();
-      console.log(`📱 Found ${calendars.length} device calendars`);
+      console.log(`${platformEmoji} Found ${calendars.length} device calendars`);
+
+      if (calendars.length === 0) {
+        throw new Error('No accessible calendars found. Please check your calendar app and permissions.');
+      }
 
       // Get events from device calendars
       const deviceEvents = await this.getDeviceEvents(startDate, endDate);
       console.log(`📋 Found ${deviceEvents.length} device events`);
+      
+      // Log sample events for debugging
+      if (deviceEvents.length > 0) {
+        console.log('📝 Sample events:');
+        deviceEvents.slice(0, 3).forEach(event => {
+          console.log(`  - "${event.title}" on ${event.startDate.toLocaleDateString()}`);
+        });
+      }
       
       // If Google Calendar is connected, sync with it too
       let googleEvents: CalendarEvent[] = [];
@@ -359,12 +397,12 @@ class CalendarSyncService {
       this.syncStatus.isEnabled = true;
       this.syncStatus.connectedCalendars = calendars.map(cal => cal.id);
 
-      console.log(`✅ Sync completed successfully!`);
+      console.log(`✅ ${Platform.OS === 'ios' ? 'iPhone' : 'Device'} calendar sync completed successfully!`);
       console.log(`📊 Total events: ${allEvents.length} (${uniqueEvents.length} unique)`);
       console.log(`🔗 Connected calendars: ${this.syncStatus.connectedCalendars.length}`);
       
     } catch (error) {
-      console.error('❌ Sync error:', error);
+      console.error(`❌ ${Platform.OS === 'ios' ? 'iPhone' : 'Device'} calendar sync error:`, error);
       this.syncStatus.errors.push(`Sync error: ${error}`);
       throw error; // Re-throw so the UI can handle it
     } finally {
@@ -399,6 +437,28 @@ class CalendarSyncService {
   public getSyncStatus(): SyncStatus {
     return { ...this.syncStatus };
   }
+  
+  // Get platform-specific sync instructions
+  public getSyncInstructions(): string {
+    if (Platform.OS === 'ios') {
+      return 'This will sync your iPhone Calendar events with THRIVE. Make sure you have events in your iPhone Calendar app.';
+    } else if (Platform.OS === 'android') {
+      return 'This will sync your Android Calendar events with THRIVE. Make sure you have events in your Google Calendar or Samsung Calendar app.';
+    } else {
+      return 'This will sync your device calendar events with THRIVE.';
+    }
+  }
+  
+  // Get platform-specific error instructions
+  public getPermissionInstructions(): string {
+    if (Platform.OS === 'ios') {
+      return 'To enable calendar access on iPhone:\n1. Go to Settings\n2. Scroll to THRIVE\n3. Tap Calendars\n4. Enable access';
+    } else if (Platform.OS === 'android') {
+      return 'To enable calendar access on Android:\n1. Go to Settings → Apps\n2. Find THRIVE\n3. Tap Permissions\n4. Enable Calendar access';
+    } else {
+      return 'Please enable calendar access in your device settings.';
+    }
+  }
 
   // Enable/disable sync
   public setSync(enabled: boolean): void {
@@ -412,6 +472,7 @@ class CalendarSyncService {
   // Open device calendar app to create event
   public async openCalendarToCreateEvent(event: Partial<CalendarEvent>): Promise<void> {
     try {
+      console.log(`📱 Opening ${Platform.OS === 'ios' ? 'iPhone' : 'device'} calendar to create event...`);
       await Calendar.createEventInCalendarAsync({
         title: event.title || 'New Event',
         notes: event.description,
@@ -420,10 +481,21 @@ class CalendarSyncService {
         location: event.location,
         allDay: event.allDay || false,
       });
+      console.log('✅ Calendar app opened successfully');
     } catch (error) {
-      console.error('Error opening calendar:', error);
+      console.error('❌ Error opening calendar:', error);
       this.syncStatus.errors.push(`Error opening calendar: ${error}`);
     }
+  }
+  
+  // Get calendar summary for display
+  public getCalendarSummary(): { totalCalendars: number; totalEvents: number; platformName: string } {
+    const platformName = Platform.OS === 'ios' ? 'iPhone' : Platform.OS === 'android' ? 'Android' : 'Device';
+    return {
+      totalCalendars: this.syncStatus.connectedCalendars.length,
+      totalEvents: 0, // This would need to be tracked separately
+      platformName
+    };
   }
 }
 
