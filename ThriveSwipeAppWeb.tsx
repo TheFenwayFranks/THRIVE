@@ -6918,7 +6918,7 @@ const styles = StyleSheet.create({
     borderBottomColor: THRIVE_COLORS.neutral,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center', // Changed to center
+    justifyContent: 'center', // Center the content
     position: 'relative', // Allow absolute positioning of side elements
     zIndex: 10,
   },
@@ -6993,7 +6993,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'column', // Stack logo and title vertically
     paddingVertical: 8, // More vertical padding for bigger logo
-    // Remove flex: 1 to allow true centering
+    flex: 1, // Take full width for perfect centering
+    position: 'absolute', // Position absolutely for perfect centering
+    left: 0,
+    right: 0, // Full width between left and right edges
   },
   
   /* 🌱 EXACT THRIVE LOGO STYLES */
