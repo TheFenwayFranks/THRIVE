@@ -182,32 +182,45 @@ class AICoachService {
     // Initialize specialized health agents
     this.initializeHealthAgents();
     
-    // Initialize with enhanced welcome message
+    // Initialize with enhanced welcome message including cost status
+    const costStatus = this.getCostStatus();
+    const costMessage = costStatus.protected 
+      ? "\n\n🔒 **Cost Protection Active**: I'm running in FREE mode - no charges will occur!"
+      : "\n\n💰 **Cost Warning**: OpenAI API enabled - charges may apply for advanced features.";
+    
     this.chatHistory.push({
       id: Date.now().toString(),
-      text: "Hello! I'm Bene, your beneficial AI health coach with deep expertise in health science, fitness, and mental wellness. 🧠💪\n\nI'm equipped with:\n• Real-time web search for latest health research\n• Streaming responses for natural conversation\n• Comprehensive health assessment system\n\nBefore we begin your personalized health journey, I'd love to get to know you better through a comprehensive assessment. This will help me provide you with evidence-based, personalized recommendations.\n\nWould you like to start your health assessment now?",
+      text: `Hello! I'm Bene, your beneficial AI health coach with deep expertise in health science, fitness, and mental wellness. 🧠💪\n\nI'm equipped with:\n• 5 specialized health expert agents\n• Advanced conversation intelligence\n• Health calculation tools and assessments\n• Comprehensive health expertise${costMessage}\n\nBefore we begin your personalized health journey, I'd love to get to know you better through a comprehensive assessment. This will help me provide you with evidence-based, personalized recommendations.\n\nWould you like to start your health assessment now?`,
       sender: 'coach',
       timestamp: new Date()
     });
   }
   
-  // Initialize OpenAI client with enhanced capabilities
+  // Initialize OpenAI client with COST PROTECTION - prevents any charges without explicit setup
   private initializeOpenAI(): void {
-    try {
-      // Check if API key is available in environment
-      const apiKey = process.env.OPENAI_API_KEY || process.env.REACT_APP_OPENAI_API_KEY;
-      
-      if (apiKey) {
+    // 🛡️ COST PROTECTION: This prevents any charges without explicit setup
+    const apiKey = process.env.OPENAI_API_KEY || process.env.REACT_APP_OPENAI_API_KEY;
+    
+    if (apiKey) {
+      try {
+        // Only initialize if API key is explicitly provided
         this.openaiClient = new OpenAI({
           apiKey: apiKey,
           dangerouslyAllowBrowser: true // Only for development
         });
-        console.log('🎆 Bene: Enhanced OpenAI capabilities initialized!');
-      } else {
-        console.log('📝 Bene: Using mock responses (set OPENAI_API_KEY for live AI)');
+        console.log('💰 COST WARNING: OpenAI API enabled - charges may apply for usage');
+        console.log('🎆 Bene: Enhanced OpenAI capabilities initialized with API key');
+        console.log('💡 Tip: Remove OPENAI_API_KEY environment variable to use free mock responses');
+      } catch (error) {
+        console.error('❌ OpenAI initialization failed despite API key being present:', error);
+        console.log('🔒 COST PROTECTION: Falling back to FREE mock responses due to initialization error');
+        this.openaiClient = null;
       }
-    } catch (error) {
-      console.warn('⚠️ Bene: OpenAI initialization failed, using mock responses:', error);
+    } else {
+      // 🔒 COST PROTECTION: No API key = No charges possible
+      console.log('🔒 COST PROTECTION ACTIVE: No OpenAI API key detected');
+      console.log('✅ Using FREE mock responses - No charges will occur');
+      console.log('💡 To enable paid OpenAI features: Set OPENAI_API_KEY environment variable');
       this.openaiClient = null;
     }
   }
@@ -718,26 +731,30 @@ class AICoachService {
     return message;
   }
 
-  // Enhanced AI response generation with streaming and web search
+  // Enhanced AI response generation with streaming and web search + COST PROTECTION
   public async generateCoachResponse(userMessage: string, onStream?: (chunk: string) => void): Promise<string> {
     console.log('🤖 Bene generating enhanced response for:', userMessage);
     
     try {
-      // Check if we should use web search for current health information
+      // 🛡️ COST PROTECTION: Double-check API client availability
+      const hasApiKey = !!this.openaiClient;
       const needsWebSearch = this.shouldUseWebSearch(userMessage);
       
-      if (this.openaiClient && this.isValidForLiveAI(userMessage)) {
-        console.log('🚀 Using live OpenAI API for:', userMessage);
+      if (hasApiKey && this.isValidForLiveAI(userMessage)) {
+        console.log('💰 COST WARNING: Using PAID OpenAI API for:', userMessage);
+        console.log('💸 This message may incur charges (~$0.01-0.03)');
         return await this.generateLiveAIResponse(userMessage, needsWebSearch, onStream);
       } else {
-        console.log('🎭 Using enhanced mock response for:', userMessage);
-        console.log('  - OpenAI client available:', !!this.openaiClient);
-        console.log('  - Message valid for live AI:', this.isValidForLiveAI(userMessage));
+        console.log('🔒 COST PROTECTION: Using FREE mock response for:', userMessage);
+        console.log('  - API Key Available:', hasApiKey ? 'YES (charges possible)' : 'NO (100% free)');
+        console.log('  - Message Valid for Live AI:', this.isValidForLiveAI(userMessage));
+        console.log('✅ No charges will occur for this response');
         // Enhanced mock responses with simulated streaming
         return await this.generateEnhancedMockResponse(userMessage, onStream);
       }
     } catch (error) {
       console.error('Error generating coach response:', error);
+      console.log('🔒 COST PROTECTION: Fallback to FREE mock response due to error');
       return "I'm experiencing a temporary issue. Let me try a different approach to help you with your health question!";
     }
   }
@@ -766,7 +783,14 @@ class AICoachService {
   
   // Generate response using live OpenAI API with enhanced features
   private async generateLiveAIResponse(userMessage: string, useWebSearch: boolean, onStream?: (chunk: string) => void): Promise<string> {
-    if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+    // 🛡️ COST PROTECTION: Final check before making paid API call
+    if (!this.openaiClient) {
+      console.log('🔒 COST PROTECTION: No OpenAI client - redirecting to FREE mock responses');
+      return await this.generateEnhancedMockResponse(userMessage, onStream);
+    }
+    
+    console.log('💰 MAKING PAID API CALL - Charges will apply');
+    console.log('💸 Estimated cost: $0.01-0.03 for this conversation');
     
     const tools = [];
     
@@ -885,7 +909,14 @@ class AICoachService {
   
   // Legacy fallback using chat completions API
   private async generateLegacyAIResponse(userMessage: string, useWebSearch: boolean, onStream?: (chunk: string) => void): Promise<string> {
-    if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+    // 🛡️ COST PROTECTION: Final check before making paid API call
+    if (!this.openaiClient) {
+      console.log('🔒 COST PROTECTION: No OpenAI client - redirecting to FREE mock responses');
+      return await this.generateEnhancedMockResponse(userMessage, onStream);
+    }
+    
+    console.log('💰 MAKING PAID LEGACY API CALL - Charges will apply');
+    console.log('💸 Estimated cost: $0.005-0.015 for this conversation');
     
     const tools = [];
     const healthTools = this.getHealthToolsForOpenAI();
@@ -1424,14 +1455,33 @@ You provide personalized, evidence-based recommendations. Always cite scientific
     this.webSearchConfig.enabled = enabled;
   }
   
-  // Get current capabilities status
-  public getCapabilities(): { hasOpenAI: boolean; streaming: boolean; webSearch: boolean; agents: number; mcp: boolean } {
+  // Get current capabilities status with COST INFORMATION
+  public getCapabilities(): { hasOpenAI: boolean; streaming: boolean; webSearch: boolean; agents: number; mcp: boolean; costProtection: boolean } {
+    const hasApiKey = !!this.openaiClient;
+    
+    if (hasApiKey) {
+      console.log('💰 COST STATUS: OpenAI API is ENABLED - charges may apply');
+    } else {
+      console.log('🔒 COST STATUS: 100% FREE mode - no charges possible');
+    }
+    
     return {
-      hasOpenAI: this.openaiClient !== null,
+      hasOpenAI: hasApiKey,
       streaming: this.streamingConfig.enabled,
       webSearch: this.webSearchConfig.enabled,
       agents: this.healthAgents.length,
-      mcp: true // MCP integration available
+      mcp: true, // MCP integration available
+      costProtection: !hasApiKey // true = protected from costs
+    };
+  }
+  
+  // 🛡️ COST PROTECTION: Get explicit cost status
+  public getCostStatus(): { protected: boolean; apiKeyPresent: boolean; estimatedCostPerMessage: string } {
+    const hasApiKey = !!this.openaiClient;
+    return {
+      protected: !hasApiKey,
+      apiKeyPresent: hasApiKey,
+      estimatedCostPerMessage: hasApiKey ? '$0.01-0.03' : '$0.00 (FREE)'
     };
   }
   
@@ -1443,10 +1493,16 @@ You provide personalized, evidence-based recommendations. Always cite scientific
   // Clear chat history
   public clearChat(): void {
     this.chatHistory = [];
-    // Re-add welcome message
+    
+    // Re-add welcome message with current cost status
+    const costStatus = this.getCostStatus();
+    const costMessage = costStatus.protected 
+      ? "\n\n🔒 **Cost Protection Active**: I'm running in FREE mode - no charges will occur!"
+      : "\n\n💰 **Cost Warning**: OpenAI API enabled - charges may apply for advanced features.";
+    
     this.chatHistory.push({
       id: Date.now().toString(),
-      text: "Hello! I'm Bene, your beneficial AI health coach with deep expertise in health science, fitness, and mental wellness. 🧠💪\n\nBefore we begin your personalized health journey, I'd love to get to know you better through a comprehensive assessment. This will help me provide you with evidence-based, personalized recommendations.\n\nWould you like to start your health assessment now? It takes about 5-7 minutes and covers your fitness background, mental wellness, and lifestyle factors.",
+      text: `Hello! I'm Bene, your beneficial AI health coach with deep expertise in health science, fitness, and mental wellness. 🧠💪\n\nI'm equipped with:\n• 5 specialized health expert agents\n• Advanced conversation intelligence\n• Health calculation tools and assessments\n• Comprehensive health expertise${costMessage}\n\nBefore we begin your personalized health journey, I'd love to get to know you better through a comprehensive assessment. This will help me provide you with evidence-based, personalized recommendations.\n\nWould you like to start your health assessment now?`,
       sender: 'coach',
       timestamp: new Date()
     });

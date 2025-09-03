@@ -195,8 +195,14 @@ const AICoachModal: React.FC<AICoachModalProps> = ({ visible, onClose }) => {
                 {capabilities.mcp && (
                   <Text style={styles.capabilityBadge}>🔗 MCP</Text>
                 )}
-                {!capabilities.hasOpenAI && (
+                {capabilities.costProtection && (
+                  <Text style={[styles.capabilityBadge, styles.costProtectionBadge]}>🔒 FREE Mode</Text>
+                )}
+                {!capabilities.hasOpenAI && !capabilities.costProtection && (
                   <Text style={styles.capabilityBadge}>📝 Mock Mode</Text>
+                )}
+                {capabilities.hasOpenAI && !capabilities.costProtection && (
+                  <Text style={[styles.capabilityBadge, styles.costWarningBadge]}>💰 Paid API</Text>
                 )}
               </View>
             </View>
@@ -492,6 +498,18 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 6,
     fontWeight: '600',
+  },
+  
+  costProtectionBadge: {
+    color: '#28a745',
+    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+    fontWeight: 'bold',
+  },
+  
+  costWarningBadge: {
+    color: '#dc3545',
+    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+    fontWeight: 'bold',
   },
   headerActions: {
     flexDirection: 'row',
