@@ -7171,8 +7171,8 @@ const styles = StyleSheet.create({
   },
   
   pageSubtitle: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '600',
     color: THRIVE_COLORS.secondary,
     marginTop: 2,
     textAlign: 'center',
@@ -7195,13 +7195,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   pageLabel: {
-    fontSize: 24, // Smaller page label
-    fontWeight: '300',
+    fontSize: 32, // Bigger page label for better visibility
+    fontWeight: '600',
     color: '#666666',
-    marginBottom: 6, // Reduced margin
+    marginBottom: 8, // Slightly more margin
   },
   pageDescription: {
-    fontSize: 14, // Smaller description
+    fontSize: 18, // Bigger description for better readability
     color: '#999999',
     textAlign: 'center',
     opacity: 0.7,
