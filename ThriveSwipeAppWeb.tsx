@@ -686,23 +686,7 @@ const ThriveSwipeAppWeb = () => {
   // Photo Management State
   const [pinnedPhoto, setPinnedPhoto] = useState(null);
   const [uploadedPhotos, setUploadedPhotos] = useState([
-    // Sample photos for demonstration
-    {
-      id: 1,
-      url: 'https://via.placeholder.com/150x150/4A90E2/FFFFFF?text=Workout',
-      caption: 'Morning workout session! 💪',
-      tags: ['fitness', 'morning', 'workout'],
-      timestamp: new Date(Date.now() - 86400000), // 1 day ago
-      isPinned: false
-    },
-    {
-      id: 2,
-      url: 'https://via.placeholder.com/150x150/34C759/FFFFFF?text=Healthy',
-      caption: 'Nutritious meal prep for the week',
-      tags: ['nutrition', 'mealprep', 'healthy'],
-      timestamp: new Date(Date.now() - 172800000), // 2 days ago
-      isPinned: false
-    }
+    // Clean start - no placeholder photos, just the + button to add photos
   ]);
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
   const [showPhotoSourceSelector, setShowPhotoSourceSelector] = useState(false);
@@ -9543,8 +9527,7 @@ const styles = StyleSheet.create({
   },
   
   pinnedContent: {
-    borderWidth: 2,
-    borderColor: THRIVE_COLORS.highlight,
+    // Removed red border for cleaner appearance
   },
   
   pinnedLabel: {
