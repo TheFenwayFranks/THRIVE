@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, Animated } from 'react-native';
-import AICoachService, { ChatMessage, CoachProfile } from './AICoachService';
+import AICoachService, { ChatMessage, CoachProfile, UserAssessment, AssessmentQuestion } from './AICoachService';
 
 // THRIVE Brand Colors
 const THRIVE_COLORS = {
@@ -28,6 +28,9 @@ const AICoachModal: React.FC<AICoachModalProps> = ({ visible, onClose }) => {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [coachService] = useState(() => AICoachService.getInstance());
+  const [showAssessment, setShowAssessment] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [assessmentData, setAssessmentData] = useState<any>({});
   
   const scrollViewRef = useRef<ScrollView>(null);
   const modalAnimation = useRef(new Animated.Value(0)).current;
@@ -80,7 +83,39 @@ const AICoachModal: React.FC<AICoachModalProps> = ({ visible, onClose }) => {
   };
 
   const handleQuickSuggestion = (suggestion: string) => {
+    if (suggestion.includes('assessment')) {
+      setShowAssessment(true);
+      return;
+    }
     setInputText(suggestion);
+  };
+  
+  const startAssessment = () => {
+    setShowAssessment(true);
+    setCurrentQuestion(0);
+  };
+  
+  const handleAssessmentAnswer = (questionId: string, answer: any) => {
+    setAssessmentData(prev => ({ ...prev, [questionId]: answer }));
+    coachService.updateAssessmentData(questionId, answer);
+  };
+  
+  const nextAssessmentQuestion = () => {
+    const questions = coachService.getAssessmentQuestions();
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(prev => prev + 1);
+    } else {
+      // Assessment complete
+      coachService.completeAssessment();
+      setShowAssessment(false);
+      setMessages([...coachService.getChatHistory()]);
+    }
+  };
+  
+  const skipAssessment = () => {
+    setShowAssessment(false);
+    coachService.addCoachMessage("No problem! You can take the assessment anytime by asking me to 'start assessment'. I'm still here to help with any health and wellness questions you have! What would you like to know about?");
+    setMessages([...coachService.getChatHistory()]);
   };
 
   const clearChat = () => {
@@ -185,8 +220,102 @@ const AICoachModal: React.FC<AICoachModalProps> = ({ visible, onClose }) => {
           ))}
         </ScrollView>
 
+        {/* Assessment Interface */}
+        {showAssessment && (
+          <View style={styles.assessmentContainer}>
+            <View style={styles.assessmentHeader}>
+              <Text style={styles.assessmentTitle}>Health Assessment</Text>
+              <Text style={styles.assessmentProgress}>
+                Question {currentQuestion + 1} of {coachService.getAssessmentQuestions().length}
+              </Text>
+            </View>
+            
+            {(() => {
+              const questions = coachService.getAssessmentQuestions();
+              const question = questions[currentQuestion];
+              if (!question) return null;
+              
+              return (
+                <View style={styles.questionContainer}>
+                  <Text style={styles.questionText}>{question.question}</Text>
+                  
+                  {question.type === 'select' && (
+                    <View style={styles.optionsContainer}>
+                      {question.options?.map((option, index) => (
+                        <TouchableOpacity
+                          key={index}
+                          style={[
+                            styles.optionButton,
+                            assessmentData[question.id] === option && styles.selectedOption
+                          ]}
+                          onPress={() => handleAssessmentAnswer(question.id, option)}
+                        >
+                          <Text style={[
+                            styles.optionText,
+                            assessmentData[question.id] === option && styles.selectedOptionText
+                          ]}>{option}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                  
+                  {question.type === 'scale' && (
+                    <View style={styles.scaleContainer}>
+                      <View style={styles.scaleNumbers}>
+                        {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                          <TouchableOpacity
+                            key={num}
+                            style={[
+                              styles.scaleButton,
+                              assessmentData[question.id] === num && styles.selectedScale
+                            ]}
+                            onPress={() => handleAssessmentAnswer(question.id, num)}
+                          >
+                            <Text style={[
+                              styles.scaleText,
+                              assessmentData[question.id] === num && styles.selectedScaleText
+                            ]}>{num}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+                  
+                  {(question.type === 'text' || question.type === 'number') && (
+                    <TextInput
+                      style={styles.assessmentInput}
+                      placeholder={question.type === 'number' ? 'Enter a number' : 'Type your answer'}
+                      keyboardType={question.type === 'number' ? 'numeric' : 'default'}
+                      value={assessmentData[question.id] || ''}
+                      onChangeText={(text) => handleAssessmentAnswer(question.id, text)}
+                    />
+                  )}
+                  
+                  <View style={styles.assessmentActions}>
+                    <TouchableOpacity style={styles.skipButton} onPress={skipAssessment}>
+                      <Text style={styles.skipButtonText}>Skip Assessment</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={[
+                        styles.nextButton,
+                        !assessmentData[question.id] && styles.nextButtonDisabled
+                      ]} 
+                      onPress={nextAssessmentQuestion}
+                      disabled={!assessmentData[question.id]}
+                    >
+                      <Text style={styles.nextButtonText}>
+                        {currentQuestion === questions.length - 1 ? 'Complete' : 'Next'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              );
+            })()} 
+          </View>
+        )}
+        
         {/* Quick Suggestions */}
-        {messages.length <= 1 && (
+        {!showAssessment && (
           <View style={styles.suggestionsContainer}>
             <Text style={styles.suggestionsTitle}>Quick suggestions:</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -204,27 +333,29 @@ const AICoachModal: React.FC<AICoachModalProps> = ({ visible, onClose }) => {
         )}
 
         {/* Input Area */}
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.textInput}
-            value={inputText}
-            onChangeText={setInputText}
-            placeholder="Ask Coach Alex anything..."
-            multiline
-            maxLength={500}
-            editable={!isLoading}
-            onSubmitEditing={sendMessage}
-          />
-          <TouchableOpacity
-            style={[styles.sendButton, (!inputText.trim() || isLoading) && styles.sendButtonDisabled]}
-            onPress={sendMessage}
-            disabled={!inputText.trim() || isLoading}
-          >
-            <Text style={styles.sendButtonText}>
-              {isLoading ? '⏳' : '📤'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        {!showAssessment && (
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.textInput}
+              value={inputText}
+              onChangeText={setInputText}
+              placeholder="Ask Bene anything about health science..."
+              multiline
+              maxLength={500}
+              editable={!isLoading}
+              onSubmitEditing={sendMessage}
+            />
+            <TouchableOpacity
+              style={[styles.sendButton, (!inputText.trim() || isLoading) && styles.sendButtonDisabled]}
+              onPress={sendMessage}
+              disabled={!inputText.trim() || isLoading}
+            >
+              <Text style={styles.sendButtonText}>
+                {isLoading ? '⏳' : '📤'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </Animated.View>
   );
@@ -418,6 +549,154 @@ const styles = StyleSheet.create({
   },
   sendButtonText: {
     fontSize: 18,
+  },
+  
+  // Assessment Styles
+  assessmentContainer: {
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: THRIVE_COLORS.neutral,
+    backgroundColor: THRIVE_COLORS.lightGray,
+  },
+  
+  assessmentHeader: {
+    marginBottom: 20,
+  },
+  
+  assessmentTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: THRIVE_COLORS.black,
+    marginBottom: 5,
+  },
+  
+  assessmentProgress: {
+    fontSize: 14,
+    color: THRIVE_COLORS.mediumGray,
+  },
+  
+  questionContainer: {
+    marginBottom: 20,
+  },
+  
+  questionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: THRIVE_COLORS.black,
+    marginBottom: 15,
+    lineHeight: 22,
+  },
+  
+  optionsContainer: {
+    marginBottom: 20,
+  },
+  
+  optionButton: {
+    backgroundColor: THRIVE_COLORS.white,
+    borderWidth: 1,
+    borderColor: THRIVE_COLORS.neutral,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+  },
+  
+  selectedOption: {
+    backgroundColor: THRIVE_COLORS.primary,
+    borderColor: THRIVE_COLORS.primary,
+  },
+  
+  optionText: {
+    fontSize: 15,
+    color: THRIVE_COLORS.black,
+  },
+  
+  selectedOptionText: {
+    color: THRIVE_COLORS.white,
+    fontWeight: '600',
+  },
+  
+  scaleContainer: {
+    marginBottom: 20,
+  },
+  
+  scaleNumbers: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  
+  scaleButton: {
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
+    backgroundColor: THRIVE_COLORS.white,
+    borderWidth: 1,
+    borderColor: THRIVE_COLORS.neutral,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  selectedScale: {
+    backgroundColor: THRIVE_COLORS.primary,
+    borderColor: THRIVE_COLORS.primary,
+  },
+  
+  scaleText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: THRIVE_COLORS.black,
+  },
+  
+  selectedScaleText: {
+    color: THRIVE_COLORS.white,
+  },
+  
+  assessmentInput: {
+    borderWidth: 1,
+    borderColor: THRIVE_COLORS.neutral,
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: THRIVE_COLORS.white,
+    marginBottom: 20,
+  },
+  
+  assessmentActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  
+  skipButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    backgroundColor: THRIVE_COLORS.neutral,
+  },
+  
+  skipButtonText: {
+    fontSize: 16,
+    color: THRIVE_COLORS.mediumGray,
+    fontWeight: '600',
+  },
+  
+  nextButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    backgroundColor: THRIVE_COLORS.primary,
+  },
+  
+  nextButtonDisabled: {
+    backgroundColor: THRIVE_COLORS.neutral,
+  },
+  
+  nextButtonText: {
+    fontSize: 16,
+    color: THRIVE_COLORS.white,
+    fontWeight: 'bold',
   },
 });
 
