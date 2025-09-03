@@ -690,6 +690,7 @@ const ThriveSwipeAppWeb = () => {
   ]);
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
   const [showPhotoSourceSelector, setShowPhotoSourceSelector] = useState(false);
+  const [showAttachmentPicker, setShowAttachmentPicker] = useState(false);
   const [newPhotoCaption, setNewPhotoCaption] = useState('');
   // Removed newPhotoTags - users will use hashtags in caption
   
@@ -1995,52 +1996,410 @@ const ThriveSwipeAppWeb = () => {
     return tags.map(tag => `#${tag}`).join(' ');
   };
 
-  // Simple native attachment handler
+  // Show attachment picker modal
   const handleNativeAttachment = () => {
-    try {
-      // Create input that accepts both photos and camera
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*,video/*'; // Accept images and videos
-      input.capture = 'environment'; // Use camera when available
+    console.log('🔗 handleNativeAttachment called - showing picker modal');
+    setShowAttachmentPicker(true);
+  };
+
+  // Handle different attachment options with enhanced functionality
+  const handleAttachmentOption = (option) => {
+    console.log('📎 Attachment option selected:', option);
+    
+    // Prevent any gesture or navigation conflicts
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    
+    setShowAttachmentPicker(false);
+    
+    // Show loading state while processing
+    const showLoadingMessage = (message) => {
+      const notification = {
+        id: Date.now(),
+        type: 'info',
+        title: 'Attachment',
+        message: message,
+        timestamp: new Date()
+      };
+      setNotifications(prev => [notification, ...prev]);
+      
+      // Remove notification after 3 seconds
+      setTimeout(() => {
+        setNotifications(prev => prev.filter(n => n.id !== notification.id));
+      }, 3000);
+    };
+    
+    // Add delay to ensure modal closes before opening picker
+    setTimeout(() => {
+      try {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.style.display = 'none';
+        input.style.position = 'absolute';
+        input.style.top = '-9999px';
+        input.style.left = '-9999px';
+        input.style.zIndex = '-1';
+        
+        // Configure input based on option
+        switch (option) {
+          case 'library':
+            // For photo library, we want existing photos/videos only
+            input.accept = 'image/jpeg,image/jpg,image/png,image/gif,image/webp,video/mp4,video/mov,video/avi,video/webm';
+            input.multiple = false;
+            // Do NOT set capture attribute for library - this opens gallery
+            showLoadingMessage('📷 Opening Photo Library...');
+            console.log('🖼️ Opening photo/video library picker (no capture)');
+            break;
+            
+          case 'camera':
+            // For camera, explicitly set capture to activate camera
+            input.accept = 'image/*,video/*';
+            input.capture = 'environment'; // Use rear camera
+            input.multiple = false;
+            showLoadingMessage('📸 Opening Camera...');
+            console.log('📷 Opening camera interface (with capture)');
+            break;
+            
+          case 'files':
+            // For files, accept all types but no capture
+            input.accept = '*/*';
+            input.multiple = false;
+            // Explicitly no capture attribute
+            showLoadingMessage('📁 Opening File Browser...');
+            console.log('📁 Opening general file picker (all files)');
+            break;
+            
+          default:
+            console.warn('⚠️ Unknown attachment option:', option);
+            return;
+        }
       
       input.onchange = (event) => {
+        console.log(`📁 ${option} file selected, processing...`);
         const file = event.target.files[0];
+        
         if (file) {
+          console.log(`✅ File selected via ${option}:`, {
+            name: file.name,
+            size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+            type: file.type,
+            lastModified: new Date(file.lastModified).toISOString()
+          });
+          
+          // Show success message
+          const successNotification = {
+            id: Date.now(),
+            type: 'success',
+            title: 'File Selected',
+            message: `📎 ${file.name} ready to attach`,
+            timestamp: new Date()
+          };
+          setNotifications(prev => [successNotification, ...prev.filter(n => n.title !== 'Attachment')]);
+          
+          // Validate file size (limit to 10MB for demo)
+          if (file.size > 10 * 1024 * 1024) {
+            alert('File too large! Please select a file smaller than 10MB.');
+            document.body.removeChild(input);
+            return;
+          }
+          
           // Convert to data URL for preview
           const reader = new FileReader();
           reader.onload = (e) => {
+            console.log('✅ File processed and ready for preview');
             setSelectedPhotoFile(e.target.result);
-            console.log('File attached:', file.name);
+            
+            // Store additional file metadata
+            window.selectedFileMetadata = {
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              source: option,
+              timestamp: new Date().toISOString()
+            };
+            
+            console.log('📋 File metadata stored:', window.selectedFileMetadata);
+            
+            // Remove success notification after 3 seconds
+            setTimeout(() => {
+              setNotifications(prev => prev.filter(n => n.id !== successNotification.id));
+            }, 3000);
           };
+          
+          reader.onerror = (e) => {
+            console.error('❌ Error reading file:', e);
+            alert(`Error reading ${file.name}. Please try again.`);
+          };
+          
           reader.readAsDataURL(file);
+        } else {
+          console.log(`❌ No file selected from ${option}`);
+        }
+        
+        // Clean up the temporary input
+        try {
+          if (input && document.body.contains(input)) {
+            document.body.removeChild(input);
+          }
+        } catch (e) {
+          console.warn('Input cleanup warning:', e);
         }
       };
       
-      input.click();
-    } catch (error) {
-      console.error('Error opening attachment picker:', error);
-      alert('Unable to open attachment picker. Please try again.');
-    }
+      input.oncancel = () => {
+        console.log(`ℹ️ ${option} picker cancelled by user`);
+        document.body.removeChild(input);
+        
+        // Remove loading notification
+        setNotifications(prev => prev.filter(n => n.title !== 'Attachment'));
+      };
+      
+      input.onerror = (e) => {
+        console.error(`❌ ${option} picker error:`, e);
+        document.body.removeChild(input);
+        
+        // Remove loading notification and show error
+        setNotifications(prev => prev.filter(n => n.title !== 'Attachment'));
+        alert(`Unable to open ${option} picker. Please try again.`);
+      };
+      
+      // Add to DOM and trigger the appropriate picker
+      document.body.appendChild(input);
+      console.log(`🖱️ Launching ${option} picker...`);
+      
+      // Use requestAnimationFrame for better timing
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          try {
+            input.click();
+          } catch (clickError) {
+            console.error(`❌ Error clicking ${option} input:`, clickError);
+            // Try alternative trigger methods
+            const event = new MouseEvent('click', {
+              view: window,
+              bubbles: true,
+              cancelable: true,
+            });
+            input.dispatchEvent(event);
+          }
+        }, 50);
+      });
+      
+      } catch (error) {
+        console.error(`❌ Error opening ${option} picker:`, error);
+        alert(`Unable to open ${option} picker. Please try again.`);
+        
+        // Remove loading notification
+        setNotifications(prev => prev.filter(n => n.title !== 'Attachment'));
+      }
+    }, 200); // Close setTimeout with 200ms delay
   };
 
-  // Simple post submission
+  // Enhanced post submission with attachment metadata
   const handleSimplePostSubmit = () => {
     if (newPhotoCaption.trim() || selectedPhotoFile) {
+      const attachmentMeta = window.selectedFileMetadata || {};
+      
       const newPost = {
         id: Date.now(),
         url: selectedPhotoFile,
         caption: newPhotoCaption.trim(),
         tags: newPhotoCaption.match(/#\w+/g) || [],
         timestamp: new Date(),
-        isPinned: false
+        isPinned: false,
+        // Enhanced attachment metadata
+        attachmentInfo: selectedPhotoFile ? {
+          fileName: attachmentMeta.name || 'Unknown file',
+          fileSize: attachmentMeta.size || 0,
+          fileType: attachmentMeta.type || 'unknown',
+          source: attachmentMeta.source || 'unknown',
+          uploadedAt: attachmentMeta.timestamp || new Date().toISOString()
+        } : null
       };
       
       setUploadedPhotos(prev => [newPost, ...prev]);
       setNewPhotoCaption('');
       setSelectedPhotoFile(null);
+      window.selectedFileMetadata = null;
       
-      console.log('Post shared successfully!');
+      // Show success notification
+      const successNotification = {
+        id: Date.now(),
+        type: 'success',
+        title: 'Post Shared!',
+        message: selectedPhotoFile ? 
+          `📸 Post with attachment shared successfully` : 
+          '📝 Text post shared successfully',
+        timestamp: new Date()
+      };
+      setNotifications(prev => [successNotification, ...prev]);
+      
+      // Remove notification after 3 seconds
+      setTimeout(() => {
+        setNotifications(prev => prev.filter(n => n.id !== successNotification.id));
+      }, 3000);
+      
+      console.log('✅ Post shared successfully with metadata:', newPost);
+    }
+  };
+
+  // 🗑️ DATA MANAGEMENT: Clear all user data for clean state
+  const handleClearAllData = () => {
+    const confirmed = window.confirm(
+      '🗑️ Clear All Data?\n\nThis will remove all your profile info, posts, notifications, and reset the app to a clean state.\n\nAre you sure?'
+    );
+    
+    if (confirmed) {
+      // Clear profile data
+      setProfileData({
+        name: '',
+        weight: '',
+        height: '',
+        birthday: '',
+        fitnessLevel: '',
+        mainGoal: '',
+        email: '',
+        phone: '',
+        emergencyContact: '',
+        medicalConditions: '',
+        allergies: '',
+        medications: '',
+        bio: ''
+      });
+      
+      // Clear posts and photos
+      setUploadedPhotos([]);
+      setPinnedPhoto(null);
+      setNewPhotoCaption('');
+      setSelectedPhotoFile(null);
+      
+      // Clear notifications
+      setNotifications([]);
+      
+      // Reset dashboard data
+      setDashboardData({
+        weight: { current: 0, goal: 0, trend: 'neutral', progress: 0 },
+        goalProgress: { type: '', percentage: 0, achieved: 0, target: 100 },
+        tasksCompleted: { today: 0, total: 7, streak: 0 },
+        mindfulnessMins: { today: 0, target: 20, streak: 0, trend: 'up' }
+      });
+      
+      // Clear chat history
+      setPersonalChatHistory([]);
+      
+      // Clear completed tasks and challenges
+      setCompletedTasks([]);
+      setCompletedChallenges([]);
+      setChallengeCompletedTasks([]);
+      
+      // Reset UI states
+      setCurrentPage(2); // Back to dashboard
+      setShowAICoach(false);
+      setShowNotifications(false);
+      setShowProfileSettings(false);
+      
+      console.log('🗑️ All user data cleared - clean state restored');
+      alert('✅ All data cleared! App is now in clean state.');
+    }
+  };
+
+  // 🎭 DATA MANAGEMENT: Add demo data for presentation
+  const handleAddDemoData = () => {
+    const confirmed = window.confirm(
+      '🎭 Add Demo Data?\n\nThis will populate the app with example profile, posts, and notifications for demonstration purposes.\n\nAdd demo data?'
+    );
+    
+    if (confirmed) {
+      // Add demo profile data
+      setProfileData({
+        name: 'Alex Johnson',
+        weight: '165',
+        height: '5\'8"',
+        birthday: '1992-03-15',
+        fitnessLevel: 'Intermediate',
+        mainGoal: 'Weight Loss',
+        email: 'alex.johnson@email.com',
+        phone: '(555) 123-4567',
+        emergencyContact: 'Sarah Johnson - (555) 987-6543',
+        medicalConditions: 'None',
+        allergies: 'None',
+        medications: 'None',
+        bio: 'Wellness enthusiast on a journey to better health and mindfulness. Love hiking, yoga, and healthy cooking! 🌱'
+      });
+      
+      // Add demo posts
+      const demoPosts = [
+        {
+          id: 1,
+          url: null,
+          caption: 'Just finished an amazing morning workout! 💪 Feeling energized and ready to take on the day. #workout #morningmotivation #thrive',
+          tags: ['workout', 'morningmotivation', 'thrive'],
+          timestamp: new Date(Date.now() - 3600000), // 1 hour ago
+          isPinned: false
+        },
+        {
+          id: 2,
+          url: null,
+          caption: 'Meal prep Sunday complete! 🥗 Prepped healthy meals for the entire week. Planning ahead makes such a difference! #mealprep #healthy #nutrition',
+          tags: ['mealprep', 'healthy', 'nutrition'],
+          timestamp: new Date(Date.now() - 86400000), // 1 day ago
+          isPinned: false
+        },
+        {
+          id: 3,
+          url: null,
+          caption: '10 minutes of meditation this morning 🧘‍♀️ Starting to see the benefits of daily mindfulness practice. #meditation #mindfulness #mentalhealth',
+          tags: ['meditation', 'mindfulness', 'mentalhealth'],
+          timestamp: new Date(Date.now() - 172800000), // 2 days ago
+          isPinned: false
+        }
+      ];
+      setUploadedPhotos(demoPosts);
+      
+      // Add demo notifications
+      const demoNotifications = [
+        {
+          id: 1,
+          type: 'achievement',
+          title: '🎉 Week Streak!',
+          message: 'You\'ve completed workouts 7 days in a row!',
+          timestamp: new Date(Date.now() - 1800000), // 30 min ago
+          read: false,
+          icon: '🏆'
+        },
+        {
+          id: 2,
+          type: 'reminder',
+          title: '💧 Hydration Reminder',
+          message: 'Don\'t forget to drink water! You\'re at 6/8 glasses today.',
+          timestamp: new Date(Date.now() - 3600000), // 1 hour ago
+          read: false,
+          icon: '💧'
+        },
+        {
+          id: 3,
+          type: 'social',
+          title: '👥 New Follower',
+          message: 'Sarah M. started following your wellness journey!',
+          timestamp: new Date(Date.now() - 7200000), // 2 hours ago
+          read: true,
+          icon: '👤'
+        }
+      ];
+      setNotifications(demoNotifications);
+      
+      // Add demo chat message
+      setPersonalChatHistory([
+        {
+          id: 1,
+          text: "Hi Alex! Welcome to THRIVE! 👋 I'm here to support your wellness journey. How are you feeling about your goals today?",
+          sender: 'coach',
+          timestamp: new Date(Date.now() - 1800000)
+        }
+      ]);
+      
+      console.log('🎭 Demo data added successfully');
+      alert('✅ Demo data added! App now shows example content.');
     }
   };
 
@@ -2577,6 +2936,25 @@ const ThriveSwipeAppWeb = () => {
           >
             <Text style={styles.menuItemIcon}>ℹ️</Text>
             <Text style={styles.menuItemText}>App Info</Text>
+          </View>
+          
+          {/* Data Management */}
+          <Text style={styles.sectionTitle}>Data Management</Text>
+          <View 
+            style={styles.menuItem}
+            onStartShouldSetResponder={() => true}
+            onResponderGrant={() => { handleClearAllData(); toggleMenu(); }}
+          >
+            <Text style={styles.menuItemIcon}>🗑️</Text>
+            <Text style={styles.menuItemText}>Clear All Data</Text>
+          </View>
+          <View 
+            style={styles.menuItem}
+            onStartShouldSetResponder={() => true}
+            onResponderGrant={() => { handleAddDemoData(); toggleMenu(); }}
+          >
+            <Text style={styles.menuItemIcon}>🎭</Text>
+            <Text style={styles.menuItemText}>Add Demo Data</Text>
           </View>
           
           {/* Logout */}
@@ -3339,7 +3717,7 @@ const ThriveSwipeAppWeb = () => {
                   <View style={styles.cleanPostCard}>
                     <View style={styles.postInputRow}>
                       <View style={styles.userAvatarSmall}>
-                        <Text style={styles.userAvatarText}>{profileData.name ? profileData.name.charAt(0).toUpperCase() : 'U'}</Text>
+                        <Text style={styles.userAvatarText}>{profileData.name ? profileData.name.charAt(0).toUpperCase() : '👤'}</Text>
                       </View>
                       <TextInput
                         style={styles.postTextInput}
@@ -3357,6 +3735,8 @@ const ThriveSwipeAppWeb = () => {
                         style={styles.attachButton}
                         onStartShouldSetResponder={() => true}
                         onResponderGrant={handleNativeAttachment}
+                        onTouchStart={handleNativeAttachment}
+                        onClick={handleNativeAttachment}
                       >
                         <Text style={styles.attachIcon}>📎</Text>
                         <Text style={styles.attachText}>Attach</Text>
@@ -3379,14 +3759,51 @@ const ThriveSwipeAppWeb = () => {
                       </View>
                     </View>
                     
-                    {/* Show attached media preview */}
+                    {/* Enhanced attached media preview */}
                     {selectedPhotoFile && (
                       <View style={styles.attachmentPreview}>
-                        <Text style={styles.attachmentLabel}>📷 Photo attached</Text>
+                        <View style={styles.attachmentInfo}>
+                          <Text style={styles.attachmentLabel}>
+                            {(() => {
+                              const metadata = window.selectedFileMetadata;
+                              if (metadata) {
+                                const icons = {
+                                  library: '📷',
+                                  camera: '📸', 
+                                  files: '📁'
+                                };
+                                const icon = icons[metadata.source] || '📎';
+                                const sizeText = metadata.size ? ` (${(metadata.size / 1024 / 1024).toFixed(1)}MB)` : '';
+                                return `${icon} ${metadata.name || 'File attached'}${sizeText}`;
+                              }
+                              return '📎 File attached';
+                            })()}
+                          </Text>
+                          {window.selectedFileMetadata && window.selectedFileMetadata.source && (
+                            <Text style={styles.attachmentSource}>
+                              via {window.selectedFileMetadata.source === 'library' ? 'Photo Library' : 
+                                   window.selectedFileMetadata.source === 'camera' ? 'Camera' : 'File Browser'}
+                            </Text>
+                          )}
+                        </View>
                         <View 
                           style={styles.removeAttachment}
                           onStartShouldSetResponder={() => true}
-                          onResponderGrant={() => setSelectedPhotoFile(null)}
+                          onResponderGrant={() => {
+                            setSelectedPhotoFile(null);
+                            window.selectedFileMetadata = null;
+                            console.log('🗑️ Attachment removed by user');
+                          }}
+                          onTouchStart={() => {
+                            setSelectedPhotoFile(null);
+                            window.selectedFileMetadata = null;
+                            console.log('🗑️ Attachment removed by user');
+                          }}
+                          onClick={() => {
+                            setSelectedPhotoFile(null);
+                            window.selectedFileMetadata = null;
+                            console.log('🗑️ Attachment removed by user');
+                          }}
                         >
                           <Text style={styles.removeAttachmentText}>Remove</Text>
                         </View>
@@ -3402,7 +3819,7 @@ const ThriveSwipeAppWeb = () => {
                         <View key={photo.id} style={styles.postCard}>
                           <View style={styles.postHeader}>
                             <View style={styles.postUserInfo}>
-                              <Text style={styles.postUserAvatar}>{profileData.name ? profileData.name.charAt(0).toUpperCase() : 'U'}</Text>
+                              <Text style={styles.postUserAvatar}>{profileData.name ? profileData.name.charAt(0).toUpperCase() : '👤'}</Text>
                               <View>
                                 <Text style={styles.postUserName}>{profileData.name || 'User'}</Text>
                                 <Text style={styles.postTimestamp}>{new Date(photo.timestamp).toLocaleDateString()}</Text>
@@ -5579,6 +5996,124 @@ const ThriveSwipeAppWeb = () => {
         initialDate={selectedDate || new Date()}
       />
       
+      {/* Attachment Picker Modal */}
+      {showAttachmentPicker && (
+        <View style={styles.attachmentModalOverlay}>
+          <View style={styles.attachmentPickerModal}>
+            <View 
+              style={styles.attachmentOption}
+              onStartShouldSetResponder={() => true}
+              onResponderGrant={(event) => {
+                event?.stopPropagation?.();
+                handleAttachmentOption('library');
+              }}
+              onTouchStart={(event) => {
+                event?.preventDefault?.();
+                event?.stopPropagation?.();
+                handleAttachmentOption('library');
+              }}
+              onClick={(event) => {
+                event?.preventDefault?.();
+                event?.stopPropagation?.();
+                handleAttachmentOption('library');
+              }}
+            >
+              <View style={styles.attachmentOptionContent}>
+                <View style={[styles.attachmentIcon, { backgroundColor: '#E3F2FD' }]}>
+                  <Text style={styles.attachmentIconText}>🖼️</Text>
+                </View>
+                <View style={styles.attachmentTextContainer}>
+                  <Text style={styles.attachmentOptionText}>Photo Library</Text>
+                  <Text style={styles.attachmentOptionDesc}>Select from your photos and videos</Text>
+                </View>
+              </View>
+            </View>
+            
+            <View style={styles.attachmentDivider} />
+            
+            <View 
+              style={styles.attachmentOption}
+              onStartShouldSetResponder={() => true}
+              onResponderGrant={(event) => {
+                event?.stopPropagation?.();
+                handleAttachmentOption('camera');
+              }}
+              onTouchStart={(event) => {
+                event?.preventDefault?.();
+                event?.stopPropagation?.();
+                handleAttachmentOption('camera');
+              }}
+              onClick={(event) => {
+                event?.preventDefault?.();
+                event?.stopPropagation?.();
+                handleAttachmentOption('camera');
+              }}
+            >
+              <View style={styles.attachmentOptionContent}>
+                <View style={[styles.attachmentIcon, { backgroundColor: '#E8F5E8' }]}>
+                  <Text style={styles.attachmentIconText}>📷</Text>
+                </View>
+                <View style={styles.attachmentTextContainer}>
+                  <Text style={styles.attachmentOptionText}>Take Photo or Video</Text>
+                  <Text style={styles.attachmentOptionDesc}>Use your camera to capture new content</Text>
+                </View>
+              </View>
+            </View>
+            
+            <View style={styles.attachmentDivider} />
+            
+            <View 
+              style={styles.attachmentOption}
+              onStartShouldSetResponder={() => true}
+              onResponderGrant={(event) => {
+                event?.stopPropagation?.();
+                handleAttachmentOption('files');
+              }}
+              onTouchStart={(event) => {
+                event?.preventDefault?.();
+                event?.stopPropagation?.();
+                handleAttachmentOption('files');
+              }}
+              onClick={(event) => {
+                event?.preventDefault?.();
+                event?.stopPropagation?.();
+                handleAttachmentOption('files');
+              }}
+            >
+              <View style={styles.attachmentOptionContent}>
+                <View style={[styles.attachmentIcon, { backgroundColor: '#FFF3E0' }]}>
+                  <Text style={styles.attachmentIconText}>📁</Text>
+                </View>
+                <View style={styles.attachmentTextContainer}>
+                  <Text style={styles.attachmentOptionText}>Choose Files</Text>
+                  <Text style={styles.attachmentOptionDesc}>Browse and select any document or file</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+          
+          {/* Background overlay to close modal */}
+          <View 
+            style={styles.attachmentModalBackground}
+            onStartShouldSetResponder={() => true}
+            onResponderGrant={(event) => {
+              event?.stopPropagation?.();
+              setShowAttachmentPicker(false);
+            }}
+            onTouchStart={(event) => {
+              event?.preventDefault?.();
+              event?.stopPropagation?.();
+              setShowAttachmentPicker(false);
+            }}
+            onClick={(event) => {
+              event?.preventDefault?.();
+              event?.stopPropagation?.();
+              setShowAttachmentPicker(false);
+            }}
+          />
+        </View>
+      )}
+
       {/* Photo Source Selector Modal */}
       {showPhotoSourceSelector && (
         <View style={styles.photoModalOverlay}>
@@ -8492,9 +9027,6 @@ const styles = StyleSheet.create({
   },
   
   calendarAddButton: {
-    position: 'absolute',
-    bottom: 30,
-    right: 30,
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -8803,7 +9335,7 @@ const styles = StyleSheet.create({
   
   calendarAddButtonContainer: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 80,
     right: 20,
   },
   
@@ -9638,15 +10170,30 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#E3F2FD',
-    padding: 10,
-    borderRadius: 6,
+    padding: 12,
+    borderRadius: 8,
     marginTop: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: '#1976D2',
+  },
+  
+  attachmentInfo: {
+    flex: 1,
+    marginRight: 12,
   },
   
   attachmentLabel: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#1976D2',
-    fontWeight: '500',
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  
+  attachmentSource: {
+    fontSize: 12,
+    color: '#64B5F6',
+    fontWeight: '400',
+    fontStyle: 'italic',
   },
   
   removeAttachment: {
@@ -12778,6 +13325,93 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   
+  // Attachment Picker Modal Styles
+  attachmentModalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 2000,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 40,
+  },
+  
+  attachmentModalBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  
+  attachmentPickerModal: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    marginHorizontal: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 10,
+    zIndex: 2001,
+  },
+  
+  attachmentOption: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    backgroundColor: 'white',
+    cursor: 'pointer',
+  },
+  
+  attachmentOptionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  
+  attachmentIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#F8F9FA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  
+  attachmentIconText: {
+    fontSize: 20,
+  },
+  
+  attachmentTextContainer: {
+    flex: 1,
+  },
+  
+  attachmentOptionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1C1C1E',
+    marginBottom: 2,
+  },
+  
+  attachmentOptionDesc: {
+    fontSize: 13,
+    color: '#8E8E93',
+    fontWeight: '400',
+  },
+  
+  attachmentDivider: {
+    height: 1,
+    backgroundColor: '#E5E5E7',
+    marginHorizontal: 20,
+  },
+
   // Photo Modal Styles
   photoModalOverlay: {
     position: 'absolute',
