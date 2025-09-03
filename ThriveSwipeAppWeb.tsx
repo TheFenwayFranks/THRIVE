@@ -3976,6 +3976,8 @@ const ThriveSwipeAppWeb = () => {
                   </View>
                 )}
               
+              </View>
+            </ScrollView>
           </View>
           
           {/* Dashboard Page */}
@@ -4925,7 +4927,6 @@ const ThriveSwipeAppWeb = () => {
                 </View>
               )}
               </View>
-            </ScrollView>
           </View>
           
           {/* Goals Page */}
