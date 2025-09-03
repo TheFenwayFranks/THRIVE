@@ -245,6 +245,20 @@ const ThriveSwipeAppWeb = () => {
   const [showQAInterface, setShowQAInterface] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  
+  // 🎨 Profile Edit Mode System
+  const [isProfileEditMode, setIsProfileEditMode] = useState(false);
+  const [editingCardId, setEditingCardId] = useState(null);
+  const [draggedCard, setDraggedCard] = useState(null);
+  const [cardPositions, setCardPositions] = useState({});
+  const [editableProfileData, setEditableProfileData] = useState({
+    name: 'Anthony B.',
+    username: '@anthony • Wellness & Fitness',
+    location: 'he/him • Manchester, NH',
+    bio: 'Building healthier habits with my THRIVE crew. Daily workouts, mood check-ins, and family wins. ✨',
+    links: ['thrive.app/anthony', 'YouTube', '+2 more'],
+    tags: ['Coaching']
+  });
   const [showSearch, setShowSearch] = useState(false);
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [showStoryCreator, setShowStoryCreator] = useState(false);
@@ -2908,14 +2922,26 @@ const ThriveSwipeAppWeb = () => {
               
               {/* Profile Header - No Cover Background */}
               <View style={styles.profileHeader}>
-                {/* Profile Settings Button - Top Right */}
+                {/* Edit Mode Toggle Button - Top Right */}
                 <View 
-                  style={styles.profileSettingsButton}
+                  style={[
+                    styles.profileEditModeButton,
+                    isProfileEditMode && styles.profileEditModeButtonActive
+                  ]}
                   onStartShouldSetResponder={() => true}
-                  onResponderGrant={() => setShowProfileSettings(true)}
+                  onResponderGrant={() => setIsProfileEditMode(!isProfileEditMode)}
                 >
-                  <Text style={styles.profileSettingsIcon}>✏️</Text>
+                  <Text style={styles.profileEditModeIcon}>
+                    {isProfileEditMode ? '✓' : '✏️'}
+                  </Text>
                 </View>
+                
+                {/* Edit Mode Indicator */}
+                {isProfileEditMode && (
+                  <View style={styles.editModeIndicator}>
+                    <Text style={styles.editModeIndicatorText}>✨ Tap to edit • Drag to move</Text>
+                  </View>
+                )}
                 
                 {/* Avatar moved to top */}
                 <View style={styles.profileAvatarContainerTop}>
@@ -2929,9 +2955,104 @@ const ThriveSwipeAppWeb = () => {
                 
                 {/* User Info */}
                 <View style={styles.profileInfo}>
-                  <Text style={styles.profileName}>Anthony B.</Text>
-                  <Text style={styles.profileUsername}>@anthony • Wellness & Fitness</Text>
-                  <Text style={styles.profileLocation}>he/him • Manchester, NH</Text>
+                  {/* Name - Editable */}
+                  <View 
+                    style={[
+                      styles.editableInlineCard,
+                      isProfileEditMode && styles.editableCardActive
+                    ]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      if (isProfileEditMode) {
+                        setEditingCardId(editingCardId === 'name' ? null : 'name');
+                      }
+                    }}
+                  >
+                    {editingCardId === 'name' ? (
+                      <TextInput
+                        style={[styles.profileName, styles.editableTextInputInline]}
+                        value={editableProfileData.name}
+                        onChangeText={(text) => 
+                          setEditableProfileData(prev => ({ ...prev, name: text }))
+                        }
+                        onBlur={() => setEditingCardId(null)}
+                        autoFocus
+                      />
+                    ) : (
+                      <Text style={[
+                        styles.profileName,
+                        isProfileEditMode && styles.editableText
+                      ]}>
+                        {editableProfileData.name}
+                      </Text>
+                    )}
+                  </View>
+                  
+                  {/* Username - Editable */}
+                  <View 
+                    style={[
+                      styles.editableInlineCard,
+                      isProfileEditMode && styles.editableCardActive
+                    ]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      if (isProfileEditMode) {
+                        setEditingCardId(editingCardId === 'username' ? null : 'username');
+                      }
+                    }}
+                  >
+                    {editingCardId === 'username' ? (
+                      <TextInput
+                        style={[styles.profileUsername, styles.editableTextInputInline]}
+                        value={editableProfileData.username}
+                        onChangeText={(text) => 
+                          setEditableProfileData(prev => ({ ...prev, username: text }))
+                        }
+                        onBlur={() => setEditingCardId(null)}
+                        autoFocus
+                      />
+                    ) : (
+                      <Text style={[
+                        styles.profileUsername,
+                        isProfileEditMode && styles.editableText
+                      ]}>
+                        {editableProfileData.username}
+                      </Text>
+                    )}
+                  </View>
+                  
+                  {/* Location - Editable */}
+                  <View 
+                    style={[
+                      styles.editableInlineCard,
+                      isProfileEditMode && styles.editableCardActive
+                    ]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      if (isProfileEditMode) {
+                        setEditingCardId(editingCardId === 'location' ? null : 'location');
+                      }
+                    }}
+                  >
+                    {editingCardId === 'location' ? (
+                      <TextInput
+                        style={[styles.profileLocation, styles.editableTextInputInline]}
+                        value={editableProfileData.location}
+                        onChangeText={(text) => 
+                          setEditableProfileData(prev => ({ ...prev, location: text }))
+                        }
+                        onBlur={() => setEditingCardId(null)}
+                        autoFocus
+                      />
+                    ) : (
+                      <Text style={[
+                        styles.profileLocation,
+                        isProfileEditMode && styles.editableText
+                      ]}>
+                        {editableProfileData.location}
+                      </Text>
+                    )}
+                  </View>
                   
                   {/* Stats - Now Interactive with Live Updates */}
                   <View style={styles.profileStats}>
@@ -2957,19 +3078,138 @@ const ThriveSwipeAppWeb = () => {
                     </View>
                   </View>
                   
-                  {/* Bio */}
-                  <Text style={styles.profileBio}>
-                    Building healthier habits with my THRIVE crew. Daily workouts, mood check-ins, and family wins. ✨
-                  </Text>
+                  {/* Bio - Editable Card */}
+                  <View 
+                    style={[
+                      styles.editableCard,
+                      isProfileEditMode && styles.editableCardActive,
+                      editingCardId === 'bio' && styles.editableCardEditing
+                    ]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      if (isProfileEditMode) {
+                        setEditingCardId(editingCardId === 'bio' ? null : 'bio');
+                      }
+                    }}
+                  >
+                    {isProfileEditMode && (
+                      <View style={styles.editCardHeader}>
+                        <Text style={styles.editCardLabel}>Bio</Text>
+                        {editingCardId === 'bio' && (
+                          <View style={styles.editCardActions}>
+                            <View 
+                              style={styles.saveCardButton}
+                              onStartShouldSetResponder={() => true}
+                              onResponderGrant={() => setEditingCardId(null)}
+                            >
+                              <Text style={styles.saveCardButtonText}>✓</Text>
+                            </View>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                    
+                    {editingCardId === 'bio' ? (
+                      <TextInput
+                        style={styles.editableTextInput}
+                        value={editableProfileData.bio}
+                        onChangeText={(text) => 
+                          setEditableProfileData(prev => ({ ...prev, bio: text }))
+                        }
+                        multiline={true}
+                        placeholder="Tell people about yourself..."
+                        autoFocus
+                      />
+                    ) : (
+                      <Text style={[
+                        styles.profileBio,
+                        isProfileEditMode && styles.editableText
+                      ]}>
+                        {editableProfileData.bio}
+                      </Text>
+                    )}
+                  </View>
                   
-                  {/* Links */}
-                  <View style={styles.profileLinks}>
-                    <Text style={styles.profileLink}>thrive.app/anthony</Text>
-                    <View style={styles.profileTag}>
-                      <Text style={styles.profileTagText}>Coaching</Text>
+                  {/* Links - Editable Card */}
+                  <View 
+                    style={[
+                      styles.editableCard,
+                      isProfileEditMode && styles.editableCardActive,
+                      editingCardId === 'links' && styles.editableCardEditing
+                    ]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      if (isProfileEditMode) {
+                        setEditingCardId(editingCardId === 'links' ? null : 'links');
+                      }
+                    }}
+                  >
+                    {isProfileEditMode && (
+                      <View style={styles.editCardHeader}>
+                        <Text style={styles.editCardLabel}>Links & Tags</Text>
+                        {editingCardId === 'links' && (
+                          <View style={styles.editCardActions}>
+                            <View 
+                              style={styles.saveCardButton}
+                              onStartShouldSetResponder={() => true}
+                              onResponderGrant={() => setEditingCardId(null)}
+                            >
+                              <Text style={styles.saveCardButtonText}>✓</Text>
+                            </View>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                    
+                    <View style={styles.profileLinks}>
+                      {editableProfileData.links.map((link, index) => (
+                        <View key={index} style={styles.editableLinkContainer}>
+                          {editingCardId === 'links' ? (
+                            <TextInput
+                              style={styles.editableLinkInput}
+                              value={link}
+                              onChangeText={(text) => {
+                                const newLinks = [...editableProfileData.links];
+                                newLinks[index] = text;
+                                setEditableProfileData(prev => ({ ...prev, links: newLinks }));
+                              }}
+                              placeholder={`Link ${index + 1}`}
+                            />
+                          ) : (
+                            <Text style={[
+                              styles.profileLink,
+                              isProfileEditMode && styles.editableText
+                            ]}>
+                              {link}
+                            </Text>
+                          )}
+                        </View>
+                      ))}
+                      
+                      {editableProfileData.tags.map((tag, index) => (
+                        <View key={`tag-${index}`} style={styles.profileTag}>
+                          {editingCardId === 'links' ? (
+                            <TextInput
+                              style={styles.editableTagInput}
+                              value={tag}
+                              onChangeText={(text) => {
+                                const newTags = [...editableProfileData.tags];
+                                newTags[index] = text;
+                                setEditableProfileData(prev => ({ ...prev, tags: newTags }));
+                              }}
+                              placeholder="Tag"
+                            />
+                          ) : (
+                            <Text style={[
+                              styles.profileTagText,
+                              isProfileEditMode && styles.editableText
+                            ]}>
+                              {tag}
+                            </Text>
+                          )}
+                        </View>
+                      ))}
                     </View>
-                    <Text style={styles.profileLink}>YouTube</Text>
-                    <Text style={styles.profileLink}>+2 more</Text>
                   </View>
                   
                   {/* Action Buttons - Now Functional */}
@@ -6666,256 +6906,7 @@ const ThriveSwipeAppWeb = () => {
         </View>
       )}
       
-      {/* Profile Settings Modal */}
-      {showProfileSettings && (
-        <View style={styles.modalOverlay}>
-          <View style={styles.profileSettingsModal}>
-            <ScrollView style={styles.profileSettingsContent} showsVerticalScrollIndicator={false}>
-              {/* Header with X button */}
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Profile Settings</Text>
-                <View 
-                  style={styles.modalCloseButton}
-                  onStartShouldSetResponder={() => true}
-                  onResponderGrant={() => setShowProfileSettings(false)}
-                >
-                  <Text style={styles.modalCloseText}>×</Text>
-                </View>
-              </View>
-              
-              {/* Profile Photo Section */}
-              <View style={styles.profilePhotoSection}>
-                <View style={styles.profilePhotoLarge}>
-                  <Text style={styles.profileInitialLarge}>
-                    {profileData.name ? profileData.name.charAt(0).toUpperCase() : 'T'}
-                  </Text>
-                </View>
-                <Text style={styles.photoLabel}>Profile Photo</Text>
-              </View>
-              
-              {/* Interactive Profile Options */}
-              {/* Name */}
-              <View 
-                style={styles.profileOption}
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={() => startEditing('name', profileData.name)}
-              >
-                <Text style={styles.optionLabel}>Name</Text>
-                {editingField === 'name' ? (
-                  <View style={styles.editContainer}>
-                    <TextInput
-                      style={styles.textInput}
-                      value={tempValue}
-                      onChangeText={handleTextChange}
-                      placeholder="Enter name"
-                      autoFocus
-                    />
-                    <View style={styles.buttonContainer}>
-                      <View style={styles.saveButton} onStartShouldSetResponder={() => true} onResponderGrant={saveField}>
-                        <Text style={styles.saveButtonText}>✓</Text>
-                      </View>
-                      <View style={styles.cancelButton} onStartShouldSetResponder={() => true} onResponderGrant={cancelEditing}>
-                        <Text style={styles.cancelButtonText}>✗</Text>
-                      </View>
-                    </View>
-                  </View>
-                ) : (
-                  <Text style={styles.optionValue}>{profileData.name || 'Tap to set'}</Text>
-                )}
-              </View>
-              
-              {/* Weight */}
-              <View 
-                style={styles.profileOption}
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={() => startEditing('weight', profileData.weight)}
-              >
-                <Text style={styles.optionLabel}>Weight</Text>
-                {editingField === 'weight' ? (
-                  <View style={styles.editContainer}>
-                    <TextInput
-                      style={styles.textInput}
-                      value={tempValue}
-                      onChangeText={(value) => handleFormattedTextChange(value, 'weight')}
-                      placeholder="Enter weight (lb)"
-                      keyboardType="numeric"
-                      autoFocus
-                    />
-                    <View style={styles.buttonContainer}>
-                      <View style={styles.saveButton} onStartShouldSetResponder={() => true} onResponderGrant={saveField}>
-                        <Text style={styles.saveButtonText}>✓</Text>
-                      </View>
-                      <View style={styles.cancelButton} onStartShouldSetResponder={() => true} onResponderGrant={cancelEditing}>
-                        <Text style={styles.cancelButtonText}>✗</Text>
-                      </View>
-                    </View>
-                  </View>
-                ) : (
-                  <Text style={styles.optionValue}>{profileData.weight ? `${profileData.weight} lb` : 'Tap to set'}</Text>
-                )}
-              </View>
-              
-              {/* Height */}
-              <View 
-                style={styles.profileOption}
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={() => startEditing('height', profileData.height)}
-              >
-                <Text style={styles.optionLabel}>Height</Text>
-                {editingField === 'height' ? (
-                  <View style={styles.editContainer}>
-                    <TextInput
-                      style={styles.textInput}
-                      value={tempValue}
-                      onChangeText={(value) => handleFormattedTextChange(value, 'height')}
-                      placeholder="5'8 or 5 ft 8 in"
-                      autoFocus
-                    />
-                    <View style={styles.buttonContainer}>
-                      <View style={styles.saveButton} onStartShouldSetResponder={() => true} onResponderGrant={saveField}>
-                        <Text style={styles.saveButtonText}>✓</Text>
-                      </View>
-                      <View style={styles.cancelButton} onStartShouldSetResponder={() => true} onResponderGrant={cancelEditing}>
-                        <Text style={styles.cancelButtonText}>✗</Text>
-                      </View>
-                    </View>
-                  </View>
-                ) : (
-                  <Text style={styles.optionValue}>{profileData.height ? `${profileData.height}` : 'Tap to set'}</Text>
-                )}
-              </View>
-              
-              {/* Birthday */}
-              <View 
-                style={styles.profileOption}
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={() => startEditing('birthday', profileData.birthday)}
-              >
-                <Text style={styles.optionLabel}>Birthday</Text>
-                {editingField === 'birthday' ? (
-                  <View style={styles.editContainer}>
-                    <TextInput
-                      style={styles.textInput}
-                      value={tempValue}
-                      onChangeText={(value) => handleFormattedTextChange(value, 'birthday')}
-                      placeholder="MM/DD/YY"
-                      keyboardType="numeric"
-                      maxLength={8}
-                      autoFocus
-                    />
-                    <View style={styles.buttonContainer}>
-                      <View style={styles.saveButton} onStartShouldSetResponder={() => true} onResponderGrant={saveField}>
-                        <Text style={styles.saveButtonText}>✓</Text>
-                      </View>
-                      <View style={styles.cancelButton} onStartShouldSetResponder={() => true} onResponderGrant={cancelEditing}>
-                        <Text style={styles.cancelButtonText}>✗</Text>
-                      </View>
-                    </View>
-                  </View>
-                ) : (
-                  <Text style={styles.optionValue}>{profileData.birthday || 'Tap to set'}</Text>
-                )}
-              </View>
-              
-              {/* Fitness Level */}
-              <View style={styles.profileOption}>
-                <Text style={styles.optionLabel}>Fitness Level</Text>
-                <View style={styles.dropdownWrapper}>
-                  <View 
-                    style={styles.dropdownContainer}
-                    onStartShouldSetResponder={() => true}
-                    onResponderGrant={() => openDropdown('fitness')}
-                  >
-                    <Text style={styles.dropdownValue}>
-                      {profileData.fitnessLevel || 'Select Level'}
-                    </Text>
-                    <Text style={styles.dropdownArrow}>▼</Text>
-                  </View>
-                  
-                  {/* Fitness Level Dropdown Menu */}
-                  {showFitnessDropdown && (
-                    <View style={styles.dropdownMenu}>
-                      {fitnessOptions.map((option) => (
-                        <View
-                          key={option}
-                          style={styles.dropdownItem}
-                          onStartShouldSetResponder={() => true}
-                          onResponderGrant={() => selectFitnessLevel(option)}
-                        >
-                          <Text style={styles.dropdownItemText}>{option}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              </View>
-              
-              {/* Main Goal */}
-              <View style={styles.profileOption}>
-                <Text style={styles.optionLabel}>Main Goal</Text>
-                <View style={styles.dropdownWrapper}>
-                  <View 
-                    style={styles.dropdownContainer}
-                    onStartShouldSetResponder={() => true}
-                    onResponderGrant={() => openDropdown('mainGoal')}
-                  >
-                    <Text style={styles.dropdownValue}>
-                      {profileData.mainGoal || 'Select Goal'}
-                    </Text>
-                    <Text style={styles.dropdownArrow}>▼</Text>
-                  </View>
-                  
-                  {/* Main Goal Dropdown Menu */}
-                  {showMainGoalDropdown && (
-                    <View style={styles.dropdownMenu}>
-                      {goalOptions.map((option) => (
-                        <View
-                          key={option}
-                          style={styles.dropdownItem}
-                          onStartShouldSetResponder={() => true}
-                          onResponderGrant={() => selectMainGoal(option)}
-                        >
-                          <Text style={styles.dropdownItemText}>{option}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              </View>
-              
-              {/* Email */}
-              <View 
-                style={styles.profileOption}
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={() => startEditing('email', profileData.email)}
-              >
-                <Text style={styles.optionLabel}>Email</Text>
-                {editingField === 'email' ? (
-                  <View style={styles.editContainer}>
-                    <TextInput
-                      style={styles.textInput}
-                      value={tempValue}
-                      onChangeText={handleTextChange}
-                      placeholder="Enter email"
-                      autoFocus
-                    />
-                    <View style={styles.buttonContainer}>
-                      <View style={styles.saveButton} onStartShouldSetResponder={() => true} onResponderGrant={saveField}>
-                        <Text style={styles.saveButtonText}>✓</Text>
-                      </View>
-                      <View style={styles.cancelButton} onStartShouldSetResponder={() => true} onResponderGrant={cancelEditing}>
-                        <Text style={styles.cancelButtonText}>✗</Text>
-                      </View>
-                    </View>
-                  </View>
-                ) : (
-                  <Text style={styles.optionValue}>{profileData.email || 'Tap to set'}</Text>
-                )}
-              </View>
-            </ScrollView>
-          </View>
-        </View>
-      )}
+
       
     </View>
   );
@@ -9034,7 +9025,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   
-  profileSettingsButton: {
+  profileEditModeButton: {
     position: 'absolute',
     top: 20,
     right: 20,
@@ -9053,8 +9044,30 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   
-  profileSettingsIcon: {
+  profileEditModeButtonActive: {
+    backgroundColor: THRIVE_COLORS.primary,
+  },
+  
+  profileEditModeIcon: {
     fontSize: 18,
+    color: '#666',
+  },
+  
+  editModeIndicator: {
+    position: 'absolute',
+    top: 70,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    borderRadius: 8,
+    padding: 8,
+    alignItems: 'center',
+  },
+  
+  editModeIndicatorText: {
+    fontSize: 12,
+    color: THRIVE_COLORS.primary,
+    fontWeight: '600',
   },
   
   profileAvatarContainerTop: {
@@ -9231,6 +9244,124 @@ const styles = StyleSheet.create({
   messageButtonText: {
     color: THRIVE_COLORS.primary,
     fontSize: 14,
+    fontWeight: '600',
+  },
+  
+  // 🎨 Editable Card System Styles
+  editableCard: {
+    borderRadius: 8,
+    marginVertical: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  
+  editableCardActive: {
+    backgroundColor: 'rgba(76, 175, 80, 0.05)',
+    borderWidth: 2,
+    borderColor: 'rgba(76, 175, 80, 0.3)',
+    borderStyle: 'dashed',
+  },
+  
+  editableCardEditing: {
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    borderColor: THRIVE_COLORS.primary,
+    borderStyle: 'solid',
+  },
+  
+  editableInlineCard: {
+    borderRadius: 4,
+    marginVertical: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  
+  editCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  
+  editCardLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: THRIVE_COLORS.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  
+  editCardActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  
+  saveCardButton: {
+    backgroundColor: THRIVE_COLORS.primary,
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+  saveCardButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  
+  editableText: {
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  
+  editableTextInput: {
+    borderWidth: 1,
+    borderColor: THRIVE_COLORS.primary,
+    borderRadius: 6,
+    padding: 12,
+    fontSize: 14,
+    backgroundColor: 'white',
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  
+  editableTextInputInline: {
+    borderWidth: 1,
+    borderColor: THRIVE_COLORS.primary,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: 'white',
+  },
+  
+  editableLinkContainer: {
+    marginRight: 12,
+    marginBottom: 4,
+  },
+  
+  editableLinkInput: {
+    borderWidth: 1,
+    borderColor: THRIVE_COLORS.primary,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    fontSize: 12,
+    backgroundColor: 'white',
+    minWidth: 100,
+  },
+  
+  editableTagInput: {
+    borderWidth: 1,
+    borderColor: THRIVE_COLORS.primary,
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    fontSize: 12,
+    backgroundColor: 'white',
+    color: THRIVE_COLORS.primary,
     fontWeight: '600',
   },
   
@@ -13672,20 +13803,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   
-  // Profile Settings Modal Styles
-  profileSettingsModal: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    width: '90%',
-    maxWidth: 500,
-    maxHeight: '85%',
-    overflow: 'hidden',
-  },
-  
-  profileSettingsContent: {
-    maxHeight: 500,
-    paddingBottom: 20,
-  },
+
 
 });
 
