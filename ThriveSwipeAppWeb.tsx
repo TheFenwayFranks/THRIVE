@@ -6919,6 +6919,12 @@ const styles = StyleSheet.create({
     minHeight: '100vh', // Web-specific full height
     overflow: 'hidden', // Prevent scrolling when menus slide
     position: 'relative', // Ensure proper positioning context
+    // Anti-zoom properties for web
+    touchAction: 'manipulation', // Disable double-tap zoom
+    userSelect: 'none', // Prevent text selection
+    webkitUserSelect: 'none', // Safari
+    msUserSelect: 'none', // IE/Edge
+    webkitTouchCallout: 'none', // iOS Safari
   },
   header: {
     paddingTop: 60,
