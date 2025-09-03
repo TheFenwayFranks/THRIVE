@@ -4,7 +4,7 @@ module.exports = {
       name: 'thrive-expo-web',
       script: 'npx',
       args: 'expo start --web --port 19006',
-      cwd: '/home/user/THRIVEMobile',
+      cwd: '/home/user/webapp',
       env: {
         NODE_ENV: 'development',
         PORT: 19006

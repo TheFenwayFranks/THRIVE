@@ -33,7 +33,7 @@ import { ProgressStorageService } from './src/services/ProgressStorageService';
 // ENHANCED THRIVE DASHBOARD - Full ADHD-Optimized Interface
 // Includes: Quick Access + Dashboard + Smart Shortcuts + Minimal Navigation
 
-// NUCLEAR REBUILT: Bulletproof Task Card Component with Completion Visual Feedback
+// Animated Task Card Component with Completion Visual Feedback
 interface AnimatedTaskCardProps {
   task: DailyTask;
   isCompleted: boolean;
@@ -46,36 +46,33 @@ function AnimatedTaskCard({ task, isCompleted, isCompleting, onStartTask, onComp
   const { theme } = useTheme();
   const styles = createStyles(theme);
   
-  // NUCLEAR REBUILD: Simplified and bulletproof animation values
+  // Animation values
+  const heightAnim = useRef(new Animated.Value(1)).current;
+  const opacityAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const checkmarkOpacity = useRef(new Animated.Value(0)).current;
+  const checkmarkAnim = useRef(new Animated.Value(0)).current;
   
-  // NUCLEAR REBUILD: Completely bulletproof completion state handling
   useEffect(() => {
-    console.log('🔥 NUCLEAR AnimatedTaskCard: isCompleted =', isCompleted, 'isCompleting =', isCompleting, 'taskId =', task.id);
-    
     if (isCompleted) {
-      // NUCLEAR FIX: FORCE checkmark to 100% visibility immediately
-      checkmarkOpacity.setValue(1);
-      console.log('✅ NUCLEAR: Checkmark FORCED to visible for task', task.id);
+      // FORCE the checkmark to show - no hiding it
+      checkmarkAnim.setValue(1);
+      // Also animate it for good measure
+      Animated.spring(checkmarkAnim, {
+        toValue: 1,
+        tension: 80,
+        friction: 8,
+        useNativeDriver: false,
+      }).start();
     } else {
       // Reset checkmark when not completed
-      checkmarkOpacity.setValue(0);
-      console.log('❌ NUCLEAR: Checkmark reset to hidden for task', task.id);
+      checkmarkAnim.setValue(0);
     }
     
-    // NUCLEAR FIX: Simplified completing animation
     if (isCompleting) {
-      console.log('⏳ NUCLEAR: Running completion animation for task', task.id);
       Animated.sequence([
         Animated.timing(scaleAnim, {
-          toValue: 0.95,
-          duration: 150,
-          useNativeDriver: false,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 1.02,
-          duration: 150,
+          toValue: 0.98,
+          duration: 100,
           useNativeDriver: false,
         }),
         Animated.timing(scaleAnim, {
@@ -85,36 +82,27 @@ function AnimatedTaskCard({ task, isCompleted, isCompleting, onStartTask, onComp
         })
       ]).start();
     }
-  }, [isCompleted, isCompleting, task.id]);
+  }, [isCompleted, isCompleting]);
   
-  // NUCLEAR REBUILD: Bulletproof card rendering
   return (
     <Animated.View 
       style={[
         styles.dailyTaskCard,
-        // NUCLEAR FIX: Always apply completion style when completed
-        isCompleted ? styles.completedTaskCard : null,
+        isCompleted && styles.completedTaskCard,
         {
           transform: [{ scale: scaleAnim }],
         }
       ]}
     >
-      {/* NUCLEAR REBUILD: Always render checkmark container, control visibility with opacity */}
-      <Animated.View 
-        style={[
-          styles.completionCheckmark, 
-          { 
-            opacity: checkmarkOpacity,
-            // NUCLEAR FIX: Force positioning and visibility when completed
-            display: isCompleted ? 'flex' : 'none'
-          }
-        ]}
-      >
-        <Text style={styles.checkmarkText}>✓</Text>
-      </Animated.View>
+      {/* Completion Checkmark */}
+      {isCompleted && (
+        <Animated.View style={[styles.completionCheckmark, { opacity: checkmarkAnim }]}>
+          <Text style={styles.checkmarkText}>✓</Text>
+        </Animated.View>
+      )}
       
       {/* Task Content */}
-      <View style={[styles.taskContent, isCompleted ? styles.completedTaskContent : null]}>
+      <View style={[styles.taskContent, isCompleted && styles.completedTaskContent]}>
         <View style={styles.taskHeader}>
           <Text style={styles.taskType}>
             {task.type === 'fitness' ? '💪' : task.type === 'mental_health' ? '🧠' : '🧘'} 
@@ -127,7 +115,6 @@ function AnimatedTaskCard({ task, isCompleted, isCompleting, onStartTask, onComp
         <Text style={styles.taskDescription}>{task.description}</Text>
         <Text style={styles.taskDuration}>⏱️ {task.duration} minutes</Text>
         
-        {/* NUCLEAR FIX: Only show buttons when NOT completed */}
         {!isCompleted && (
           <>
             <View style={styles.taskBenefits}>
@@ -145,26 +132,16 @@ function AnimatedTaskCard({ task, isCompleted, isCompleting, onStartTask, onComp
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={[
-                styles.completeTaskButton, 
-                isCompleting ? styles.completingTaskButton : null
-              ]}
+              style={[styles.completeTaskButton, isCompleting && styles.completingTaskButton]}
               onPress={onCompleteTask}
               activeOpacity={0.7}
               disabled={isCompleting}
             >
               <Text style={styles.completeTaskButtonText}>
-                {isCompleting ? '⏳ Completing...' : '✅ Mark Complete'}
+                {isCompleting ? 'Completing...' : 'Mark Complete'}
               </Text>
             </TouchableOpacity>
           </>
-        )}
-        
-        {/* NUCLEAR ADDITION: Show completion message when completed */}
-        {isCompleted && (
-          <View style={styles.completedMessage}>
-            <Text style={styles.completedMessageText}>🎉 Completed Today!</Text>
-          </View>
         )}
       </View>
     </Animated.View>
@@ -2259,53 +2236,29 @@ export default function EmergencyEnhanced() {
                   setShowTaskDetail(true);
                 }}
                 onCompleteTask={async () => {
-                  console.log('🔥 NUCLEAR HOME PAGE: Starting task completion for', task.id, task.title);
-                  
                   try {
-                    // NUCLEAR FIX: Show completing state immediately
-                    console.log('⏳ NUCLEAR: Setting completing state for task', task.id);
-                    setCompletingTasks(prev => {
-                      const newSet = new Set([...prev, task.id]);
-                      console.log('⏳ NUCLEAR: New completing tasks set:', Array.from(newSet));
-                      return newSet;
-                    });
+                    // Show completing state (green flash)
+                    setCompletingTasks(prev => new Set([...prev, task.id]));
                     
-                    // NUCLEAR FIX: Complete the task with detailed logging
-                    console.log('💾 NUCLEAR: Calling DailyTaskManager.completeTask for', task.id);
+                    // Complete the task
                     await DailyTaskManager.completeTask(task.id, 'good');
-                    console.log('✅ NUCLEAR: DailyTaskManager.completeTask SUCCESS for', task.id);
                     
-                    // NUCLEAR FIX: Mark as completed with bulletproof state update
-                    console.log('🎯 NUCLEAR: Setting completed state for task', task.id);
-                    setCompletedTasks(prev => {
-                      const newSet = new Set([...prev, task.id]);
-                      console.log('✅ NUCLEAR: New completed tasks set:', Array.from(newSet));
-                      return newSet;
-                    });
+                    // Mark as completed (permanent green tint + checkmark)
+                    setCompletedTasks(prev => new Set([...prev, task.id]));
                     
-                    // NUCLEAR FIX: Small delay to ensure state propagation
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    
-                    // NUCLEAR FIX: Remove from completing state
-                    console.log('🏁 NUCLEAR: Removing completing state for task', task.id);
+                    // Remove from completing state
                     setCompletingTasks(prev => {
                       const newSet = new Set(prev);
                       newSet.delete(task.id);
-                      console.log('🏁 NUCLEAR: Final completing tasks set:', Array.from(newSet));
                       return newSet;
                     });
-                    
-                    console.log('🎉 NUCLEAR HOME PAGE: Task completion SUCCESS for', task.id);
                     
                   } catch (error) {
-                    console.error('❌ NUCLEAR HOME PAGE: Task completion ERROR for', task.id, error);
-                    Alert.alert('Error', 'Failed to complete task: ' + (error as Error).message);
-                    
-                    // NUCLEAR FIX: Remove from completing state on error
+                    Alert.alert('Error', 'Failed to complete task');
+                    // Remove from completing state on error
                     setCompletingTasks(prev => {
                       const newSet = new Set(prev);
                       newSet.delete(task.id);
-                      console.log('❌ NUCLEAR: Cleared completing state after error for', task.id);
                       return newSet;
                     });
                   }
@@ -2686,56 +2639,27 @@ export default function EmergencyEnhanced() {
             setShowTaskDetail(false);
             setSelectedTask(null);
           }}
-onComplete={async (performance: 'poor' | 'good' | 'excellent') => {
-            console.log('🔥 NUCLEAR TASKDETAIL: Starting task completion for', selectedTask.id, selectedTask.title, 'performance:', performance);
-            
+          onComplete={async (performance: 'poor' | 'good' | 'excellent') => {
             try {
-              // NUCLEAR FIX: Store task reference before any async operations
+              // Complete the task
+              await DailyTaskManager.completeTask(selectedTask.id, performance);
+              
+              // Store completed task reference
               const completedTask = selectedTask;
-              console.log('💾 NUCLEAR TASKDETAIL: Stored task reference:', completedTask.id);
               
-              // NUCLEAR FIX: Complete the task with detailed logging
-              console.log('💾 NUCLEAR TASKDETAIL: Calling DailyTaskManager.completeTask for', completedTask.id);
-              await DailyTaskManager.completeTask(completedTask.id, performance);
-              console.log('✅ NUCLEAR TASKDETAIL: DailyTaskManager.completeTask SUCCESS for', completedTask.id);
-              
-              // NUCLEAR FIX: Close detail screen immediately
-              console.log('🚪 NUCLEAR TASKDETAIL: Closing detail screen for', completedTask.id);
+              // Close detail screen first
               setShowTaskDetail(false);
               setSelectedTask(null);
-              console.log('🚪 NUCLEAR TASKDETAIL: Detail screen closed');
               
-              // NUCLEAR FIX: Small delay to ensure UI state propagation
-              await new Promise(resolve => setTimeout(resolve, 50));
+              // Mark as completed (triggers checkmark on home page)
+              setCompletedTasks(prev => new Set([...prev, completedTask.id]));
               
-              // NUCLEAR FIX: Mark as completed with bulletproof state update
-              console.log('🎯 NUCLEAR TASKDETAIL: Setting completed state for task', completedTask.id);
-              setCompletedTasks(prev => {
-                const newSet = new Set([...prev, completedTask.id]);
-                console.log('✅ NUCLEAR TASKDETAIL: New completed tasks set:', Array.from(newSet));
-                return newSet;
-              });
-              
-              // NUCLEAR FIX: Refresh progress stats
-              try {
-                const { progress, stats } = await DailyTaskManager.getProgressStats();
-                setUserProgress(progress);
-                setProgressStats(stats);
-                console.log('📈 NUCLEAR TASKDETAIL: Progress stats refreshed');
-              } catch (statsError) {
-                console.warn('⚠️ NUCLEAR TASKDETAIL: Failed to refresh stats:', statsError);
-              }
-              
-              console.log('🎉 NUCLEAR TASKDETAIL: Task completion SUCCESS - screen closed, checkmark visible');
-              
+              // NO MOOD TRACKER - CHECKMARK STAYS VISIBLE
+              // Task completion is DONE, checkmark should be permanent
             } catch (error) {
-              console.error('❌ NUCLEAR TASKDETAIL: Task completion ERROR for', selectedTask.id, error);
-              Alert.alert('Error', 'Failed to save task completion: ' + (error as Error).message);
-              
-              // NUCLEAR FIX: Don't close screen on error, let user retry
-              console.log('❌ NUCLEAR TASKDETAIL: Keeping screen open due to error');
+              Alert.alert('Error', 'Failed to save task completion');
             }
-          }
+          }}
           onStartTimer={(duration: number) => {
             // Optional: integrate with existing timer if needed
           }}
@@ -7002,21 +6926,6 @@ const createStyles = (theme: any) => StyleSheet.create({
   
   completedTaskContent: {
     // Keep content as-is when completed
-  },
-  
-  completedMessage: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: '#4CAF50',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  
-  completedMessageText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
   },
   
   completionCheckmark: {

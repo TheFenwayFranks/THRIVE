@@ -2,11 +2,11 @@ module.exports = {
   apps: [{
     name: 'thrive-emergency',
     script: 'npx',
-    args: 'expo start --web --port 3000',
-    cwd: '/home/user/THRIVEMobile',
+    args: 'expo start --web --port 19007',
+    cwd: '/home/user/webapp',
     env: {
       NODE_ENV: 'development',
-      PORT: 3000
+      PORT: 19007
     },
     watch: false,
     instances: 1,
