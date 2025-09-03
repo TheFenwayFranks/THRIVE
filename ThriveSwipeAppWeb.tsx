@@ -6919,12 +6919,17 @@ const styles = StyleSheet.create({
     minHeight: '100vh', // Web-specific full height
     overflow: 'hidden', // Prevent scrolling when menus slide
     position: 'relative', // Ensure proper positioning context
-    // Anti-zoom properties for web
-    touchAction: 'manipulation', // Disable double-tap zoom
+    // Comprehensive anti-zoom properties for web
+    touchAction: 'pan-x pan-y', // Only allow panning, no zoom
     userSelect: 'none', // Prevent text selection
     webkitUserSelect: 'none', // Safari
     msUserSelect: 'none', // IE/Edge
     webkitTouchCallout: 'none', // iOS Safari
+    webkitTapHighlightColor: 'transparent', // Remove tap highlights
+    msContentZooming: 'none', // IE/Edge
+    msTouchAction: 'pan-x pan-y', // IE/Edge
+    zoom: 1, // Force zoom level
+    transform: 'scale(1)', // Force scale
   },
   header: {
     paddingTop: 60,
@@ -9328,10 +9333,12 @@ const styles = StyleSheet.create({
     borderColor: THRIVE_COLORS.primary,
     borderRadius: 6,
     padding: 12,
-    fontSize: 14,
+    fontSize: 16, // Minimum 16px to prevent zoom on iOS
     backgroundColor: 'white',
     minHeight: 80,
     textAlignVertical: 'top',
+    touchAction: 'manipulation',
+    webkitAppearance: 'none',
   },
   
   editableTextInputInline: {
@@ -9341,6 +9348,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     backgroundColor: 'white',
+    fontSize: 16, // Minimum 16px to prevent zoom on iOS
+    touchAction: 'manipulation',
+    webkitAppearance: 'none',
   },
   
   editableLinkContainer: {
@@ -9354,9 +9364,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    fontSize: 12,
+    fontSize: 16, // Minimum 16px to prevent zoom on iOS
     backgroundColor: 'white',
     minWidth: 100,
+    touchAction: 'manipulation',
+    webkitAppearance: 'none',
   },
   
   editableTagInput: {
@@ -9365,10 +9377,25 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 3,
-    fontSize: 12,
+    fontSize: 16, // Minimum 16px to prevent zoom on iOS
     backgroundColor: 'white',
     color: THRIVE_COLORS.primary,
     fontWeight: '600',
+  },
+  
+  // Anti-zoom styles for all interactive elements
+  antiZoomButton: {
+    touchAction: 'manipulation',
+    userSelect: 'none',
+    webkitUserSelect: 'none',
+    webkitTouchCallout: 'none',
+    webkitTapHighlightColor: 'transparent',
+  },
+  
+  antiZoomInput: {
+    fontSize: 16, // Minimum 16px to prevent zoom on iOS
+    touchAction: 'manipulation',
+    webkitAppearance: 'none',
   },
   
   challengeButton: {

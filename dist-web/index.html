@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no, viewport-fit=cover" />
     <title>THRIVE Mobile</title>
     <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
     <style id="expo-reset">
@@ -23,23 +23,101 @@
         flex: 1;
       }
       
-      /* Anti-zoom styles */
+      /* Comprehensive Anti-zoom styles */
       html, body {
-        touch-action: manipulation !important;
+        touch-action: pan-x pan-y !important;
         user-select: none !important;
         -webkit-user-select: none !important;
         -moz-user-select: none !important;
         -ms-user-select: none !important;
         -webkit-touch-callout: none !important;
         -webkit-tap-highlight-color: transparent !important;
+        -ms-content-zooming: none !important;
+        -ms-touch-action: pan-x pan-y !important;
+        transform: scale(1) !important;
+        zoom: 1 !important;
       }
       
-      * {
-        touch-action: manipulation !important;
+      *, *::before, *::after {
+        touch-action: pan-x pan-y !important;
         -webkit-touch-callout: none !important;
         -webkit-tap-highlight-color: transparent !important;
+        -webkit-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+        -ms-content-zooming: none !important;
+        zoom: 1 !important;
+      }
+      
+      /* Prevent zoom on input focus */
+      input, textarea, select, button {
+        font-size: 16px !important;
+        touch-action: manipulation !important;
+        -webkit-appearance: none !important;
+      }
+      
+      /* Force zoom level */
+      @media screen and (max-width: 768px) {
+        html, body {
+          zoom: 1 !important;
+          -moz-transform: scale(1) !important;
+          -webkit-transform: scale(1) !important;
+          transform: scale(1) !important;
+        }
       }
     </style>
+    
+    <script>
+      // JavaScript zoom prevention
+      document.addEventListener('DOMContentLoaded', function() {
+        // Prevent zoom shortcuts
+        document.addEventListener('keydown', function(e) {
+          if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '0')) {
+            e.preventDefault();
+            return false;
+          }
+        });
+        
+        // Prevent double-tap zoom
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+          const now = (new Date()).getTime();
+          if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+          }
+          lastTouchEnd = now;
+        }, false);
+        
+        // Prevent pinch zoom
+        document.addEventListener('gesturestart', function(e) {
+          e.preventDefault();
+        });
+        
+        document.addEventListener('gesturechange', function(e) {
+          e.preventDefault();
+        });
+        
+        document.addEventListener('gestureend', function(e) {
+          e.preventDefault();
+        });
+        
+        // Prevent wheel zoom
+        document.addEventListener('wheel', function(e) {
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            return false;
+          }
+        }, { passive: false });
+        
+        // Force zoom reset periodically
+        setInterval(function() {
+          if (document.body.style.zoom !== '1' && document.body.style.zoom !== '') {
+            document.body.style.zoom = '1';
+          }
+        }, 100);
+      });
+    </script>
   <link rel="icon" href="/favicon.ico" /></head>
 
   <body>
