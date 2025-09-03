@@ -2118,11 +2118,8 @@ const ThriveSwipeAppWeb = () => {
         
       case 'question':
         // Navigate to Profile page and open Q&A modal for questions
-        goToPage(1); // Profile page
-        // Open the Q&A modal after navigation
-        setTimeout(() => {
-          setShowAskQuestion(true);
-        }, 300); // Small delay for page transition
+        setShowAskQuestion(true); // Open Q&A modal first
+        goToPage(1); // Navigate to Profile page
         break;
         
       default:
@@ -3151,101 +3148,6 @@ const ThriveSwipeAppWeb = () => {
                 
                 {/* Removed post creation section - profile now focuses on wellness routines */}
 
-
-                    
-                    {/* Enhanced attached media preview */}
-                    {selectedPhotoFile && (
-                      <View style={styles.attachmentPreview}>
-                        <View style={styles.attachmentInfo}>
-                          <Text style={styles.attachmentLabel}>
-                            {(() => {
-                              const metadata = window.selectedFileMetadata;
-                              if (metadata) {
-                                const icons = {
-                                  library: '📷',
-                                  camera: '📸', 
-                                  files: '📁'
-                                };
-                                const icon = icons[metadata.source] || '📎';
-                                const sizeText = metadata.size ? ` (${(metadata.size / 1024 / 1024).toFixed(1)}MB)` : '';
-                                return `${icon} ${metadata.name || 'File attached'}${sizeText}`;
-                              }
-                              return '📎 File attached';
-                            })()}
-                          </Text>
-                          {window.selectedFileMetadata && window.selectedFileMetadata.source && (
-                            <Text style={styles.attachmentSource}>
-                              via {window.selectedFileMetadata.source === 'library' ? 'Photo Library' : 
-                                   window.selectedFileMetadata.source === 'camera' ? 'Camera' : 'File Browser'}
-                            </Text>
-                          )}
-                        </View>
-                        <View 
-                          style={styles.removeAttachment}
-                          onStartShouldSetResponder={() => true}
-                          onResponderGrant={() => {
-                            setSelectedPhotoFile(null);
-                            window.selectedFileMetadata = null;
-                            console.log('🗑️ Attachment removed by user');
-                          }}
-                          onTouchStart={() => {
-                            setSelectedPhotoFile(null);
-                            window.selectedFileMetadata = null;
-                            console.log('🗑️ Attachment removed by user');
-                          }}
-                          onClick={() => {
-                            setSelectedPhotoFile(null);
-                            window.selectedFileMetadata = null;
-                            console.log('🗑️ Attachment removed by user');
-                          }}
-                        >
-                          <Text style={styles.removeAttachmentText}>Remove</Text>
-                        </View>
-                      </View>
-                    )}
-                  </View>
-                  
-                  {/* Recent Posts Feed */}
-                  {uploadedPhotos.length > 0 && (
-                    <View style={styles.recentPostsContainer}>
-                      <Text style={styles.recentPostsTitle}>Your Recent Posts</Text>
-                      {uploadedPhotos.slice(0, 3).map((photo) => (
-                        <View key={photo.id} style={styles.postCard}>
-                          <View style={styles.postHeader}>
-                            <View style={styles.postUserInfo}>
-                              <Text style={styles.postUserAvatar}>{profileData.name ? profileData.name.charAt(0).toUpperCase() : '👤'}</Text>
-                              <View>
-                                <Text style={styles.postUserName}>{profileData.name || 'User'}</Text>
-                                <Text style={styles.postTimestamp}>{new Date(photo.timestamp).toLocaleDateString()}</Text>
-                              </View>
-                            </View>
-                          </View>
-                          
-                          {photo.caption && (
-                            <Text style={styles.postCaption}>{photo.caption}</Text>
-                          )}
-                          
-                          {photo.url && (
-                            <View style={styles.postImageContainer}>
-                              {photo.url.startsWith('data:') ? (
-                                <img 
-                                  src={photo.url} 
-                                  alt={photo.caption || 'Post image'}
-                                  style={styles.postImage}
-                                />
-                              ) : (
-                                <View style={styles.postPlaceholder}>
-                                  <Text style={styles.postPlaceholderIcon}>📸</Text>
-                                </View>
-                              )}
-                            </View>
-                          )}
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                </View>
-                
                 {/* Success Routines - Customizable Playlists */}
                 <View style={styles.profileSection}>
                   <View style={styles.sectionHeader}>
@@ -4002,9 +3904,6 @@ const ThriveSwipeAppWeb = () => {
                     </View>
                   </View>
                 )}
-                
-              </View>
-            </ScrollView>
                 
                 {/* Q&A Tab Content */}
                 {activeProfileTab === 3 && (
@@ -5025,8 +4924,8 @@ const ThriveSwipeAppWeb = () => {
                   </View>
                 </View>
               )}
-              
-            </View>
+              </View>
+            </ScrollView>
           </View>
           
           {/* Goals Page */}
@@ -5327,240 +5226,14 @@ const ThriveSwipeAppWeb = () => {
       {/* Removed Photo Source Selector Modal */}
       
       {/* Removed disabled Photo Upload Modal */}
-        <View style={styles.photoModalOverlay}>
-          <View style={styles.photoUploadModal}>
-            <View style={styles.photoUploadHeader}>
-              <Text style={styles.photoUploadTitle}>Upload Photo</Text>
-              <View 
-                style={styles.photoCloseButton}
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={() => setShowPhotoUpload(false)}
-              >
-                <Text style={styles.photoCloseButtonText}>×</Text>
-              </View>
-            </View>
-            
-            <ScrollView style={styles.photoUploadContent} showsVerticalScrollIndicator={false}>
-              {/* Photo Source Display */}
-              <View style={styles.photoSourceDisplay}>
-                <Text style={styles.photoUploadLabel}>
-                  {photoSource === 'camera' ? '📷 Camera Photo' : '🖼️ Photo Library'}
-                </Text>
-                <View style={styles.photoSourceInfo}>
-                  <Text style={styles.photoSourceInfoText}>
-                    {photoSource === 'camera' 
-                      ? 'Photo from camera (web browser may open file picker)' 
-                      : 'Photo selected from library'
-                    }
-                  </Text>
-                  <Text style={styles.webBrowserNote}>
-                    💡 For full camera access, install the native app. Web browsers have limited camera support.
-                  </Text>
-                </View>
-              </View>
 
-              {/* Photo Preview and Selection */}
-              <View style={styles.photoFileSection}>
-                {selectedPhotoFile ? (
-                  <View style={styles.photoPreviewSection}>
-                    <View style={styles.photoPreviewContainer}>
-                      <View style={styles.photoPreviewImage}>
-                        {selectedPhotoFile ? (
-                          <img 
-                            src={selectedPhotoFile} 
-                            alt="Photo Preview"
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                              borderRadius: 8
-                            }}
-                          />
-                        ) : (
-                          <>
-                            <Text style={styles.photoPreviewPlaceholder}>📸</Text>
-                            <Text style={styles.photoPreviewImageText}>Photo Preview</Text>
-                          </>
-                        )}
-                      </View>
-                    </View>
-                    <View style={styles.photoPreviewActions}>
-                      <View 
-                        style={styles.retakePhotoButton}
-                        onStartShouldSetResponder={() => true}
-                        onResponderGrant={handleRetakePhoto}
-                      >
-                        <Text style={styles.retakePhotoButtonText}>
-                          {photoSource === 'camera' ? '📷 Retake Photo' : '🖼️ Choose Different Photo'}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                ) : (
-                  <View style={styles.photoWaitingSection}>
-                    <View style={styles.photoWaitingIcon}>
-                      <Text style={styles.photoWaitingIconText}>
-                        {photoSource === 'camera' ? '📷' : '🖼️'}
-                      </Text>
-                    </View>
-                    <Text style={styles.photoWaitingText}>
-                      {photoSource === 'camera' 
-                        ? 'Tap "Open Camera" to select a photo (web browsers may show file picker)' 
-                        : 'Tap "Open Photo Library" to select a photo from your device'
-                      }
-                    </Text>
-                    <View 
-                      style={styles.retryPhotoButton}
-                      onStartShouldSetResponder={() => true}
-                      onResponderGrant={(e) => {
-                        e.stopPropagation();
-                        if (photoSource === 'camera') {
-                          handleCameraCapture();
-                        } else {
-                          handleLibrarySelection();
-                        }
-                      }}
-                      onResponderMove={() => false}
-                      onResponderEnd={() => true}
-                    >
-                      <Text style={styles.retryPhotoButtonText}>
-                        {photoSource === 'camera' ? 'Open Camera' : 'Open Photo Library'}
-                      </Text>
-                    </View>
-                    
-                    {/* Alternative: Caption-only option */}
-                    <View 
-                      style={styles.captionOnlyButton}
-                      onStartShouldSetResponder={() => true}
-                      onResponderGrant={(e) => {
-                        e.stopPropagation();
-                        // Skip photo and allow caption-only post
-                        setSelectedPhotoFile('placeholder');
-                      }}
-                      onResponderMove={() => false}
-                      onResponderEnd={() => true}
-                    >
-                      <Text style={styles.captionOnlyButtonText}>
-                        📝 Skip Photo - Add Caption Only
-                      </Text>
-                    </View>
-                  </View>
-                )}
-              </View>
-              
-              {/* Caption Input */}
-              <View style={styles.photoInputSection}>
-                <Text style={styles.photoUploadLabel}>Caption</Text>
-                <View style={styles.photoTextInput}>
-                  <input
-                    type="text"
-                    value={newPhotoCaption}
-                    onChange={(e) => setNewPhotoCaption(e.target.value)}
-                    placeholder="Add a caption... Use #hashtags for topics!"
-                    style={styles.photoInputField}
-                  />
-                </View>
-              </View>
-              
-              {/* Note: Tags are now extracted from hashtags in caption */}
-              
-              {/* Upload Button */}
-              <View style={styles.photoUploadActions}>
-                <View 
-                  style={styles.photoCancelButton}
-                  onStartShouldSetResponder={() => true}
-                  onResponderGrant={() => setShowPhotoUpload(false)}
-                >
-                  <Text style={styles.photoCancelButtonText}>Cancel</Text>
-                </View>
-                <View 
-                  style={styles.photoSubmitButton}
-                  onStartShouldSetResponder={() => true}
-                  onResponderGrant={handlePhotoSubmit}
-                >
-                  <Text style={styles.photoSubmitButtonText}>Upload Photo</Text>
-                </View>
-              </View>
-            </ScrollView>
-          </View>
-        </View>
-      )}
+
+
+
+
+
       
-      {/* Photo Detail Modal */}
-      {showPhotoDetail && (
-        <View style={styles.photoModalOverlay}>
-          <View style={styles.photoDetailModal}>
-            <View style={styles.photoDetailHeader}>
-              <Text style={styles.photoDetailTitle}>Photo Details</Text>
-              <View 
-                style={styles.photoCloseButton}
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={() => setShowPhotoDetail(null)}
-              >
-                <Text style={styles.photoCloseButtonText}>×</Text>
-              </View>
-            </View>
-            
-            <View style={styles.photoDetailContent}>
-              {/* Photo Display */}
-              <View style={styles.photoDetailImage}>
-                <Text style={styles.photoDetailPlaceholder}>📸</Text>
-                <Text style={styles.photoDetailImageText}>Photo Preview</Text>
-              </View>
-              
-              {/* Caption */}
-              <View style={styles.photoDetailSection}>
-                <Text style={styles.photoDetailLabel}>Caption</Text>
-                <Text style={styles.photoDetailText}>{showPhotoDetail.caption}</Text>
-              </View>
-              
-              {/* Tags */}
-              {showPhotoDetail.tags && showPhotoDetail.tags.length > 0 && (
-                <View style={styles.photoDetailSection}>
-                  <Text style={styles.photoDetailLabel}>Tags</Text>
-                  <Text style={styles.photoDetailTags}>
-                    {formatTagsForDisplay(showPhotoDetail.tags)}
-                  </Text>
-                </View>
-              )}
-              
-              {/* Timestamp */}
-              <View style={styles.photoDetailSection}>
-                <Text style={styles.photoDetailLabel}>Posted</Text>
-                <Text style={styles.photoDetailText}>
-                  {showPhotoDetail.timestamp?.toLocaleDateString()} at {showPhotoDetail.timestamp?.toLocaleTimeString()}
-                </Text>
-              </View>
-              
-              {/* Actions */}
-              <View style={styles.photoDetailActions}>
-                {!showPhotoDetail.isPinned && (
-                  <View 
-                    style={styles.photoActionButton}
-                    onStartShouldSetResponder={() => true}
-                    onResponderGrant={() => {
-                      handlePhotoPin(showPhotoDetail.id);
-                      setShowPhotoDetail(null);
-                    }}
-                  >
-                    <Text style={styles.photoActionButtonText}>📌 Pin Photo</Text>
-                  </View>
-                )}
-                <View 
-                  style={[styles.photoActionButton, styles.photoDeleteAction]}
-                  onStartShouldSetResponder={() => true}
-                  onResponderGrant={() => {
-                    handlePhotoDelete(showPhotoDetail.id);
-                    setShowPhotoDetail(null);
-                  }}
-                >
-                  <Text style={styles.photoDeleteActionText}>🗑️ Delete</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-        </View>
-      )}
+      {/* Removed Photo Detail Modal */}
       
       {/* Ask Question Modal */}
       {showAskQuestion && (
@@ -6560,8 +6233,8 @@ const ThriveSwipeAppWeb = () => {
                                 setShowTaskStarter(null);
                                 // Navigate to expanded routine view
                                 setExpandedRoutine(routine.id);
+                                setActiveProfileTab(2); // Switch to Routines tab first
                                 goToPage(1); // Go to Profile page
-                                setTimeout(() => setActiveProfileTab(2), 300); // Switch to Routines tab
                               }}
                             >
                               <Text style={styles.startOptionTitle}>📖 Browse & Learn</Text>
@@ -9220,11 +8893,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E5E5',
   },
   
-  postInputRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
+
   
   userAvatarSmall: {
     width: 36,
@@ -9312,50 +8981,11 @@ const styles = StyleSheet.create({
     color: '#999',
   },
   
-  attachmentPreview: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#E3F2FD',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 12,
-    borderLeftWidth: 3,
-    borderLeftColor: '#1976D2',
-  },
+
   
-  attachmentInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
+
   
-  attachmentLabel: {
-    fontSize: 14,
-    color: '#1976D2',
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  
-  attachmentSource: {
-    fontSize: 12,
-    color: '#64B5F6',
-    fontWeight: '400',
-    fontStyle: 'italic',
-  },
-  
-  removeAttachment: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    backgroundColor: '#F44336',
-    borderRadius: 4,
-    cursor: 'pointer',
-  },
-  
-  removeAttachmentText: {
-    color: 'white',
-    fontSize: 11,
-    fontWeight: '600',
-  },
+
   
   postCreationCard: {
     backgroundColor: THRIVE_COLORS.white,
@@ -9371,11 +9001,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E5E5',
   },
   
-  postCardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
+
   
   userAvatarContainer: {
     width: 40,
@@ -9393,19 +9019,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   
-  postInputContainer: {
-    flex: 1,
-    backgroundColor: '#F0F2F5',
-    borderRadius: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    cursor: 'pointer',
-  },
-  
-  postInputPlaceholder: {
-    color: '#65676B',
-    fontSize: 16,
-  },
+
   
   postActionsContainer: {
     flexDirection: 'row',
@@ -9435,125 +9049,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   
-  recentPostsContainer: {
-    marginTop: 8,
-  },
-  
-  recentPostsTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: THRIVE_COLORS.black,
-    marginBottom: 12,
-  },
-  
-  postCard: {
-    backgroundColor: THRIVE_COLORS.white,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
-  },
-  
-  postHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  
-  postUserInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  
-  postUserAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: THRIVE_COLORS.primary,
-    color: THRIVE_COLORS.white,
-    textAlign: 'center',
-    lineHeight: 32,
-    fontWeight: '600',
-    fontSize: 14,
-    marginRight: 8,
-  },
-  
-  postUserName: {
-    fontWeight: '600',
-    fontSize: 15,
-    color: THRIVE_COLORS.black,
-  },
-  
-  postTimestamp: {
-    color: '#65676B',
-    fontSize: 13,
-  },
-  
-  postMenuButton: {
-    padding: 4,
-    cursor: 'pointer',
-  },
-  
-  postMenuIcon: {
-    fontSize: 18,
-    color: '#65676B',
-  },
-  
-  postCaption: {
-    fontSize: 15,
-    lineHeight: 20,
-    color: THRIVE_COLORS.black,
-    marginBottom: 12,
-  },
-  
-  postImageContainer: {
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginBottom: 12,
-    cursor: 'pointer',
-  },
-  
-  postImage: {
-    width: '100%',
-    height: 200,
-    objectFit: 'cover',
-  },
-  
-  postPlaceholder: {
-    width: '100%',
-    height: 200,
-    backgroundColor: '#F0F2F5',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  
-  postPlaceholderIcon: {
-    fontSize: 48,
-    opacity: 0.5,
-  },
-  
-  postEngagement: {
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E5E5',
-  },
-  
-  postStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  
-  postStatsText: {
-    color: '#65676B',
-    fontSize: 14,
-  },
+
   
   pinnedLabel: {
     position: 'absolute',
