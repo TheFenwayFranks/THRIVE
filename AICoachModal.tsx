@@ -31,13 +31,15 @@ const AICoachModal: React.FC<AICoachModalProps> = ({ visible, onClose }) => {
   const [showAssessment, setShowAssessment] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [assessmentData, setAssessmentData] = useState<any>({});
+  const [capabilities, setCapabilities] = useState({ hasOpenAI: false, streaming: true, webSearch: true });
   
   const scrollViewRef = useRef<ScrollView>(null);
   const modalAnimation = useRef(new Animated.Value(0)).current;
   
-  // Load initial chat history
+  // Load initial chat history and capabilities
   useEffect(() => {
     setMessages(coachService.getChatHistory());
+    setCapabilities(coachService.getCapabilities());
   }, [coachService]);
 
   // Animate modal
@@ -72,7 +74,13 @@ const AICoachModal: React.FC<AICoachModalProps> = ({ visible, onClose }) => {
     setIsLoading(true);
     
     try {
-      await coachService.sendMessage(messageText);
+      // Enhanced sendMessage with streaming support
+      await coachService.sendMessage(messageText, () => {
+        // Update messages in real-time during streaming
+        setMessages([...coachService.getChatHistory()]);
+      });
+      
+      // Final update
       setMessages([...coachService.getChatHistory()]);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -169,6 +177,22 @@ const AICoachModal: React.FC<AICoachModalProps> = ({ visible, onClose }) => {
             <View style={styles.coachDetails}>
               <Text style={styles.coachName}>{coachProfile.name}</Text>
               <Text style={styles.coachSpecialty}>{coachProfile.specialty}</Text>
+              
+              {/* Enhanced capabilities indicators */}
+              <View style={styles.capabilitiesContainer}>
+                {capabilities.hasOpenAI && (
+                  <Text style={styles.capabilityBadge}>🤖 GPT-5</Text>
+                )}
+                {capabilities.streaming && (
+                  <Text style={styles.capabilityBadge}>⚡ Streaming</Text>
+                )}
+                {capabilities.webSearch && (
+                  <Text style={styles.capabilityBadge}>🔍 Web Search</Text>
+                )}
+                {!capabilities.hasOpenAI && (
+                  <Text style={styles.capabilityBadge}>📝 Mock Mode</Text>
+                )}
+              </View>
             </View>
           </View>
           <View style={styles.headerActions}>
@@ -199,9 +223,21 @@ const AICoachModal: React.FC<AICoachModalProps> = ({ visible, onClose }) => {
                 style={[
                   styles.messageBubble,
                   message.sender === 'user' ? styles.userMessage : styles.coachMessage,
-                  message.isTyping && styles.typingMessage
+                  (message.isTyping || message.isStreaming) && styles.typingMessage
                 ]}
               >
+                {/* Enhanced indicators for streaming and web search */}
+                {message.sender === 'coach' && (message.hasWebSearch || message.isStreaming) && (
+                  <View style={styles.messageIndicators}>
+                    {message.hasWebSearch && (
+                      <Text style={styles.webSearchIndicator}>🔍 Web Search</Text>
+                    )}
+                    {message.isStreaming && (
+                      <Text style={styles.streamingIndicator}>⚡ Live AI</Text>
+                    )}
+                  </View>
+                )}
+                
                 <Text
                   style={[
                     styles.messageText,
@@ -210,7 +246,14 @@ const AICoachModal: React.FC<AICoachModalProps> = ({ visible, onClose }) => {
                 >
                   {message.text}
                 </Text>
-                {!message.isTyping && (
+                
+                {message.isStreaming && (
+                  <View style={styles.streamingCursor}>
+                    <Text style={styles.cursorText}>|</Text>
+                  </View>
+                )}
+                
+                {!message.isTyping && !message.isStreaming && (
                   <Text style={styles.messageTime}>
                     {formatTime(message.timestamp)}
                   </Text>
@@ -426,6 +469,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: THRIVE_COLORS.mediumGray,
     marginTop: 2,
+  },
+  
+  capabilitiesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 6,
+    gap: 4,
+  },
+  
+  capabilityBadge: {
+    fontSize: 10,
+    color: THRIVE_COLORS.primary,
+    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    fontWeight: '600',
   },
   headerActions: {
     flexDirection: 'row',
@@ -697,6 +757,45 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: THRIVE_COLORS.white,
     fontWeight: 'bold',
+  },
+  
+  // Enhanced message indicators
+  messageIndicators: {
+    flexDirection: 'row',
+    marginBottom: 4,
+    gap: 8,
+  },
+  
+  webSearchIndicator: {
+    fontSize: 11,
+    color: THRIVE_COLORS.accent,
+    fontWeight: '600',
+    backgroundColor: 'rgba(116, 185, 255, 0.1)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  
+  streamingIndicator: {
+    fontSize: 11,
+    color: THRIVE_COLORS.primary,
+    fontWeight: '600',
+    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  
+  streamingCursor: {
+    alignItems: 'flex-end',
+    marginTop: 2,
+  },
+  
+  cursorText: {
+    fontSize: 16,
+    color: THRIVE_COLORS.primary,
+    fontWeight: 'bold',
+    opacity: 0.7,
   },
 });
 

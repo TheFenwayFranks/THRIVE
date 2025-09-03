@@ -1,9 +1,9 @@
 import React from 'react';
-import OpenAI from 'openai';
+import { OpenAI } from 'openai';
 
-// OpenAI Integration for AI Coach
-// Note: In production, you should use environment variables or backend proxy for API keys
-// For development/demo, we'll use a mock implementation with your provided structure
+// Enhanced OpenAI Integration for AI Coach with Streaming and Web Search
+// Features: Streaming responses, web search, advanced health coaching
+// Note: In production, use environment variables for API keys
 
 export interface ChatMessage {
   id: string;
@@ -11,6 +11,19 @@ export interface ChatMessage {
   sender: 'user' | 'coach';
   timestamp: Date;
   isTyping?: boolean;
+  isStreaming?: boolean;
+  hasWebSearch?: boolean;
+  searchResults?: string[];
+}
+
+export interface StreamingConfig {
+  enabled: boolean;
+  chunkDelay: number;
+}
+
+export interface WebSearchConfig {
+  enabled: boolean;
+  maxResults: number;
 }
 
 export interface CoachProfile {
@@ -23,6 +36,14 @@ export interface CoachProfile {
 class AICoachService {
   private static instance: AICoachService;
   private chatHistory: ChatMessage[] = [];
+  
+  // Enhanced AI capabilities
+  private userAssessment: UserAssessment;
+  private currentAssessmentStep: number = 0;
+  private assessmentQuestions: AssessmentQuestion[] = [];
+  private openaiClient: OpenAI | null = null;
+  private streamingConfig: StreamingConfig = { enabled: true, chunkDelay: 50 };
+  private webSearchConfig: WebSearchConfig = { enabled: true, maxResults: 3 };
   
   // AI Coach Profile - Bene!
   public readonly coachProfile: CoachProfile = {
@@ -40,13 +61,50 @@ class AICoachService {
   }
 
   private constructor() {
-    // Initialize with welcome message
+    // Initialize OpenAI client (will be enabled when API key is provided)
+    this.initializeOpenAI();
+    
+    // Initialize user assessment
+    this.userAssessment = {
+      hasCompletedAssessment: false,
+      personalInfo: {},
+      fitnessProfile: {},
+      mentalHealthProfile: {},
+      healthMetrics: {},
+      lifestyle: {}
+    };
+    
+    // Initialize assessment questions
+    this.initializeAssessmentQuestions();
+    
+    // Initialize with enhanced welcome message
     this.chatHistory.push({
       id: Date.now().toString(),
-      text: "Hello! I'm Bene, your beneficial AI health coach with deep expertise in health science, fitness, and mental wellness. 🧠💪\n\nBefore we begin your personalized health journey, I'd love to get to know you better through a comprehensive assessment. This will help me provide you with evidence-based, personalized recommendations.\n\nWould you like to start your health assessment now? It takes about 5-7 minutes and covers your fitness background, mental wellness, and lifestyle factors.",
+      text: "Hello! I'm Bene, your beneficial AI health coach with deep expertise in health science, fitness, and mental wellness. 🧠💪\n\nI'm equipped with:\n• Real-time web search for latest health research\n• Streaming responses for natural conversation\n• Comprehensive health assessment system\n\nBefore we begin your personalized health journey, I'd love to get to know you better through a comprehensive assessment. This will help me provide you with evidence-based, personalized recommendations.\n\nWould you like to start your health assessment now?",
       sender: 'coach',
       timestamp: new Date()
     });
+  }
+  
+  // Initialize OpenAI client with enhanced capabilities
+  private initializeOpenAI(): void {
+    try {
+      // Check if API key is available in environment
+      const apiKey = process.env.OPENAI_API_KEY || process.env.REACT_APP_OPENAI_API_KEY;
+      
+      if (apiKey) {
+        this.openaiClient = new OpenAI({
+          apiKey: apiKey,
+          dangerouslyAllowBrowser: true // Only for development
+        });
+        console.log('🎆 Bene: Enhanced OpenAI capabilities initialized!');
+      } else {
+        console.log('📝 Bene: Using mock responses (set OPENAI_API_KEY for live AI)');
+      }
+    } catch (error) {
+      console.warn('⚠️ Bene: OpenAI initialization failed, using mock responses:', error);
+      this.openaiClient = null;
+    }
   }
 
   // Get chat history
@@ -80,24 +138,114 @@ class AICoachService {
     return message;
   }
 
-  // Generate AI response using OpenAI (with your provided structure)
-  public async generateCoachResponse(userMessage: string): Promise<string> {
-    console.log('🤖 Bene generating response for:', userMessage);
+  // Enhanced AI response generation with streaming and web search
+  public async generateCoachResponse(userMessage: string, onStream?: (chunk: string) => void): Promise<string> {
+    console.log('🤖 Bene generating enhanced response for:', userMessage);
+    
     try {
-      // Option 1: Use actual OpenAI API (requires API key)
-      // Uncomment and configure this section for production use:
-      /*
-      const client = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY, // Set your API key
-        dangerouslyAllowBrowser: true // Only for development
-      });
+      // Check if we should use web search for current health information
+      const needsWebSearch = this.shouldUseWebSearch(userMessage);
       
-      const response = await client.chat.completions.create({
-        model: "gpt-4o-mini", // Using a more accessible model
-        messages: [
+      if (this.openaiClient && this.isValidForLiveAI(userMessage)) {
+        return await this.generateLiveAIResponse(userMessage, needsWebSearch, onStream);
+      } else {
+        // Enhanced mock responses with simulated streaming
+        return await this.generateEnhancedMockResponse(userMessage, onStream);
+      }
+    } catch (error) {
+      console.error('Error generating coach response:', error);
+      return "I'm experiencing a temporary issue. Let me try a different approach to help you with your health question!";
+    }
+  }
+  
+  // Determine if web search should be used
+  private shouldUseWebSearch(userMessage: string): boolean {
+    if (!this.webSearchConfig.enabled) return false;
+    
+    const searchTriggers = [
+      'latest', 'recent', 'new study', 'current research', 'today', '2024', '2025',
+      'breaking', 'news', 'update', 'recent findings', 'latest research'
+    ];
+    
+    return searchTriggers.some(trigger => 
+      userMessage.toLowerCase().includes(trigger)
+    );
+  }
+  
+  // Check if message is suitable for live AI (avoid simple greetings for API efficiency)
+  private isValidForLiveAI(userMessage: string): boolean {
+    const message = userMessage.toLowerCase().trim();
+    const simpleGreetings = ['hi', 'hello', 'hey', 'yes', 'no', 'ok', 'thanks'];
+    
+    return message.length > 10 && !simpleGreetings.includes(message);
+  }
+  
+  // Generate response using live OpenAI API with enhanced features
+  private async generateLiveAIResponse(userMessage: string, useWebSearch: boolean, onStream?: (chunk: string) => void): Promise<string> {
+    if (!this.openaiClient) throw new Error('OpenAI client not initialized');
+    
+    const tools = [];
+    if (useWebSearch) {
+      tools.push({ type: "web_search" });
+    }
+    
+    const systemPrompt = this.buildEnhancedSystemPrompt();
+    
+    if (this.streamingConfig.enabled && onStream) {
+      // Use streaming API
+      const stream = await this.openaiClient.responses.create({
+        model: "gpt-5",
+        input: [
           {
             role: "system",
-            content: `You are Bene, an advanced AI health science coach with comprehensive expertise in:
+            content: systemPrompt
+          },
+          {
+            role: "user",
+            content: userMessage
+          }
+        ],
+        tools: tools.length > 0 ? tools : undefined,
+        stream: true
+      });
+      
+      let fullResponse = '';
+      for await (const event of stream) {
+        if (event.output_text) {
+          const chunk = event.output_text.slice(fullResponse.length);
+          fullResponse = event.output_text;
+          onStream(chunk);
+          
+          // Add small delay for natural feel
+          await new Promise(resolve => setTimeout(resolve, this.streamingConfig.chunkDelay));
+        }
+      }
+      
+      return fullResponse;
+    } else {
+      // Use standard API
+      const response = await this.openaiClient.responses.create({
+        model: "gpt-5",
+        input: [
+          {
+            role: "system",
+            content: systemPrompt
+          },
+          {
+            role: "user",
+            content: userMessage
+          }
+        ],
+        tools: tools.length > 0 ? tools : undefined
+      });
+      
+      return response.output_text || "I'm here to help with your health journey!";
+    }
+  }
+  
+  // Build enhanced system prompt with user assessment data
+  private buildEnhancedSystemPrompt(): string {
+    let prompt = `You are Bene, an advanced AI health science coach with comprehensive expertise in:
 
 PHYSICAL HEALTH SCIENCE:
 - Exercise physiology and biomechanics
@@ -127,30 +275,48 @@ HOLISTIC WELLNESS:
 - Evidence-based supplement science
 - Chronic disease prevention and management
 
-You have access to the user's comprehensive assessment data and should provide personalized, evidence-based recommendations. Always cite scientific principles when relevant. Be encouraging but scientifically accurate. For serious medical concerns, always recommend professional consultation while providing supportive general wellness guidance.`
-          },
-          {
-            role: "user", 
-            content: userMessage
-          }
-        ],
-        max_tokens: 150,
-        temperature: 0.7
-      });
-      
-      return response.choices[0]?.message?.content || "I'm here to help with your fitness journey!";
-      */
-      
-      // Option 2: For demo purposes, use enhanced mock responses
-      // This provides realistic coaching responses without requiring API keys
-      const mockResponse = this.generateMockCoachResponse(userMessage);
-      console.log('💬 Bene response generated:', mockResponse);
-      return mockResponse;
-      
-    } catch (error) {
-      console.error('Error generating coach response:', error);
-      return "I'm having trouble processing that right now. Can you try asking me again? I'm here to help with your health and wellness journey!";
+You provide personalized, evidence-based recommendations. Always cite scientific principles when relevant. Be encouraging but scientifically accurate. For serious medical concerns, recommend professional consultation while providing supportive wellness guidance.`;
+    
+    // Add user assessment context if available
+    if (this.userAssessment.hasCompletedAssessment) {
+      prompt += `\n\nUSER PROFILE CONTEXT:\n`;
+      if (this.userAssessment.fitnessProfile.primaryGoals) {
+        prompt += `Goals: ${this.userAssessment.fitnessProfile.primaryGoals.join(', ')}\n`;
+      }
+      if (this.userAssessment.mentalHealthProfile.stressLevel) {
+        prompt += `Stress Level: ${this.userAssessment.mentalHealthProfile.stressLevel}/10\n`;
+      }
+      if (this.userAssessment.mentalHealthProfile.sleepQuality) {
+        prompt += `Sleep Quality: ${this.userAssessment.mentalHealthProfile.sleepQuality}/10\n`;
+      }
     }
+    
+    return prompt;
+  }
+  
+  // Enhanced mock response with simulated streaming
+  private async generateEnhancedMockResponse(userMessage: string, onStream?: (chunk: string) => void): Promise<string> {
+    const mockResponse = this.generateMockCoachResponse(userMessage);
+    console.log('💬 Bene enhanced mock response:', mockResponse);
+    
+    // Simulate streaming for better UX
+    if (this.streamingConfig.enabled && onStream) {
+      const words = mockResponse.split(' ');
+      let currentResponse = '';
+      
+      for (let i = 0; i < words.length; i++) {
+        const word = words[i] + (i < words.length - 1 ? ' ' : '');
+        currentResponse += word;
+        onStream(word);
+        
+        // Add natural typing delay
+        await new Promise(resolve => 
+          setTimeout(resolve, Math.random() * 100 + 50)
+        );
+      }
+    }
+    
+    return mockResponse;
   }
 
   // Enhanced mock response generator for development/demo
@@ -300,30 +466,83 @@ You have access to the user's comprehensive assessment data and should provide p
     return "I'm here to help with whatever health topic is on your mind. What would you like to explore or work on today?";
   }
 
-  // Send message and get AI response
-  public async sendMessage(userMessage: string): Promise<void> {
+  // Enhanced send message with streaming support
+  public async sendMessage(userMessage: string, onUpdate?: () => void): Promise<void> {
     // Add user message
     this.addUserMessage(userMessage);
+    onUpdate?.();
     
-    // Add typing indicator
-    const typingMessage: ChatMessage = {
-      id: `typing-${Date.now()}`,
-      text: "Bene is typing...",
+    // Add streaming message placeholder
+    const streamingMessageId = `streaming-${Date.now()}`;
+    const streamingMessage: ChatMessage = {
+      id: streamingMessageId,
+      text: "Bene is thinking...",
       sender: 'coach',
       timestamp: new Date(),
-      isTyping: true
+      isStreaming: true
     };
-    this.chatHistory.push(typingMessage);
+    this.chatHistory.push(streamingMessage);
+    onUpdate?.();
     
-    // Simulate typing delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Set up streaming handler
+    let streamedText = '';
+    const handleStream = (chunk: string) => {
+      streamedText += chunk;
+      
+      // Update the streaming message
+      const messageIndex = this.chatHistory.findIndex(msg => msg.id === streamingMessageId);
+      if (messageIndex !== -1) {
+        this.chatHistory[messageIndex].text = streamedText;
+        onUpdate?.();
+      }
+    };
     
-    // Remove typing indicator
-    this.chatHistory = this.chatHistory.filter(msg => !msg.isTyping);
-    
-    // Generate and add AI response
-    const response = await this.generateCoachResponse(userMessage);
-    this.addCoachMessage(response);
+    try {
+      // Generate response with streaming
+      const finalResponse = await this.generateCoachResponse(userMessage, handleStream);
+      
+      // Update final message
+      const messageIndex = this.chatHistory.findIndex(msg => msg.id === streamingMessageId);
+      if (messageIndex !== -1) {
+        this.chatHistory[messageIndex] = {
+          ...this.chatHistory[messageIndex],
+          text: finalResponse,
+          isStreaming: false
+        };
+        onUpdate?.();
+      }
+    } catch (error) {
+      console.error('Error in enhanced sendMessage:', error);
+      // Fallback to error message
+      const messageIndex = this.chatHistory.findIndex(msg => msg.id === streamingMessageId);
+      if (messageIndex !== -1) {
+        this.chatHistory[messageIndex] = {
+          ...this.chatHistory[messageIndex],
+          text: "I encountered an issue processing your message. Could you try rephrasing your question?",
+          isStreaming: false
+        };
+        onUpdate?.();
+      }
+    }
+  }
+  
+  // Enable/disable streaming
+  public setStreamingEnabled(enabled: boolean): void {
+    this.streamingConfig.enabled = enabled;
+  }
+  
+  // Enable/disable web search
+  public setWebSearchEnabled(enabled: boolean): void {
+    this.webSearchConfig.enabled = enabled;
+  }
+  
+  // Get current capabilities status
+  public getCapabilities(): { hasOpenAI: boolean; streaming: boolean; webSearch: boolean } {
+    return {
+      hasOpenAI: this.openaiClient !== null,
+      streaming: this.streamingConfig.enabled,
+      webSearch: this.webSearchConfig.enabled
+    };
   }
 
   // Clear chat history
