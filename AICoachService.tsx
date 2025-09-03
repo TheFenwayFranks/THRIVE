@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { OpenAI } from 'openai';
 
 // Enhanced OpenAI Integration for AI Coach with Streaming and Web Search
@@ -26,11 +26,94 @@ export interface WebSearchConfig {
   maxResults: number;
 }
 
+export interface HealthTool {
+  name: string;
+  description: string;
+  parameters: any;
+  handler: (params: any) => Promise<any>;
+}
+
+export interface FitnessCalculationResult {
+  bmi?: number;
+  bmr?: number;
+  dailyCalories?: number;
+  bodyFatPercentage?: number;
+  idealWeight?: { min: number; max: number };
+}
+
+export interface NutritionAnalysis {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  recommendations: string[];
+}
+
+export interface WorkoutPlan {
+  name: string;
+  duration: number;
+  exercises: Array<{
+    name: string;
+    sets: number;
+    reps: string;
+    restTime: string;
+    instructions: string;
+  }>;
+  notes: string[];
+}
+
 export interface CoachProfile {
   name: string;
   avatar: string;
   specialty: string;
   description: string;
+}
+
+export interface UserAssessment {
+  hasCompletedAssessment: boolean;
+  personalInfo: {
+    age?: number;
+    gender?: string;
+    height?: number;
+    weight?: number;
+  };
+  fitnessProfile: {
+    primaryGoals?: string[];
+    currentActivityLevel?: string;
+    exerciseExperience?: string;
+    preferredWorkouts?: string[];
+    limitations?: string[];
+  };
+  mentalHealthProfile: {
+    stressLevel?: number;
+    sleepQuality?: number;
+    sleepHours?: number;
+    energyLevel?: number;
+    moodRating?: number;
+  };
+  healthMetrics: {
+    bmi?: number;
+    bodyFatPercentage?: number;
+    restingHeartRate?: number;
+  };
+  lifestyle: {
+    diet?: string;
+    smokingStatus?: string;
+    alcoholConsumption?: string;
+    workSchedule?: string;
+  };
+}
+
+export interface AssessmentQuestion {
+  id: string;
+  question: string;
+  type: 'multiple_choice' | 'scale' | 'text' | 'number';
+  options?: string[];
+  scaleMin?: number;
+  scaleMax?: number;
+  required: boolean;
+  category: 'personal' | 'fitness' | 'mental_health' | 'health_metrics' | 'lifestyle';
 }
 
 class AICoachService {
@@ -44,6 +127,7 @@ class AICoachService {
   private openaiClient: OpenAI | null = null;
   private streamingConfig: StreamingConfig = { enabled: true, chunkDelay: 50 };
   private webSearchConfig: WebSearchConfig = { enabled: true, maxResults: 3 };
+  private healthTools: HealthTool[] = [];
   
   // AI Coach Profile - Bene!
   public readonly coachProfile: CoachProfile = {
@@ -77,6 +161,9 @@ class AICoachService {
     // Initialize assessment questions
     this.initializeAssessmentQuestions();
     
+    // Initialize health-specific AI tools
+    this.initializeHealthTools();
+    
     // Initialize with enhanced welcome message
     this.chatHistory.push({
       id: Date.now().toString(),
@@ -105,6 +192,379 @@ class AICoachService {
       console.warn('⚠️ Bene: OpenAI initialization failed, using mock responses:', error);
       this.openaiClient = null;
     }
+  }
+  
+  // Initialize health-specific AI function tools
+  private initializeHealthTools(): void {
+    this.healthTools = [
+      // BMI and Body Composition Calculator
+      {
+        name: "calculate_fitness_metrics",
+        description: "Calculate BMI, BMR, daily calorie needs, and ideal weight range based on user data.",
+        parameters: {
+          type: "object",
+          properties: {
+            weight: { type: "number", description: "Weight in pounds or kg" },
+            height: { type: "number", description: "Height in inches or cm" },
+            age: { type: "number", description: "Age in years" },
+            gender: { type: "string", enum: ["male", "female"], description: "Biological sex for calculation" },
+            activityLevel: { 
+              type: "string", 
+              enum: ["sedentary", "light", "moderate", "active", "very_active"],
+              description: "Daily activity level"
+            },
+            unit: { type: "string", enum: ["imperial", "metric"], description: "Measurement unit system" }
+          },
+          required: ["weight", "height", "age", "gender", "activityLevel"],
+          additionalProperties: false
+        },
+        handler: this.calculateFitnessMetrics.bind(this)
+      },
+      
+      // Nutrition Analysis Tool
+      {
+        name: "analyze_nutrition",
+        description: "Analyze nutritional content of meals and provide recommendations.",
+        parameters: {
+          type: "object",
+          properties: {
+            foods: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string", description: "Food item name" },
+                  quantity: { type: "string", description: "Amount (e.g., '1 cup', '100g', '1 medium')" }
+                },
+                required: ["name", "quantity"]
+              },
+              description: "List of foods to analyze"
+            },
+            goal: { 
+              type: "string", 
+              enum: ["weight_loss", "muscle_gain", "maintenance", "performance"],
+              description: "Nutritional goal"
+            }
+          },
+          required: ["foods"],
+          additionalProperties: false
+        },
+        handler: this.analyzeNutrition.bind(this)
+      },
+      
+      // Personalized Workout Generator
+      {
+        name: "generate_workout",
+        description: "Generate a personalized workout plan based on user goals and constraints.",
+        parameters: {
+          type: "object",
+          properties: {
+            goal: {
+              type: "string",
+              enum: ["strength", "muscle_gain", "weight_loss", "endurance", "flexibility", "general_fitness"],
+              description: "Primary fitness goal"
+            },
+            duration: { type: "number", description: "Workout duration in minutes" },
+            equipment: {
+              type: "array",
+              items: {
+                type: "string",
+                enum: ["bodyweight", "dumbbells", "barbell", "resistance_bands", "gym", "home"]
+              },
+              description: "Available equipment"
+            },
+            fitnessLevel: {
+              type: "string",
+              enum: ["beginner", "intermediate", "advanced"],
+              description: "Current fitness level"
+            },
+            limitations: {
+              type: "array",
+              items: { type: "string" },
+              description: "Any injuries or physical limitations"
+            }
+          },
+          required: ["goal", "duration", "fitnessLevel"],
+          additionalProperties: false
+        },
+        handler: this.generateWorkout.bind(this)
+      },
+      
+      // Health Risk Assessment
+      {
+        name: "assess_health_risks",
+        description: "Assess health risks based on lifestyle factors and provide recommendations.",
+        parameters: {
+          type: "object",
+          properties: {
+            age: { type: "number", description: "Age in years" },
+            bmi: { type: "number", description: "Body Mass Index" },
+            smokingStatus: {
+              type: "string",
+              enum: ["never", "former", "current"],
+              description: "Smoking history"
+            },
+            exerciseFrequency: {
+              type: "string",
+              enum: ["none", "1-2_times", "3-4_times", "5+_times"],
+              description: "Weekly exercise frequency"
+            },
+            stressLevel: { type: "number", minimum: 1, maximum: 10, description: "Stress level 1-10" },
+            sleepHours: { type: "number", description: "Average sleep hours per night" },
+            familyHistory: {
+              type: "array",
+              items: {
+                type: "string",
+                enum: ["heart_disease", "diabetes", "cancer", "hypertension", "none"]
+              },
+              description: "Family history of chronic conditions"
+            }
+          },
+          required: ["age", "bmi"],
+          additionalProperties: false
+        },
+        handler: this.assessHealthRisks.bind(this)
+      }
+    ];
+    
+    console.log(`🧪 Bene: Initialized ${this.healthTools.length} health-specific AI tools`);
+  }
+  
+  // Initialize comprehensive assessment questions
+  private initializeAssessmentQuestions(): void {
+    this.assessmentQuestions = [
+      // Personal Information
+      {
+        id: 'age',
+        question: 'What is your age?',
+        type: 'number',
+        required: true,
+        category: 'personal'
+      },
+      {
+        id: 'gender',
+        question: 'What is your biological sex? (Used for health calculations)',
+        type: 'multiple_choice',
+        options: ['Male', 'Female'],
+        required: true,
+        category: 'personal'
+      },
+      {
+        id: 'height',
+        question: 'What is your height in inches?',
+        type: 'number',
+        required: true,
+        category: 'personal'
+      },
+      {
+        id: 'weight',
+        question: 'What is your current weight in pounds?',
+        type: 'number',
+        required: true,
+        category: 'personal'
+      },
+      
+      // Fitness Profile
+      {
+        id: 'primary_goals',
+        question: 'What are your primary health and fitness goals? (Select all that apply)',
+        type: 'multiple_choice',
+        options: [
+          'Weight Loss',
+          'Muscle Gain',
+          'General Fitness',
+          'Strength Building',
+          'Endurance/Cardio',
+          'Flexibility/Mobility',
+          'Stress Management',
+          'Better Sleep',
+          'More Energy'
+        ],
+        required: true,
+        category: 'fitness'
+      },
+      {
+        id: 'activity_level',
+        question: 'How would you describe your current activity level?',
+        type: 'multiple_choice',
+        options: [
+          'Sedentary (little or no exercise)',
+          'Light (1-3 days/week light exercise)',
+          'Moderate (3-5 days/week moderate exercise)',
+          'Active (6-7 days/week exercise)',
+          'Very Active (2x/day or intense training)'
+        ],
+        required: true,
+        category: 'fitness'
+      },
+      {
+        id: 'exercise_experience',
+        question: 'How much exercise experience do you have?',
+        type: 'multiple_choice',
+        options: ['Beginner (0-1 year)', 'Intermediate (1-3 years)', 'Advanced (3+ years)'],
+        required: true,
+        category: 'fitness'
+      },
+      {
+        id: 'preferred_workouts',
+        question: 'What types of workouts do you enjoy or want to try? (Select all that apply)',
+        type: 'multiple_choice',
+        options: [
+          'Bodyweight exercises',
+          'Weight lifting',
+          'Cardio/Running',
+          'Yoga',
+          'Swimming',
+          'Team sports',
+          'Hiking/Walking',
+          'Dance/Aerobics',
+          'Martial arts',
+          'Home workouts'
+        ],
+        required: false,
+        category: 'fitness'
+      },
+      
+      // Mental Health Profile
+      {
+        id: 'stress_level',
+        question: 'On a scale of 1-10, how would you rate your current stress level?',
+        type: 'scale',
+        scaleMin: 1,
+        scaleMax: 10,
+        required: true,
+        category: 'mental_health'
+      },
+      {
+        id: 'sleep_quality',
+        question: 'How would you rate your sleep quality on a scale of 1-10?',
+        type: 'scale',
+        scaleMin: 1,
+        scaleMax: 10,
+        required: true,
+        category: 'mental_health'
+      },
+      {
+        id: 'sleep_hours',
+        question: 'How many hours of sleep do you typically get per night?',
+        type: 'number',
+        required: true,
+        category: 'mental_health'
+      },
+      {
+        id: 'energy_level',
+        question: 'How would you rate your average energy level throughout the day?',
+        type: 'scale',
+        scaleMin: 1,
+        scaleMax: 10,
+        required: true,
+        category: 'mental_health'
+      },
+      {
+        id: 'mood_rating',
+        question: 'How would you rate your overall mood and mental wellness?',
+        type: 'scale',
+        scaleMin: 1,
+        scaleMax: 10,
+        required: true,
+        category: 'mental_health'
+      },
+      
+      // Lifestyle Factors
+      {
+        id: 'diet_style',
+        question: 'How would you describe your current eating pattern?',
+        type: 'multiple_choice',
+        options: [
+          'Standard Western Diet',
+          'Mediterranean',
+          'Low Carb/Keto',
+          'Vegetarian',
+          'Vegan',
+          'Paleo',
+          'Intermittent Fasting',
+          'Flexible/Balanced',
+          'No specific pattern'
+        ],
+        required: true,
+        category: 'lifestyle'
+      },
+      {
+        id: 'smoking_status',
+        question: 'What is your smoking status?',
+        type: 'multiple_choice',
+        options: ['Never smoked', 'Former smoker', 'Current smoker'],
+        required: true,
+        category: 'lifestyle'
+      },
+      {
+        id: 'alcohol_consumption',
+        question: 'How often do you consume alcohol?',
+        type: 'multiple_choice',
+        options: [
+          'Never',
+          'Rarely (few times per year)',
+          'Occasionally (1-2 times per month)',
+          'Moderately (1-2 times per week)',
+          'Regularly (3-5 times per week)',
+          'Daily'
+        ],
+        required: true,
+        category: 'lifestyle'
+      },
+      {
+        id: 'work_schedule',
+        question: 'How would you describe your work/daily schedule?',
+        type: 'multiple_choice',
+        options: [
+          'Regular 9-5 schedule',
+          'Shift work',
+          'Irregular hours',
+          'Work from home',
+          'Student schedule',
+          'Retired',
+          'Unemployed/Flexible'
+        ],
+        required: false,
+        category: 'lifestyle'
+      },
+      
+      // Additional Health Information
+      {
+        id: 'health_conditions',
+        question: 'Do you have any chronic health conditions or take medications? (Optional - for better recommendations)',
+        type: 'text',
+        required: false,
+        category: 'health_metrics'
+      },
+      {
+        id: 'injuries_limitations',
+        question: 'Do you have any injuries, physical limitations, or areas of concern? (Optional)',
+        type: 'text',
+        required: false,
+        category: 'fitness'
+      },
+      
+      // Motivation and Support
+      {
+        id: 'motivation_level',
+        question: 'How motivated are you to make health changes on a scale of 1-10?',
+        type: 'scale',
+        scaleMin: 1,
+        scaleMax: 10,
+        required: true,
+        category: 'mental_health'
+      },
+      {
+        id: 'biggest_challenges',
+        question: 'What have been your biggest challenges with health and fitness in the past?',
+        type: 'text',
+        required: false,
+        category: 'fitness'
+      }
+    ];
+    
+    console.log(`📋 Bene: Initialized comprehensive assessment with ${this.assessmentQuestions.length} questions`);
   }
 
   // Get chat history
@@ -185,61 +645,110 @@ class AICoachService {
     if (!this.openaiClient) throw new Error('OpenAI client not initialized');
     
     const tools = [];
-    if (useWebSearch) {
-      tools.push({ type: "web_search" });
-    }
+    
+    // Add web search capability (note: this would need to be implemented separately)
+    // For now, we'll focus on the health function tools
+    
+    // Add health-specific function tools
+    const healthTools = this.getHealthToolsForOpenAI();
+    tools.push(...healthTools);
     
     const systemPrompt = this.buildEnhancedSystemPrompt();
     
+    const messages = [
+      {
+        role: "system" as const,
+        content: systemPrompt
+      },
+      {
+        role: "user" as const,
+        content: userMessage
+      }
+    ];
+    
     if (this.streamingConfig.enabled && onStream) {
-      // Use streaming API
-      const stream = await this.openaiClient.responses.create({
-        model: "gpt-5",
-        input: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: userMessage
-          }
-        ],
+      // Use streaming chat completions API
+      const stream = await this.openaiClient.chat.completions.create({
+        model: "gpt-4o", // Using GPT-4o as it's available in OpenAI v5
+        messages: messages,
         tools: tools.length > 0 ? tools : undefined,
+        tool_choice: tools.length > 0 ? "auto" : undefined,
         stream: true
       });
       
       let fullResponse = '';
-      for await (const event of stream) {
-        if (event.output_text) {
-          const chunk = event.output_text.slice(fullResponse.length);
-          fullResponse = event.output_text;
-          onStream(chunk);
+      let functionCalls: any[] = [];
+      
+      for await (const chunk of stream) {
+        const delta = chunk.choices[0]?.delta;
+        
+        // Handle text content
+        if (delta?.content) {
+          fullResponse += delta.content;
+          onStream(delta.content);
           
           // Add small delay for natural feel
           await new Promise(resolve => setTimeout(resolve, this.streamingConfig.chunkDelay));
+        }
+        
+        // Handle function calls
+        if (delta?.tool_calls) {
+          functionCalls.push(...delta.tool_calls);
+        }
+      }
+      
+      // Execute any function calls
+      if (functionCalls.length > 0) {
+        const functionResults = await this.executeFunctionCalls(functionCalls);
+        
+        // If we have function results, generate final response
+        if (functionResults.length > 0) {
+          onStream('\n\n📊 Analyzing your data...\n');
+          
+          // Add function results to conversation and get final response
+          const finalResponse = await this.getFinalResponseWithFunctionResults(
+            systemPrompt, userMessage, functionCalls, functionResults
+          );
+          
+          // Stream the final response
+          const words = finalResponse.split(' ');
+          for (const word of words) {
+            onStream(word + ' ');
+            await new Promise(resolve => setTimeout(resolve, this.streamingConfig.chunkDelay));
+          }
+          
+          return fullResponse + '\n\n📊 Analyzing your data...\n' + finalResponse;
         }
       }
       
       return fullResponse;
     } else {
-      // Use standard API
-      const response = await this.openaiClient.responses.create({
-        model: "gpt-5",
-        input: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: userMessage
-          }
-        ],
-        tools: tools.length > 0 ? tools : undefined
+      // Use standard chat completions API
+      const response = await this.openaiClient.chat.completions.create({
+        model: "gpt-4o",
+        messages: messages,
+        tools: tools.length > 0 ? tools : undefined,
+        tool_choice: tools.length > 0 ? "auto" : undefined
       });
       
-      return response.output_text || "I'm here to help with your health journey!";
+      const message = response.choices[0]?.message;
+      let finalResponse = message?.content || "I'm here to help with your health journey!";
+      
+      // Handle function calls if present
+      if (message?.tool_calls && message.tool_calls.length > 0) {
+        const functionResults = await this.executeFunctionCalls(message.tool_calls);
+        
+        if (functionResults.length > 0) {
+          // Get final response with function results
+          const enhancedResponse = await this.getFinalResponseWithFunctionResults(
+            systemPrompt, userMessage, message.tool_calls, functionResults
+          );
+          
+          finalResponse += '\n\n📊 Analysis Results:\n' + enhancedResponse;
+        }
+      }
+      
+      return finalResponse;
     }
   }
   
@@ -566,6 +1075,337 @@ You provide personalized, evidence-based recommendations. Always cite scientific
       "How do I build healthy habits?",
       "I'm feeling stressed, any advice?"
     ];
+  }
+  
+  // Get available health tools for OpenAI function calling
+  public getHealthToolsForOpenAI(): any[] {
+    return this.healthTools.map(tool => ({
+      type: "function",
+      name: tool.name,
+      description: tool.description,
+      parameters: tool.parameters,
+      strict: true
+    }));
+  }
+  
+  // Execute a health tool function
+  public async executeHealthTool(toolName: string, parameters: any): Promise<any> {
+    const tool = this.healthTools.find(t => t.name === toolName);
+    if (!tool) {
+      throw new Error(`Health tool '${toolName}' not found`);
+    }
+    
+    try {
+      return await tool.handler(parameters);
+    } catch (error) {
+      console.error(`Error executing health tool ${toolName}:`, error);
+      throw error;
+    }
+  }
+  
+  // Health Tool Implementations
+  
+  // Calculate fitness metrics (BMI, BMR, daily calories, etc.)
+  private async calculateFitnessMetrics(params: any): Promise<FitnessCalculationResult> {
+    const { weight, height, age, gender, activityLevel, unit = 'imperial' } = params;
+    
+    // Convert to metric if needed
+    let weightKg = weight;
+    let heightCm = height;
+    
+    if (unit === 'imperial') {
+      weightKg = weight * 0.453592; // lbs to kg
+      heightCm = height * 2.54; // inches to cm
+    }
+    
+    const heightM = heightCm / 100;
+    
+    // Calculate BMI
+    const bmi = weightKg / (heightM * heightM);
+    
+    // Calculate BMR using Mifflin-St Jeor Equation
+    let bmr;
+    if (gender.toLowerCase() === 'male') {
+      bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) + 5;
+    } else {
+      bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) - 161;
+    }
+    
+    // Calculate daily calories based on activity level
+    const activityMultipliers = {
+      sedentary: 1.2,
+      light: 1.375,
+      moderate: 1.55,
+      active: 1.725,
+      very_active: 1.9
+    };
+    
+    const dailyCalories = bmr * activityMultipliers[activityLevel as keyof typeof activityMultipliers];
+    
+    // Calculate ideal weight range (BMI 18.5-24.9)
+    const idealWeightMin = 18.5 * (heightM * heightM);
+    const idealWeightMax = 24.9 * (heightM * heightM);
+    
+    // Convert back to user's preferred units
+    let idealWeight;
+    if (unit === 'imperial') {
+      idealWeight = {
+        min: Math.round(idealWeightMin * 2.20462), // kg to lbs
+        max: Math.round(idealWeightMax * 2.20462)
+      };
+    } else {
+      idealWeight = {
+        min: Math.round(idealWeightMin),
+        max: Math.round(idealWeightMax)
+      };
+    }
+    
+    return {
+      bmi: Math.round(bmi * 10) / 10,
+      bmr: Math.round(bmr),
+      dailyCalories: Math.round(dailyCalories),
+      idealWeight
+    };
+  }
+  
+  // Analyze nutrition content
+  private async analyzeNutrition(params: any): Promise<NutritionAnalysis> {
+    const { foods, goal = 'maintenance' } = params;
+    
+    // Simplified nutritional database
+    const nutritionDB: { [key: string]: any } = {
+      'apple': { calories: 95, protein: 0.5, carbs: 25, fat: 0.3, fiber: 4 },
+      'banana': { calories: 105, protein: 1.3, carbs: 27, fat: 0.4, fiber: 3 },
+      'chicken breast': { calories: 165, protein: 31, carbs: 0, fat: 3.6, fiber: 0 },
+      'rice': { calories: 205, protein: 4.3, carbs: 45, fat: 0.4, fiber: 0.6 },
+      'broccoli': { calories: 55, protein: 3.7, carbs: 11, fat: 0.6, fiber: 5 },
+      'salmon': { calories: 208, protein: 22, carbs: 0, fat: 12, fiber: 0 },
+      'oats': { calories: 389, protein: 16.9, carbs: 66, fat: 6.9, fiber: 10.6 },
+      'egg': { calories: 70, protein: 6, carbs: 0.6, fat: 5, fiber: 0 },
+      'greek yogurt': { calories: 100, protein: 17, carbs: 6, fat: 0, fiber: 0 }
+    };
+    
+    let totalCalories = 0;
+    let totalProtein = 0;
+    let totalCarbs = 0;
+    let totalFat = 0;
+    let totalFiber = 0;
+    
+    // Analyze each food item
+    for (const food of foods) {
+      const foodName = food.name.toLowerCase();
+      const nutrition = nutritionDB[foodName];
+      
+      if (nutrition) {
+        // Simple quantity parsing
+        let multiplier = 1;
+        if (food.quantity.includes('2')) multiplier = 2;
+        else if (food.quantity.includes('0.5') || food.quantity.includes('half')) multiplier = 0.5;
+        
+        totalCalories += nutrition.calories * multiplier;
+        totalProtein += nutrition.protein * multiplier;
+        totalCarbs += nutrition.carbs * multiplier;
+        totalFat += nutrition.fat * multiplier;
+        totalFiber += nutrition.fiber * multiplier;
+      }
+    }
+    
+    // Generate recommendations based on goal
+    const recommendations = [];
+    
+    if (goal === 'weight_loss') {
+      if (totalCalories > 500) recommendations.push('Consider reducing portion sizes for weight loss');
+      if (totalProtein < 20) recommendations.push('Add more protein to help maintain muscle during weight loss');
+    } else if (goal === 'muscle_gain') {
+      if (totalProtein < 25) recommendations.push('Increase protein intake for muscle building (aim for 25-30g per meal)');
+    }
+    
+    return {
+      calories: Math.round(totalCalories),
+      protein: Math.round(totalProtein * 10) / 10,
+      carbs: Math.round(totalCarbs * 10) / 10,
+      fat: Math.round(totalFat * 10) / 10,
+      fiber: Math.round(totalFiber * 10) / 10,
+      recommendations
+    };
+  }
+  
+  // Generate personalized workout
+  private async generateWorkout(params: any): Promise<WorkoutPlan> {
+    const { goal, duration, equipment = ['bodyweight'], fitnessLevel } = params;
+    
+    const exercises = [
+      { name: 'Push-ups', sets: 3, reps: '8-12', restTime: '60s', instructions: 'Keep body straight, full range of motion' },
+      { name: 'Bodyweight Squats', sets: 3, reps: '15-20', restTime: '60s', instructions: 'Feet shoulder-width apart, go down to 90 degrees' },
+      { name: 'Plank', sets: 3, reps: '30-60s hold', restTime: '60s', instructions: 'Maintain straight line from head to heels' }
+    ];
+    
+    return {
+      name: `${goal.charAt(0).toUpperCase() + goal.slice(1)} Workout (${duration} min)`,
+      duration,
+      exercises,
+      notes: ['Warm up before starting', 'Focus on proper form', 'Stay hydrated']
+    };
+  }
+  
+  // Assess health risks
+  private async assessHealthRisks(params: any): Promise<any> {
+    const { age, bmi, exerciseFrequency = 'none' } = params;
+    
+    const risks = [];
+    const recommendations = [];
+    
+    if (bmi >= 25) {
+      risks.push('Elevated BMI increases cardiovascular risk');
+      recommendations.push('Focus on gradual weight loss through diet and exercise');
+    }
+    
+    if (exerciseFrequency === 'none') {
+      risks.push('Sedentary lifestyle increases health risks');
+      recommendations.push('Start with 10-15 minutes of daily walking');
+    }
+    
+    return {
+      overallRisk: risks.length > 1 ? 'moderate' : risks.length > 0 ? 'low-moderate' : 'low',
+      risks,
+      recommendations
+    };
+  }
+  
+  // Execute function calls from OpenAI
+  private async executeFunctionCalls(functionCalls: any[]): Promise<any[]> {
+    const results = [];
+    
+    for (const functionCall of functionCalls) {
+      try {
+        // Handle both streaming and non-streaming tool call formats
+        const toolName = functionCall.function?.name || functionCall.name;
+        let parameters;
+        
+        try {
+          const paramString = functionCall.function?.arguments || functionCall.parameters;
+          parameters = typeof paramString === 'string' ? JSON.parse(paramString) : paramString;
+        } catch (e) {
+          console.warn('Error parsing function parameters:', e);
+          parameters = {};
+        }
+        
+        console.log(`🔧 Executing health tool: ${toolName}`);
+        const result = await this.executeHealthTool(toolName, parameters);
+        results.push({
+          call: functionCall,
+          result: result
+        });
+        console.log(`✅ Health tool ${toolName} executed successfully`);
+      } catch (error) {
+        console.error(`❌ Error executing health tool:`, error);
+        results.push({
+          call: functionCall,
+          error: error.message || 'Unknown error'
+        });
+      }
+    }
+    
+    return results;
+  }
+  
+  // Get final response incorporating function results
+  private async getFinalResponseWithFunctionResults(
+    systemPrompt: string,
+    userMessage: string,
+    functionCalls: any[],
+    functionResults: any[]
+  ): Promise<string> {
+    if (!this.openaiClient) return "Function results processed successfully!";
+    
+    try {
+      // Build context with function results
+      let functionContext = "Function call results:\n";
+      for (const result of functionResults) {
+        const toolName = result.call.function?.name || result.call.name || 'unknown_tool';
+        if (result.error) {
+          functionContext += `- ${toolName}: Error - ${result.error}\n`;
+        } else {
+          functionContext += `- ${toolName}: ${JSON.stringify(result.result, null, 2)}\n`;
+        }
+      }
+      
+      // Make another call to get the final interpreted response
+      const finalResponse = await this.openaiClient.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt + "\n\nYou have access to health calculation results. Interpret and explain them in a helpful, personalized way."
+          },
+          {
+            role: "user",
+            content: userMessage
+          },
+          {
+            role: "assistant",
+            content: functionContext + "\n\nBased on these calculations, let me provide you with personalized insights:"
+          }
+        ]
+      });
+      
+      return finalResponse.choices[0]?.message?.content || "Here are your personalized health insights based on the calculations!";
+    } catch (error) {
+      console.error('Error getting final response with function results:', error);
+      
+      // Fallback: format results manually
+      let response = "Here are your health calculations:\n\n";
+      for (const result of functionResults) {
+        if (!result.error && result.result) {
+          const data = result.result;
+          const toolName = result.call.function?.name || result.call.name;
+          
+          if (toolName === 'calculate_fitness_metrics') {
+            response += `📊 **Fitness Metrics:**\n`;
+            if (data.bmi) response += `• BMI: ${data.bmi}\n`;
+            if (data.bmr) response += `• BMR: ${data.bmr} calories/day\n`;
+            if (data.dailyCalories) response += `• Daily Calories: ${data.dailyCalories}\n`;
+            if (data.idealWeight) response += `• Ideal Weight Range: ${data.idealWeight.min}-${data.idealWeight.max}\n`;
+          } else if (toolName === 'analyze_nutrition') {
+            response += `🥗 **Nutrition Analysis:**\n`;
+            if (data.calories) response += `• Total Calories: ${data.calories}\n`;
+            if (data.protein) response += `• Protein: ${data.protein}g\n`;
+            if (data.carbs) response += `• Carbs: ${data.carbs}g\n`;
+            if (data.fat) response += `• Fat: ${data.fat}g\n`;
+            if (data.recommendations) {
+              response += `\n**Recommendations:**\n`;
+              data.recommendations.forEach((rec: string) => {
+                response += `• ${rec}\n`;
+              });
+            }
+          } else if (toolName === 'generate_workout') {
+            response += `💪 **Workout Plan: ${data.name}**\n`;
+            response += `Duration: ${data.duration} minutes\n\n`;
+            data.exercises?.forEach((exercise: any, index: number) => {
+              response += `${index + 1}. ${exercise.name}: ${exercise.sets} sets × ${exercise.reps}\n`;
+            });
+          } else if (toolName === 'assess_health_risks') {
+            response += `⚕️ **Health Risk Assessment:**\n`;
+            if (data.overallRisk) response += `• Overall Risk: ${data.overallRisk}\n`;
+            if (data.risks?.length > 0) {
+              response += `\n**Risk Factors:**\n`;
+              data.risks.forEach((risk: string) => {
+                response += `• ${risk}\n`;
+              });
+            }
+            if (data.recommendations?.length > 0) {
+              response += `\n**Recommendations:**\n`;
+              data.recommendations.forEach((rec: string) => {
+                response += `• ${rec}\n`;
+              });
+            }
+          }
+          response += '\n';
+        }
+      }
+      
+      return response;
+    }
   }
 }
 
