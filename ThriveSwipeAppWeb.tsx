@@ -6592,6 +6592,233 @@ const ThriveSwipeAppWeb = () => {
         </View>
       )}
 
+      {/* Analytics Modal */}
+      {showAnalytics && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.analyticsModal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>📊 Progress Analytics</Text>
+              <View 
+                style={styles.modalCloseButton}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => setShowAnalytics(false)}
+              >
+                <Text style={styles.modalCloseText}>×</Text>
+              </View>
+            </View>
+            
+            <ScrollView style={styles.modalScrollContent} showsVerticalScrollIndicator={false}>
+              <View style={styles.analyticsContent}>
+                <Text style={styles.analyticsSection}>🎯 Weekly Progress</Text>
+                <View style={styles.progressCard}>
+                  <Text style={styles.progressTitle}>Wellness Score</Text>
+                  <Text style={styles.progressValue}>87%</Text>
+                  <Text style={styles.progressSubtext}>+12% from last week</Text>
+                </View>
+                
+                <Text style={styles.analyticsSection}>📈 Trend Analysis</Text>
+                <View style={styles.trendGrid}>
+                  <View style={styles.trendCard}>
+                    <Text style={styles.trendIcon}>💪</Text>
+                    <Text style={styles.trendTitle}>Fitness</Text>
+                    <Text style={styles.trendValue}>↗️ +15%</Text>
+                  </View>
+                  <View style={styles.trendCard}>
+                    <Text style={styles.trendIcon}>🧘</Text>
+                    <Text style={styles.trendTitle}>Mindfulness</Text>
+                    <Text style={styles.trendValue}>↗️ +8%</Text>
+                  </View>
+                </View>
+                
+                <Text style={styles.analyticsSection}>🏆 Achievements This Month</Text>
+                <Text style={styles.achievementText}>• 7-day workout streak completed</Text>
+                <Text style={styles.achievementText}>• 50+ mindful minutes logged</Text>
+                <Text style={styles.achievementText}>• 3 new wellness habits formed</Text>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      )}
+
+      {/* Achievements Modal */}
+      {showAchievements && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.achievementsModal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>🏆 Your Achievements</Text>
+              <View 
+                style={styles.modalCloseButton}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => setShowAchievements(false)}
+              >
+                <Text style={styles.modalCloseText}>×</Text>
+              </View>
+            </View>
+            
+            <ScrollView style={styles.modalScrollContent} showsVerticalScrollIndicator={false}>
+              <View style={styles.achievementsContent}>
+                <View style={styles.achievementBadge}>
+                  <Text style={styles.badgeIcon}>🔥</Text>
+                  <Text style={styles.badgeTitle}>Week Warrior</Text>
+                  <Text style={styles.badgeDescription}>Complete workouts for 7 days straight</Text>
+                  <Text style={styles.badgeStatus}>✅ Earned 2 days ago</Text>
+                </View>
+                
+                <View style={styles.achievementBadge}>
+                  <Text style={styles.badgeIcon}>🧘</Text>
+                  <Text style={styles.badgeTitle}>Mindful Master</Text>
+                  <Text style={styles.badgeDescription}>Log 100+ minutes of mindfulness</Text>
+                  <Text style={styles.badgeStatus}>✅ Earned 1 week ago</Text>
+                </View>
+                
+                <View style={[styles.achievementBadge, styles.lockedBadge]}>
+                  <Text style={styles.badgeIcon}>🎯</Text>
+                  <Text style={styles.badgeTitle}>Goal Crusher</Text>
+                  <Text style={styles.badgeDescription}>Achieve 3 major wellness goals</Text>
+                  <Text style={styles.badgeStatus}>🔒 2/3 completed</Text>
+                </View>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      )}
+
+      {/* Tutorials Modal */}
+      {showTutorials && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.tutorialsModal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>📚 App Tutorials</Text>
+              <View 
+                style={styles.modalCloseButton}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => setShowTutorials(false)}
+              >
+                <Text style={styles.modalCloseText}>×</Text>
+              </View>
+            </View>
+            
+            <ScrollView style={styles.modalScrollContent} showsVerticalScrollIndicator={false}>
+              <View style={styles.tutorialsContent}>
+                <View style={styles.tutorialCard}>
+                  <Text style={styles.tutorialIcon}>🚀</Text>
+                  <Text style={styles.tutorialTitle}>Getting Started</Text>
+                  <Text style={styles.tutorialDescription}>Learn the basics of THRIVE wellness tracking</Text>
+                  <View style={styles.tutorialButton}>
+                    <Text style={styles.tutorialButtonText}>Watch Tutorial</Text>
+                  </View>
+                </View>
+                
+                <View style={styles.tutorialCard}>
+                  <Text style={styles.tutorialIcon}>💪</Text>
+                  <Text style={styles.tutorialTitle}>Setting Up Routines</Text>
+                  <Text style={styles.tutorialDescription}>Create and customize your wellness routines</Text>
+                  <View style={styles.tutorialButton}>
+                    <Text style={styles.tutorialButtonText}>Watch Tutorial</Text>
+                  </View>
+                </View>
+                
+                <View style={styles.tutorialCard}>
+                  <Text style={styles.tutorialIcon}>📊</Text>
+                  <Text style={styles.tutorialTitle}>Understanding Analytics</Text>
+                  <Text style={styles.tutorialDescription}>Track your progress and view insights</Text>
+                  <View style={styles.tutorialButton}>
+                    <Text style={styles.tutorialButtonText}>Watch Tutorial</Text>
+                  </View>
+                </View>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      )}
+
+      {/* Help Modal */}
+      {showHelp && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.helpModal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>❓ Help & Support</Text>
+              <View 
+                style={styles.modalCloseButton}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => setShowHelp(false)}
+              >
+                <Text style={styles.modalCloseText}>×</Text>
+              </View>
+            </View>
+            
+            <ScrollView style={styles.modalScrollContent} showsVerticalScrollIndicator={false}>
+              <View style={styles.helpContent}>
+                <Text style={styles.helpSection}>❓ Frequently Asked Questions</Text>
+                
+                <View style={styles.faqItem}>
+                  <Text style={styles.faqQuestion}>How do I customize my routines?</Text>
+                  <Text style={styles.faqAnswer}>Tap the ⚙️ Edit button in the routines section on your profile to customize your 3 vital success areas.</Text>
+                </View>
+                
+                <View style={styles.faqItem}>
+                  <Text style={styles.faqQuestion}>How do I export my data?</Text>
+                  <Text style={styles.faqAnswer}>Go to Settings → Data Management → Export Data to download your complete wellness backup.</Text>
+                </View>
+                
+                <View style={styles.faqItem}>
+                  <Text style={styles.faqQuestion}>Can I sync with other apps?</Text>
+                  <Text style={styles.faqAnswer}>Yes! Use the Map Settings to connect with Google Calendar and other wellness apps.</Text>
+                </View>
+                
+                <Text style={styles.helpSection}>📧 Contact Support</Text>
+                <Text style={styles.contactInfo}>Email: support@thrive-wellness.app</Text>
+                <Text style={styles.contactInfo}>Response time: Within 24 hours</Text>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      )}
+
+      {/* App Info Modal */}
+      {showAppInfo && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.appInfoModal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>ℹ️ About THRIVE</Text>
+              <View 
+                style={styles.modalCloseButton}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => setShowAppInfo(false)}
+              >
+                <Text style={styles.modalCloseText}>×</Text>
+              </View>
+            </View>
+            
+            <ScrollView style={styles.modalScrollContent} showsVerticalScrollIndicator={false}>
+              <View style={styles.appInfoContent}>
+                <View style={styles.appLogoSection}>
+                  <ThriveLogoComponent size={80} showText={true} textSize={28} />
+                  <Text style={styles.appVersion}>Version 2.0 - Web Edition</Text>
+                </View>
+                
+                <Text style={styles.appDescription}>
+                  THRIVE is your personal wellness companion designed to help you build healthier habits, 
+                  track your progress, and achieve your wellness goals through customizable routines and 
+                  mindful practices.
+                </Text>
+                
+                <View style={styles.appFeatures}>
+                  <Text style={styles.featureTitle}>✨ Key Features</Text>
+                  <Text style={styles.featureItem}>• Customizable wellness routines</Text>
+                  <Text style={styles.featureItem}>• Progress tracking & analytics</Text>
+                  <Text style={styles.featureItem}>• Mindfulness & fitness integration</Text>
+                  <Text style={styles.featureItem}>• Data export & backup</Text>
+                  <Text style={styles.featureItem}>• Calendar sync capabilities</Text>
+                </View>
+                
+                <Text style={styles.appCopyright}>© 2025 THRIVE Wellness. All rights reserved.</Text>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      )}
+
       
     </View>
   );
@@ -14126,6 +14353,338 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#65676B',
     lineHeight: 18,
+  },
+  
+  // Modal Styles for New Modals
+  analyticsModal: {
+    backgroundColor: THRIVE_COLORS.white,
+    borderRadius: 16,
+    marginHorizontal: 20,
+    marginVertical: 50,
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  
+  achievementsModal: {
+    backgroundColor: THRIVE_COLORS.white,
+    borderRadius: 16,
+    marginHorizontal: 20,
+    marginVertical: 50,
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  
+  tutorialsModal: {
+    backgroundColor: THRIVE_COLORS.white,
+    borderRadius: 16,
+    marginHorizontal: 20,
+    marginVertical: 50,
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  
+  helpModal: {
+    backgroundColor: THRIVE_COLORS.white,
+    borderRadius: 16,
+    marginHorizontal: 20,
+    marginVertical: 50,
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  
+  appInfoModal: {
+    backgroundColor: THRIVE_COLORS.white,
+    borderRadius: 16,
+    marginHorizontal: 20,
+    marginVertical: 50,
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  
+  modalScrollContent: {
+    maxHeight: 500,
+  },
+  
+  // Analytics Modal Styles
+  analyticsContent: {
+    padding: 20,
+  },
+  
+  analyticsSection: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: THRIVE_COLORS.black,
+    marginTop: 20,
+    marginBottom: 12,
+  },
+  
+  progressCard: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  
+  progressTitle: {
+    fontSize: 14,
+    color: '#65676B',
+    marginBottom: 8,
+  },
+  
+  progressValue: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: THRIVE_COLORS.primary,
+    marginBottom: 4,
+  },
+  
+  progressSubtext: {
+    fontSize: 12,
+    color: THRIVE_COLORS.accent,
+    fontWeight: '600',
+  },
+  
+  trendGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  
+  trendCard: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 16,
+    flex: 0.48,
+    alignItems: 'center',
+  },
+  
+  trendIcon: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  
+  trendTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: THRIVE_COLORS.black,
+    marginBottom: 4,
+  },
+  
+  trendValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: THRIVE_COLORS.primary,
+  },
+  
+  achievementText: {
+    fontSize: 14,
+    color: '#65676B',
+    marginBottom: 8,
+    paddingLeft: 8,
+  },
+  
+  // Achievements Modal Styles
+  achievementsContent: {
+    padding: 20,
+  },
+  
+  achievementBadge: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  
+  lockedBadge: {
+    opacity: 0.6,
+    backgroundColor: '#F5F5F5',
+  },
+  
+  badgeIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  
+  badgeTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: THRIVE_COLORS.black,
+    marginBottom: 8,
+  },
+  
+  badgeDescription: {
+    fontSize: 14,
+    color: '#65676B',
+    marginBottom: 8,
+    lineHeight: 20,
+  },
+  
+  badgeStatus: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: THRIVE_COLORS.primary,
+  },
+  
+  // Tutorials Modal Styles
+  tutorialsContent: {
+    padding: 20,
+  },
+  
+  tutorialCard: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  
+  tutorialIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  
+  tutorialTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: THRIVE_COLORS.black,
+    marginBottom: 8,
+  },
+  
+  tutorialDescription: {
+    fontSize: 14,
+    color: '#65676B',
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  
+  tutorialButton: {
+    backgroundColor: THRIVE_COLORS.primary,
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignSelf: 'flex-start',
+  },
+  
+  tutorialButtonText: {
+    color: THRIVE_COLORS.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  
+  // Help Modal Styles
+  helpContent: {
+    padding: 20,
+  },
+  
+  helpSection: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: THRIVE_COLORS.black,
+    marginTop: 20,
+    marginBottom: 16,
+  },
+  
+  faqItem: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  
+  faqQuestion: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: THRIVE_COLORS.black,
+    marginBottom: 8,
+  },
+  
+  faqAnswer: {
+    fontSize: 14,
+    color: '#65676B',
+    lineHeight: 20,
+  },
+  
+  contactInfo: {
+    fontSize: 14,
+    color: '#65676B',
+    marginBottom: 8,
+    paddingLeft: 8,
+  },
+  
+  // App Info Modal Styles
+  appInfoContent: {
+    padding: 20,
+  },
+  
+  appLogoSection: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  
+  appVersion: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#65676B',
+    marginTop: 12,
+  },
+  
+  appDescription: {
+    fontSize: 14,
+    color: '#65676B',
+    lineHeight: 22,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  
+  appFeatures: {
+    marginBottom: 24,
+  },
+  
+  featureTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: THRIVE_COLORS.black,
+    marginBottom: 12,
+  },
+  
+  featureItem: {
+    fontSize: 14,
+    color: '#65676B',
+    marginBottom: 6,
+    paddingLeft: 8,
+  },
+  
+  appCopyright: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 20,
   },
 
 
