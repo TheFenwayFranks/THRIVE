@@ -8567,6 +8567,7 @@ const styles = StyleSheet.create({
     marginTop: 0, // Removed since dashboard container handles spacing
     marginBottom: 0, // Removed since dashboard container handles spacing
     paddingHorizontal: 40, // Match dashboard container for consistent margins and prevent cropping
+    alignItems: 'center', // Center align all content including title and grid
   },
   
   customGoalsTitle: {
@@ -8581,14 +8582,19 @@ const styles = StyleSheet.create({
   customGoalsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12, // Reduced to ensure cards fit within increased padding
+    gap: 10, // Further reduced to ensure proper fit within container
+    width: '100%',
+    maxWidth: 400, // Match dashboard grid max width for consistency
+    alignSelf: 'center', // Center the grid within the container
   },
   
   customGoalCard: {
     flex: 1,
+    minWidth: 80, // Ensure minimum width for content visibility
+    maxWidth: 130, // Prevent cards from being too wide on larger screens
     backgroundColor: '#FFFFFF',
     borderRadius: 14, // Slightly reduced
-    padding: 18, // Reduced from 24 to help with overall layout
+    padding: 16, // Further reduced to ensure better fit
     minHeight: 115, // Reduced from 140 to prevent dashboard overflow
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
