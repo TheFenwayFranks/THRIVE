@@ -7529,7 +7529,7 @@ const styles = StyleSheet.create({
   dashboardContainer: {
     flex: 1,
     paddingHorizontal: 32, // Increased from 20px to bring content away from screen edges
-    paddingTop: 12,
+    paddingTop: 8, // Reduced from 12 to save space
     paddingBottom: 5, // Minimal bottom padding
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -7540,8 +7540,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     width: '100%',
-    maxWidth: 600,
-    marginBottom: 6,
+    maxWidth: 500, // Reduced from 600 to make grid more compact
+    marginBottom: 4, // Reduced from 6 to save space
   },
   dashboardTitle: {
     fontSize: 18,
@@ -7560,11 +7560,11 @@ const styles = StyleSheet.create({
   // Dashboard Card Base styles
   dashboardCard: {
     width: '48%',
-    minWidth: 120,
-    height: 108, // Slightly reduced height
-    borderRadius: 12,
-    padding: 12, // Slightly reduced padding
-    marginBottom: 8, // Reduced bottom margin
+    minWidth: 110, // Reduced from 120 to make cards smaller
+    height: 85, // Significantly reduced from 108 to prevent overflow
+    borderRadius: 10, // Slightly smaller radius
+    padding: 10, // Reduced from 12 to save space
+    marginBottom: 6, // Reduced from 8 to save vertical space
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -7641,7 +7641,7 @@ const styles = StyleSheet.create({
   },
   
   cardIcon: {
-    fontSize: 16, // Smaller icon
+    fontSize: 14, // Further reduced for smaller cards
     opacity: 0.9,
   },
   
@@ -7911,9 +7911,9 @@ const styles = StyleSheet.create({
   },
   
   progressBarContainer: {
-    height: 4, // Thinner progress bar
+    height: 3, // Even thinner progress bar for smaller cards
     backgroundColor: 'rgba(0, 0, 0, 0.1)', // Universal light background
-    borderRadius: 2,
+    borderRadius: 1.5,
     overflow: 'hidden',
   },
   
@@ -7923,17 +7923,17 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   cardMainValue: {
-    fontSize: 28,
+    fontSize: 24, // Reduced from 28 to fit smaller cards
     fontWeight: '900',
     textAlign: 'center',
-    marginBottom: 2,
+    marginBottom: 1, // Reduced spacing
   },
   cardLabel: {
-    fontSize: 10,
+    fontSize: 9, // Reduced from 10
     fontWeight: '800',
     textAlign: 'center',
-    letterSpacing: 1,
-    marginBottom: 2,
+    letterSpacing: 0.5, // Reduced letter spacing
+    marginBottom: 1, // Reduced spacing
   },
   cardSubtext: {
     fontSize: 9,
@@ -7941,8 +7941,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   progressBar: {
-    height: 4,
-    borderRadius: 2,
+    height: 3, // Reduced to match progressBarContainer
+    borderRadius: 1.5,
   },
   
   // Expanded Card Styles
@@ -8562,8 +8562,8 @@ const styles = StyleSheet.create({
   
   // Custom Goal Cards Styles
   customGoalsContainer: {
-    marginTop: 30, // Further increased margin to fill the space left by removed banner
-    marginBottom: 12, // Slightly increased bottom margin for better spacing
+    marginTop: 20, // Reduced from 30 to prevent dashboard overflow
+    marginBottom: 8, // Reduced from 12 to save space
     paddingHorizontal: 32, // Increased to match dashboard container padding for consistent margins
   },
   
@@ -8585,9 +8585,9 @@ const styles = StyleSheet.create({
   customGoalCard: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24, // Increased padding for much larger cards
-    minHeight: 140, // Significantly increased height for better visibility
+    borderRadius: 14, // Slightly reduced
+    padding: 18, // Reduced from 24 to help with overall layout
+    minHeight: 115, // Reduced from 140 to prevent dashboard overflow
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
