@@ -8,168 +8,24 @@ import {
   ScrollView,
   Modal,
   Alert,
-  Animated,
-  Easing
+  Animated
 } from 'react-native';
 import { useTheme } from './src/context/ThemeContext';
 import { StorageService } from './src/services/StorageService';
 import MoodTracker from './src/components/MoodTracker';
 import VideoPlayerPlaceholder from './src/components/VideoPlayerPlaceholder';
+import MorningFlow from './src/components/MorningFlow';
 import SettingsModal from './src/components/SettingsModal';
 import CommunityFeed from './src/components/CommunityFeed';
 import StatsTab from './src/components/StatsTab';
 import SwipeNavigation, { PageName } from './src/components/PureSwipeNavigation';
-import NavigationDrawer from './src/components/NavigationDrawer';
-import EdgeSwipeDetector from './src/components/EdgeSwipeDetector';
-import ActivityPlaceholder from './src/components/ActivityPlaceholder';
+import HamburgerMenu from './src/components/HamburgerMenu';
 import SlideBasedProfile from './src/components/SlideBasedProfile';
 import { OnboardingManager, OnboardingState } from './src/services/OnboardingManager';
 import CollapsibleTaskCard from './src/components/CollapsibleTaskCard';
-import TaskDetailScreen from './src/components/TaskDetailScreen';
-import { DailyTaskManager } from './src/services/DailyTaskManager';
-import { DailyTask, UserProgress } from './src/services/TaskGenerationService';
-import { ProgressStorageService } from './src/services/ProgressStorageService';
 
 // ENHANCED THRIVE DASHBOARD - Full ADHD-Optimized Interface
 // Includes: Quick Access + Dashboard + Smart Shortcuts + Minimal Navigation
-
-// NUCLEAR REBUILT: Bulletproof Task Card Component with Completion Visual Feedback
-interface AnimatedTaskCardProps {
-  task: DailyTask;
-  isCompleted: boolean;
-  isCompleting: boolean;
-  onStartTask: () => void;
-  onCompleteTask: () => void;
-}
-
-function AnimatedTaskCard({ task, isCompleted, isCompleting, onStartTask, onCompleteTask }: AnimatedTaskCardProps) {
-  const { theme } = useTheme();
-  const styles = createStyles(theme);
-  
-  // NUCLEAR REBUILD: Simplified and bulletproof animation values
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const checkmarkOpacity = useRef(new Animated.Value(0)).current;
-  
-  // NUCLEAR REBUILD: Completely bulletproof completion state handling
-  useEffect(() => {
-    console.log('🔥 NUCLEAR AnimatedTaskCard: isCompleted =', isCompleted, 'isCompleting =', isCompleting, 'taskId =', task.id);
-    
-    if (isCompleted) {
-      // NUCLEAR FIX: FORCE checkmark to 100% visibility immediately
-      checkmarkOpacity.setValue(1);
-      console.log('✅ NUCLEAR: Checkmark FORCED to visible for task', task.id);
-    } else {
-      // Reset checkmark when not completed
-      checkmarkOpacity.setValue(0);
-      console.log('❌ NUCLEAR: Checkmark reset to hidden for task', task.id);
-    }
-    
-    // NUCLEAR FIX: Simplified completing animation
-    if (isCompleting) {
-      console.log('⏳ NUCLEAR: Running completion animation for task', task.id);
-      Animated.sequence([
-        Animated.timing(scaleAnim, {
-          toValue: 0.95,
-          duration: 150,
-          useNativeDriver: false,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 1.02,
-          duration: 150,
-          useNativeDriver: false,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: 100,
-          useNativeDriver: false,
-        })
-      ]).start();
-    }
-  }, [isCompleted, isCompleting, task.id]);
-  
-  // NUCLEAR REBUILD: Bulletproof card rendering
-  return (
-    <Animated.View 
-      style={[
-        styles.dailyTaskCard,
-        // NUCLEAR FIX: Always apply completion style when completed
-        isCompleted ? styles.completedTaskCard : null,
-        {
-          transform: [{ scale: scaleAnim }],
-        }
-      ]}
-    >
-      {/* NUCLEAR REBUILD: Always render checkmark container, control visibility with opacity */}
-      <Animated.View 
-        style={[
-          styles.completionCheckmark, 
-          { 
-            opacity: checkmarkOpacity,
-            // NUCLEAR FIX: Force positioning and visibility when completed
-            display: isCompleted ? 'flex' : 'none'
-          }
-        ]}
-      >
-        <Text style={styles.checkmarkText}>✓</Text>
-      </Animated.View>
-      
-      {/* Task Content */}
-      <View style={[styles.taskContent, isCompleted ? styles.completedTaskContent : null]}>
-        <View style={styles.taskHeader}>
-          <Text style={styles.taskType}>
-            {task.type === 'fitness' ? '💪' : task.type === 'mental_health' ? '🧠' : '🧘'} 
-            {task.type.replace('_', ' ').toUpperCase()}
-          </Text>
-          <Text style={styles.taskDifficulty}>{task.difficulty}</Text>
-        </View>
-        
-        <Text style={styles.taskTitle}>{task.title}</Text>
-        <Text style={styles.taskDescription}>{task.description}</Text>
-        <Text style={styles.taskDuration}>⏱️ {task.duration} minutes</Text>
-        
-        {/* NUCLEAR FIX: Only show buttons when NOT completed */}
-        {!isCompleted && (
-          <>
-            <View style={styles.taskBenefits}>
-              {task.benefits.slice(0, 2).map((benefit, idx) => (
-                <Text key={idx} style={styles.benefitTag}>• {benefit}</Text>
-              ))}
-            </View>
-            
-            <TouchableOpacity 
-              style={[styles.startActivityButton, styles.dailyTaskButton]}
-              onPress={onStartTask}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.startActivityButtonText}>View Details & Start</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[
-                styles.completeTaskButton, 
-                isCompleting ? styles.completingTaskButton : null
-              ]}
-              onPress={onCompleteTask}
-              activeOpacity={0.7}
-              disabled={isCompleting}
-            >
-              <Text style={styles.completeTaskButtonText}>
-                {isCompleting ? '⏳ Completing...' : '✅ Mark Complete'}
-              </Text>
-            </TouchableOpacity>
-          </>
-        )}
-        
-        {/* NUCLEAR ADDITION: Show completion message when completed */}
-        {isCompleted && (
-          <View style={styles.completedMessage}>
-            <Text style={styles.completedMessageText}>🎉 Completed Today!</Text>
-          </View>
-        )}
-      </View>
-    </Animated.View>
-  );
-}
 
 // ENHANCED THRIVE Workout Database with Progressive Activities
 const workoutDatabase = {
@@ -391,7 +247,8 @@ interface UserStats {
 export default function EmergencyEnhanced() {
   const { theme, toggleTheme, themeMode } = useTheme();
   const styles = createStyles(theme);
-  // NUCLEAR RESET: Manual difficulty selection removed - app determines automatically
+  // NUCLEAR RESET: Remove manual difficulty selection - app determines automatically
+  // const [selectedDifficulty, setSelectedDifficulty] = useState<'gentle' | 'steady' | 'beast' | null>(null);
   const [completedWorkouts, setCompletedWorkouts] = useState<number[]>([]);
   
   // Timer states
@@ -428,10 +285,18 @@ export default function EmergencyEnhanced() {
   // Dashboard states - UPDATED: Swipe navigation
   const [activePage, setActivePage] = useState<PageName>('home');
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const [recentWorkouts, setRecentWorkouts] = useState<any[]>([]);
+  const [dailyMood, setDailyMood] = useState<number | null>(null);
+  const [todayGoal, setTodayGoal] = useState({ current: 0, target: 50 }); // XP goal
 
-  // NUCLEAR RESET: Animation and previous state tracking removed (no journey selection needed)
+  // DYNAMIC CONTENT ANIMATION STATES
+  // NUCLEAR RESET: Remove animation and previous state tracking (no journey selection)
+  // const [contentOpacity] = useState(new Animated.Value(1));
+  // const [prevSelectedDifficulty, setPrevSelectedDifficulty] = useState<string | null>(null);
 
-  // NUCLEAR RESET: Journey selection removed - profile system handles this automatically
+  // JOURNEY/POTENTIAL BUTTON STATES
+  // NUCLEAR RESET: Remove journey selection - profile system handles this automatically
+  // const [selectedJourney, setSelectedJourney] = useState<'new' | 'potential' | null>(null);
 
   // VIDEO DEMONSTRATION MODAL STATE
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -449,21 +314,25 @@ export default function EmergencyEnhanced() {
   const [demoMode, setDemoMode] = useState(false);
   const [showDemoOnboarding, setShowDemoOnboarding] = useState(false);
   
-  // DAILY TASK SYSTEM STATE
-  const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([]);
-  const [userProgress, setUserProgress] = useState<UserProgress | null>(null);
-  const [progressStats, setProgressStats] = useState<any>(null);
-  const [showTaskDetail, setShowTaskDetail] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<DailyTask | null>(null);
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
-  const [completingTasks, setCompletingTasks] = useState<Set<string>>(new Set());
-  const [tasksLoaded, setTasksLoaded] = useState(false);
-  
   // Removed debug state - no longer needed
   
-  // State monitoring
+  // EMERGENCY STATE MONITORING
   useEffect(() => {
-    // Monitor onboarding state changes silently
+    if (onboardingState) {
+      console.log('🔍 ONBOARDING STATE MONITOR:', {
+        isFirstTime: onboardingState.isFirstTime,
+        showOnboarding: onboardingState.showOnboarding,
+        onboardingType: onboardingState.onboardingType,
+        hasCompletedOnboarding: onboardingState.hasCompletedOnboarding,
+        debugInfo: onboardingState.debugInfo
+      });
+      
+      console.log('📊 APP STATE SUMMARY:', {
+        onboardingVisible: onboardingState.showOnboarding,
+        userProfileExists: !!userProfile,
+        userName: userProfile?.name || 'None'
+      });
+    }
   }, [onboardingState, userProfile]);
 
   // PROGRESSIVE TASK COMPLETION: Individual activity tracking
@@ -511,13 +380,6 @@ export default function EmergencyEnhanced() {
   // Settings states
   const [showSettings, setShowSettings] = useState(false);
 
-  // Navigation drawer state
-  const [showDrawer, setShowDrawer] = useState(false);
-
-  // Activity placeholder state
-  const [showActivityPlaceholder, setShowActivityPlaceholder] = useState(false);
-  const [currentActivityName, setCurrentActivityName] = useState('');
-
   // Community states
   const [showCommunity, setShowCommunity] = useState(false);
 
@@ -527,81 +389,29 @@ export default function EmergencyEnhanced() {
     loadUserStats();
     loadCompletedWorkouts();
     loadCompletedActivities(); // PROGRESSIVE: Load individual activity completions
-    loadCompletedTasks(); // Load today's completed tasks for UI display
     // DISABLED: checkMorningFlowStatus(); // EMERGENCY DISABLE TO PREVENT CONFLICTS
   }, []);
-  
-  // DAILY TASKS INITIALIZATION - Personalized based on user profile
-  useEffect(() => {
-    const initializeDailyTasks = async () => {
-      try {
-        const tasks = await DailyTaskManager.initializeDailyTasks();
-        setDailyTasks(tasks);
-        
-        const { progress, stats } = await DailyTaskManager.getProgressStats();
-        setUserProgress(progress);
-        setProgressStats(stats);
-        
-        setTasksLoaded(true);
-      } catch (error) {
-        // Failed to initialize daily tasks
-        setTasksLoaded(true); // Still set to true to prevent loading state
-      }
-    };
-    
-    // Initialize tasks when user profile is available or after a delay
-    const timer = setTimeout(initializeDailyTasks, 1000);
-    return () => clearTimeout(timer);
-  }, [userProfile]); // Re-initialize when user profile changes
-
-  // MOBILE DETECTION - Simple user agent check for mobile bypass
-  const isMobile = () => {
-    if (typeof window !== 'undefined' && window.navigator) {
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent);
-    }
-    return false;
-  };
 
   // EMERGENCY ONBOARDING STATE MANAGER
   const initializeOnboardingState = async () => {
-    
-    // MOBILE BYPASS: Skip onboarding on mobile to prevent white screen
-    if (isMobile()) {
-      const mobileBypassState = {
-        isFirstTime: false,
-        showOnboarding: false,
-        onboardingType: 'mobile-bypass' as const,
-        hasCompletedOnboarding: true,
-        debugInfo: {
-          bypassReason: 'Mobile compatibility',
-          timestamp: new Date().toISOString()
-        }
-      };
-      setOnboardingState(mobileBypassState);
-      
-      // Set a default mobile-friendly profile
-      setUserProfile({
-        name: 'Mobile User',
-        difficulty: 'steady',
-        bypassMode: true
-      });
-      
-      return;
-    }
+    console.log('🚨 EMERGENCY INIT: Starting clean onboarding state');
     
     try {
       // Clean any potential conflicts automatically
       const conflicts = await OnboardingManager.debugConflicts();
+      console.log('🔍 CONFLICT CHECK:', conflicts);
       
       // Initialize clean state
       const state = await OnboardingManager.getOnboardingState();
       setOnboardingState(state);
       
+      console.log('✅ ONBOARDING STATE INITIALIZED:', state);
       
       // Try to load existing user profile
       try {
         const profile = await StorageService.getUserProfile();
         if (profile && state.hasCompletedOnboarding) {
+          console.log('👤 EXISTING USER PROFILE FOUND:', profile.name);
           setUserProfile(profile);
           // Update state to reflect existing user
           await OnboardingManager.updateOnboardingState({
@@ -610,11 +420,14 @@ export default function EmergencyEnhanced() {
             hasCompletedOnboarding: true
           });
         } else {
+          console.log('🆕 NEW USER OR INCOMPLETE ONBOARDING');
         }
       } catch (profileError) {
+        console.log('📝 NO EXISTING PROFILE - SHOWING ONBOARDING');
       }
       
     } catch (error) {
+      console.error('❌ EMERGENCY INIT ERROR:', error);
       // Fallback to clean state
       const fallbackState = await OnboardingManager.initializeCleanState();
       setOnboardingState(fallbackState);
@@ -623,6 +436,7 @@ export default function EmergencyEnhanced() {
 
   // MASTER ONBOARDING COMPLETION HANDLER
   const handleOnboardingComplete = async (profile: any) => {
+    console.log('🎉 MASTER ONBOARDING: Completing onboarding flow', profile);
     
     try {
       // Use OnboardingManager to handle completion
@@ -630,12 +444,14 @@ export default function EmergencyEnhanced() {
       setOnboardingState(newState);
       setUserProfile(profile);
       
+      console.log('✅ ONBOARDING COMPLETED:', newState);
       
       Alert.alert(
         'Welcome to THRIVE! 🎉',
         `Great to have you here, ${profile.name || 'THRIVE User'}! Your personalized wellness journey starts now.`
       );
     } catch (error) {
+      console.error('❌ ONBOARDING COMPLETION ERROR:', error);
     }
   };
 
@@ -683,6 +499,7 @@ export default function EmergencyEnhanced() {
       }, 1000);
     } else if (activeInlineTimer?.timeLeft === 0 && activeInlineTimer.isRunning) {
       // Complete activity when timer reaches 0
+      console.log('🚨 INLINE TIMER: Activity completed!');
       completeInlineActivity();
     }
 
@@ -736,6 +553,7 @@ export default function EmergencyEnhanced() {
         setUserStats(defaultStats);
       }
     } catch (error) {
+      console.log('Using default stats due to error:', error);
       // Use default stats if loading fails
       const defaultStats = {
         xp: 0,
@@ -749,8 +567,10 @@ export default function EmergencyEnhanced() {
   const loadCompletedWorkouts = async () => {
     try {
       const completedIds = await StorageService.getCompletedWorkouts();
+      console.log('📋 Loaded completed workouts:', completedIds);
       setCompletedWorkouts(completedIds);
     } catch (error) {
+      console.error('Failed to load completed workouts:', error);
       setCompletedWorkouts([]);
     }
   };
@@ -759,24 +579,18 @@ export default function EmergencyEnhanced() {
   const loadCompletedActivities = async () => {
     try {
       // EMERGENCY RESET: Clear all activity completions to fix incorrect display
+      console.log('🚨 EMERGENCY RESET: Clearing all completed activities to fix display bug');
       const emptyActivities = {};
       await StorageService.saveCompletedActivities(emptyActivities);
       setCompletedActivities(emptyActivities);
       
       // Previous code (disabled for emergency reset):
       // const activities = await StorageService.getCompletedActivities();
+      // console.log('🎯 Loaded completed activities:', Object.keys(activities).length, 'activities');
       // setCompletedActivities(activities);
     } catch (error) {
+      console.error('Failed to load completed activities:', error);
       setCompletedActivities({});
-    }
-  };
-
-  const loadCompletedTasks = async () => {
-    try {
-      const completedTaskIds = await ProgressStorageService.getTodayCompletedTaskIds();
-      setCompletedTasks(new Set(completedTaskIds));
-    } catch (error) {
-      setCompletedTasks(new Set());
     }
   };
 
@@ -794,24 +608,37 @@ export default function EmergencyEnhanced() {
       await StorageService.saveUserStats(storageStats);
       setUserStats(newStats);
     } catch (error) {
+      console.error('Failed to save stats:', error);
       // Still update local state even if save fails
       setUserStats(newStats);
     }
   };
 
-  // NUCLEAR RESET: Manual difficulty selection function removed - app chooses intelligently
+  // NUCLEAR RESET: Remove manual difficulty selection function (app chooses intelligently)
+  // const handleDifficultySelect = (difficulty: 'gentle' | 'steady' | 'beast') => {
+  //   // No longer needed - app automatically determines appropriate difficulty
+  // };
 
   const startWorkout = (workout: any) => {
+    console.log('🚨 DEBUG: startWorkout called with:', workout);
     
     try {
-      setInlineWorkout(workout);
-      setShowInlineTimer(true);
+      console.log('🚨 DEBUG: Setting current workout...');
+      setCurrentWorkout(workout);
       
+      console.log('🚨 DEBUG: Setting time left...');
       setTimeLeft(workout.duration * 60); // Convert minutes to seconds
       
-      setIsRunning(false); // Start paused, user can press play
+      console.log('🚨 DEBUG: Setting workout active...');
+      setIsWorkoutActive(true);
       
+      console.log('🚨 DEBUG: Setting running state...');
+      setIsRunning(true);
+      
+      console.log('🚨 DEBUG: startWorkout completed successfully');
     } catch (error) {
+      console.error('🚨 CRASH: startWorkout error:', error);
+      console.error('🚨 CRASH: Error in startWorkout:', error.message);
     }
   };
 
@@ -831,6 +658,8 @@ export default function EmergencyEnhanced() {
   };
 
   const cancelWorkout = () => {
+    console.log('🚨 AUTO-REDIRECT DEBUG: cancelWorkout() called - this will navigate to home');
+    console.log('🚨 Stack trace:', new Error().stack);
     
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -841,6 +670,7 @@ export default function EmergencyEnhanced() {
     setTimeLeft(0);
     
     // LEGITIMATE: This should return to home after canceling workout
+    console.log('✅ LEGITIMATE AUTO-REDIRECT: Workout canceled, returning to home');
     setActivePage('home');
     setCurrentPageIndex(0);
     // NUCLEAR RESET: No difficulty selection to clear
@@ -859,6 +689,7 @@ export default function EmergencyEnhanced() {
 
   // MULTIPLE TIMER FUNCTIONS
   const startInlineActivity = (activity: any, workoutId: number) => {
+    console.log('🚨 MULTI-TIMER: Starting activity:', activity.name);
     
     // Add to multiple timers map
     setActiveTimers(prev => ({
@@ -887,6 +718,7 @@ export default function EmergencyEnhanced() {
   const completeInlineActivity = () => {
     if (!activeInlineTimer) return;
     
+    console.log('🚨 INLINE TIMER: Completing activity:', activeInlineTimer.activityName);
     
     // Mark activity as completed
     const activityKey = `${activeInlineTimer.workoutId}-${activeInlineTimer.activityId}`;
@@ -898,6 +730,7 @@ export default function EmergencyEnhanced() {
     // Clear the timer
     setActiveInlineTimer(null);
     
+    console.log('✅ INLINE TIMER: Activity completed and marked');
   };
 
   const stopInlineActivity = (activityId?: string) => {
@@ -924,11 +757,13 @@ export default function EmergencyEnhanced() {
 
   // DEMO MODE HANDLERS
   const startDemoMode = () => {
+    console.log('✨ DEMO MODE: Starting tutorial/walkthrough');
     setDemoMode(true);
     setShowDemoOnboarding(true);
   };
 
   const handleDemoComplete = (profile: any) => {
+    console.log('✨ DEMO MODE: Demo completed, returning to main app');
     // Don't save demo profile - it's just for demonstration
     setShowDemoOnboarding(false);
     setDemoMode(false);
@@ -942,6 +777,7 @@ export default function EmergencyEnhanced() {
   };
 
   const exitDemoMode = () => {
+    console.log('✨ DEMO MODE: User exited demo early');
     setShowDemoOnboarding(false);
     setDemoMode(false);
   };
@@ -965,6 +801,7 @@ export default function EmergencyEnhanced() {
       setCompletedWorkouts(updatedCompletedWorkouts);
       // Persist to storage
       await StorageService.saveCompletedWorkouts(updatedCompletedWorkouts);
+      console.log('✅ Workout marked as completed:', currentWorkout.id);
     }
 
     // Update user stats
@@ -999,6 +836,7 @@ export default function EmergencyEnhanced() {
     setTimeLeft(0);
     
     // LEGITIMATE: Return to home page after workout completion  
+    console.log('✅ LEGITIMATE AUTO-REDIRECT: Workout completed, returning to home');
     setActivePage('home');
     setCurrentPageIndex(0);
     // NUCLEAR RESET: No difficulty selection to clear
@@ -1009,6 +847,7 @@ export default function EmergencyEnhanced() {
 
   // PROGRESSIVE ACTIVITY COMPLETION SYSTEM
   const toggleActivityCompletion = async (activityId: string, workoutId: number) => {
+    console.log('🎯 PROGRESSIVE: Toggling activity completion for:', activityId);
     
     const isCompleted = completedActivities[activityId] || false;
     const newCompletedActivities = {
@@ -1035,9 +874,11 @@ export default function EmergencyEnhanced() {
         totalCount: workout.activities.length
       });
       
+      console.log(`🎯 PROGRESS: ${completedInWorkout}/${workout.activities.length} activities completed in workout ${workoutId}`);
       
       // Auto-complete workout when all activities are done
       if (completedInWorkout === workout.activities.length) {
+        console.log('🎉 PROGRESSIVE: All activities completed! Auto-completing workout...');
         
         // NUCLEAR RESET: Intelligent XP calculation based on workout complexity
         const intelligentXP = calculateIntelligentXP(workout);
@@ -1192,6 +1033,7 @@ export default function EmergencyEnhanced() {
   };
 
   const resetWorkoutProgress = async (workoutId: number) => {
+    console.log('🔄 PROGRESSIVE: Resetting progress for workout:', workoutId);
     
     const workout = Object.values(workoutDatabase)
       .flat()
@@ -1215,24 +1057,27 @@ export default function EmergencyEnhanced() {
   };
 
   const hideCelebration = () => {
+    console.log('🎉 Celebration closed, triggering mood tracking');
     setShowCelebration(false);
     
     // After celebration, automatically show mood tracker
     if (completedWorkoutData) {
+      console.log('😊 Showing mood tracker with workout data:', completedWorkoutData);
       setShowMoodTracker(true);
     }
   };
 
   const handleMoodTrackingComplete = (mood: number, response: string) => {
+    console.log('😊 Mood tracking completed:', mood, response);
     setShowMoodTracker(false);
     setCompletedWorkoutData(null);
     setDailyMood(mood);
-    setCurrentPageIndex(0);
-    setActivePage('home');
+    console.log('🏠 Returning to dashboard after mood tracking');
   };
 
   // EMERGENCY BYPASS: Inline timer to avoid navigation crashes
   const quickStartWorkout = (difficulty: 'gentle' | 'steady' | 'beast') => {
+    console.log('🚨 EMERGENCY BYPASS: Starting inline timer for:', difficulty);
     
     try {
       // Create workout based on difficulty
@@ -1243,21 +1088,25 @@ export default function EmergencyEnhanced() {
       };
       
       const selectedWorkout = workoutData[difficulty];
+      console.log('🚨 EMERGENCY BYPASS: Created workout:', selectedWorkout);
       
       // BYPASS NAVIGATION: Show inline timer instead of separate screen
-      // NUCLEAR RESET: Removed setSelectedDifficulty - no longer needed
+      setSelectedDifficulty(difficulty);
       setInlineWorkout(selectedWorkout);
       setTimeLeft(selectedWorkout.duration * 60);
       setShowInlineTimer(true);
       setIsRunning(false); // Start paused
       
+      console.log('🚨 EMERGENCY BYPASS: Inline timer activated - no navigation needed!');
       
     } catch (error) {
+      console.error('🚨 EMERGENCY BYPASS ERROR:', error);
       alert(`Error starting ${difficulty} workout. Please try again.`);
     }
   };
 
   const quickMoodCheckin = () => {
+    console.log('😊 Quick mood check-in button pressed');
     setShowMoodTracker(true);
     setCompletedWorkoutData({ 
       difficulty: 'gentle', 
@@ -1265,14 +1114,16 @@ export default function EmergencyEnhanced() {
       workoutName: 'Quick Mood Check',
       workoutDuration: 0
     }); // Mock data for mood-only check
+    console.log('😊 Mood tracker modal should be showing');
   };
 
   const testWorkoutFlow = () => {
+    console.log('🧪 Testing complete workout to mood tracking flow');
     
     // Simulate workout completion
     const mockWorkout = { name: "Test Breathing", duration: 3 };
     setCurrentWorkout(mockWorkout);
-    // NUCLEAR RESET: Removed setSelectedDifficulty - no longer needed
+    setSelectedDifficulty('gentle');
     
     // Trigger completion flow
     const mockCompletedData = {
@@ -1294,21 +1145,27 @@ export default function EmergencyEnhanced() {
     setUserStats(newStats);
     
     // Show celebration first
+    console.log('🎉 Showing celebration modal');
     setShowCelebration(true);
   };
 
   const backToDashboard = () => {
+    console.log('🚨 AUTO-REDIRECT DEBUG: backToDashboard() called - this will navigate to home');
+    console.log('🚨 Stack trace:', new Error().stack);
     
     // LEGITIMATE: User explicitly requested to go back to dashboard
+    console.log('✅ LEGITIMATE AUTO-REDIRECT: User clicked back to dashboard');
     setActivePage('home');
     setCurrentPageIndex(0);
-    // NUCLEAR RESET: Removed setSelectedDifficulty - no longer needed
+    setSelectedDifficulty(null);
     if (isWorkoutActive) {
       cancelWorkout();
     }
   };
 
   const handlePageChange = (page: PageName, index: number) => {
+    console.log('🎯 FORCE PAGE CHANGE: Page changed to:', page, 'index:', index);
+    console.log('🎯 DOT UPDATE DEBUG: Setting currentPageIndex from', currentPageIndex, 'to', index);
     
     // FORCE STATE UPDATE: Always update both states immediately
     setActivePage(page);
@@ -1316,10 +1173,15 @@ export default function EmergencyEnhanced() {
     
     // FORCE RE-RENDER: Log state after update
     setTimeout(() => {
+      console.log('🎯 STATE VERIFICATION: currentPageIndex is now', currentPageIndex, 'activePage is', page);
     }, 100);
     
+    console.log('✅ SWIPE COMPLETE: Now on page:', page);
     
-    // NUCLEAR RESET: Removed difficulty clearing - no longer needed with profile-driven system
+    // Clear any selected difficulty when switching pages
+    if (page !== 'home') {
+      setSelectedDifficulty(null);
+    }
   };
 
   const getMotivationalMessage = () => {
@@ -1412,20 +1274,28 @@ export default function EmergencyEnhanced() {
     };
   };
 
-  // HOME SCREEN REDESIGN: getXPProgress function removed - no longer needed
+  const getXPProgress = () => {
+    const todayXP = userStats.xp % 100; // Simulate daily XP
+    const percentage = (todayXP / 50) * 100; // Daily goal of 50 XP
+    return Math.min(percentage, 100);
+  };
 
   const showWorkoutVideoDemo = (workout: any) => {
+    console.log('🎥 Showing workout video demo for:', workout.name);
     setSelectedVideoWorkout(workout);
     setShowVideoPlayer(true);
   };
 
   const closeVideoDemo = () => {
+    console.log('🎥 Closing video demo');
     setShowVideoPlayer(false);
     setSelectedVideoWorkout(null);
   };
 
   // EMERGENCY DISABLE: Morning flow function completely disabled to prevent conflicts
   const checkMorningFlowStatus = async () => {
+    console.log('🚨 EMERGENCY DISABLE: Morning flow system disabled to prevent onboarding conflicts');
+    console.log('🔄 Use OnboardingManager for all onboarding state instead');
     return; // EMERGENCY EARLY RETURN
     
     // DISABLED CODE BELOW - kept for reference
@@ -1434,6 +1304,7 @@ export default function EmergencyEnhanced() {
       const lastMorningFlowDate = await StorageService.getMorningFlowDate();
       const today = new Date().toDateString();
       
+      console.log('🌅 Checking morning flow status:', {
         lastDate: lastMorningFlowDate,
         today: today,
         hasSeenToday: lastMorningFlowDate === today
@@ -1443,55 +1314,37 @@ export default function EmergencyEnhanced() {
       /*
       if (lastMorningFlowDate !== today) {
         // User hasn't seen morning flow today
+        console.log('🌅 Showing morning flow for new day');
         setHasSeenMorningFlowToday(false);
         // Show morning flow after a brief delay
         setTimeout(() => {
           setShowMorningFlow(true);
         }, 1000);
       } else {
+        console.log('🌅 User already completed morning flow today');
         setHasSeenMorningFlowToday(true);
       }
     } catch (error) {
+      console.error('Failed to check morning flow status:', error);
       // Default to showing morning flow if we can't check
       setShowMorningFlow(true);
     }
     */
   };
 
-  // NAVIGATION DRAWER HANDLERS
-  const handleDrawerOpen = () => {
-    setShowDrawer(true);
+  // EMERGENCY DISABLE: Morning flow completion handlers
+  const completeMorningFlow = () => {
+    console.log('🚨 EMERGENCY DISABLE: Morning flow system disabled');
+    return; // EMERGENCY EARLY RETURN
   };
 
-  const handleDrawerClose = () => {
-    setShowDrawer(false);
+  const startMorningFlow = () => {
+    console.log('🚨 EMERGENCY DISABLE: Morning flow system disabled');
+    return; // EMERGENCY EARLY RETURN
   };
-
-  const handleDrawerMorningFlow = () => {
-    // TODO: Navigate to Morning Flow when implemented
-    Alert.alert('Morning Flow', 'Morning Flow feature coming soon!');
-  };
-
-  const handleDrawerMood = () => {
-    quickMoodCheckin();
-  };
-
-  const handleDrawerDemo = () => {
-    startDemoMode();
-  };
-
-  const handleDrawerHelp = () => {
-    Alert.alert('Help & Support', 'Help and Support feature coming soon!');
-  };
-
-  const handleDrawerProfile = () => {
-    setShowDemoOnboarding(true); // Use demo onboarding to show/edit profile
-  };
-
-  // NUCLEAR RESET: Morning flow functions removed - no longer needed
 
   const handleReset = () => {
-    // NUCLEAR RESET: Removed setSelectedDifficulty - no longer needed
+    setSelectedDifficulty(null);
     setCompletedWorkouts([]);
     if (isWorkoutActive) {
       cancelWorkout();
@@ -1548,6 +1401,8 @@ export default function EmergencyEnhanced() {
 
   // EMERGENCY INLINE TIMER: NO NAVIGATION - Start activity inline
   const startActivityTimer = (activity: any, workoutId: number) => {
+    console.log('🚨 INLINE TIMER: Starting activity inline - NO NAVIGATION');
+    console.log('🚨 Activity:', activity.name, 'Duration:', activity.duration);
     
     // Set inline timer state - NO navigation, timer appears inline
     setActiveInlineTimer({
@@ -1559,12 +1414,14 @@ export default function EmergencyEnhanced() {
       isRunning: true
     });
     
+    console.log('🚨 INLINE TIMER: Timer activated inline');
   };
 
 
 
   // STOP INLINE TIMER: Stop current inline timer
   const stopInlineTimer = () => {
+    console.log('🚨 INLINE TIMER: Stopping inline timer');
     setActiveInlineTimer(null);
   };
 
@@ -1615,27 +1472,33 @@ export default function EmergencyEnhanced() {
 
   // 🔥 DIAGNOSTIC: Simple test functions
   const testBasicClick = () => {
+    console.log('🔥 DIAGNOSTIC: Basic button clicked!');
     setDiagnosticTest('BUTTON WORKS!');
     alert('Basic button clicked successfully!');
   };
 
   const testSimpleTimer = () => {
+    console.log('🔥 DIAGNOSTIC: Starting simple countdown');
     setDiagnosticTest('COUNTING...');
     let count = 5;
     const interval = setInterval(() => {
       count--;
       setSimpleCounter(count);
+      console.log('🔥 DIAGNOSTIC: Count:', count);
       if (count <= 0) {
         clearInterval(interval);
         setDiagnosticTest('COUNTDOWN COMPLETE!');
+        console.log('🔥 DIAGNOSTIC: Countdown finished');
       }
     }, 1000);
   };
 
   // 🔥 DIAGNOSTIC: Ultimate simple task list with full testing
   const renderDiagnosticTaskList = (workout: any) => {
+    console.log('🔥 DIAGNOSTIC: Rendering task list, workout:', workout);
     
     if (!workout || !workout.activities) {
+      console.log('🔥 DIAGNOSTIC: No workout or activities found');
       return (
         <View style={styles.diagnosticCard}>
           <Text style={styles.diagnosticTitle}>🔥 DIAGNOSTIC: No Activities Found</Text>
@@ -1643,6 +1506,7 @@ export default function EmergencyEnhanced() {
       );
     }
 
+    console.log('🔥 DIAGNOSTIC: Found', workout.activities.length, 'activities');
 
     return (
       <>
@@ -1674,6 +1538,7 @@ export default function EmergencyEnhanced() {
           const isCompleted = completedActivities[activity.id] || false;
           const isTimerActive = activeInlineTimer?.activityId === activity.id;
           
+          console.log('🔥 DIAGNOSTIC: Task', index, ':', activity.name, 'Completed:', isCompleted, 'Timer:', isTimerActive);
 
           return (
             <View key={activity.id} style={styles.diagnosticTaskCard}>
@@ -1689,10 +1554,15 @@ export default function EmergencyEnhanced() {
                   <TouchableOpacity 
                     style={styles.diagnosticStartButton}
                     onPress={() => {
+                      console.log('🔥 DIAGNOSTIC: Start button pressed for:', activity.name);
+                      console.log('🔥 DIAGNOSTIC: Activity object:', activity);
+                      console.log('🔥 DIAGNOSTIC: Workout ID:', workout.id);
                       
                       try {
                         startActivityTimer(activity, workout.id);
+                        console.log('🔥 DIAGNOSTIC: startActivityTimer completed without error');
                       } catch (error) {
+                        console.error('🔥 DIAGNOSTIC: ERROR in startActivityTimer:', error);
                         alert('ERROR: ' + error.message);
                       }
                     }}
@@ -1724,6 +1594,7 @@ export default function EmergencyEnhanced() {
 
   // COMPLETE INDIVIDUAL ACTIVITY: Handle activity completion
   const completeIndividualActivity = async (activityId: string, workoutId: number) => {
+    console.log('✅ Completing individual activity:', activityId);
     
     // Mark activity as completed
     const newCompletedActivities = {
@@ -1741,6 +1612,7 @@ export default function EmergencyEnhanced() {
       );
       
       if (allCompleted) {
+        console.log('🎉 All activities completed for workout:', workoutId);
         // Complete the entire workout
         if (!completedWorkouts.includes(workoutId)) {
           const updatedCompletedWorkouts = [...completedWorkouts, workoutId];
@@ -1766,6 +1638,9 @@ export default function EmergencyEnhanced() {
 
   // OLD EMERGENCY TIMER - DISABLED (NOW USING INLINE TIMER)
   if (false && isWorkoutActive && currentWorkout) {
+    console.log('🚨 EMERGENCY TIMER: Rendering safe timer component');
+    console.log('🚨 Current workout data:', currentWorkout);
+    console.log('🚨 Time left:', timeLeft);
     
     return (
       <View style={{ 
@@ -1786,6 +1661,7 @@ export default function EmergencyEnhanced() {
             borderRadius: 25
           }, styles.thriveButtonPrimary]}
           onPress={() => {
+            console.log('🚨 EMERGENCY TIMER: Going back to home');
             setIsWorkoutActive(false);
             setCurrentWorkout(null);
             setIsRunning(false);
@@ -1842,6 +1718,7 @@ export default function EmergencyEnhanced() {
               alignItems: 'center'
             }}
             onPress={() => {
+              console.log('🚨 BASIC TIMER: Toggle pause/resume');
               setIsRunning(!isRunning);
             }}
           >
@@ -1864,6 +1741,7 @@ export default function EmergencyEnhanced() {
               alignItems: 'center'
             }}
             onPress={() => {
+              console.log('🚨 EMERGENCY TIMER: Activity completed manually');
               if (currentWorkout?.isIndividualActivity) {
                 completeIndividualActivity(currentWorkout.id, currentWorkout.workoutId);
               } else {
@@ -1896,115 +1774,21 @@ export default function EmergencyEnhanced() {
     );
   }
 
-  // Comprehensive Stats Dashboard - ADHD-Friendly Design
-  const renderComprehensiveStats = () => {
-    // Calculate dynamic stats from available data
-    const todayCompletedTasks = dailyTasks.filter(task => task.progression?.completionCount > 0).length;
-    const totalAvailableTasks = dailyTasks.length;
-    const todayProgress = totalAvailableTasks > 0 ? Math.round((todayCompletedTasks / totalAvailableTasks) * 100) : 0;
-    
-    // Mock additional stats (in production, these would come from storage/services)
-    const weeklyProgress = 78; // Percentage of weekly goals met
-    const mentalHealthLevel = 7; // 1-10 scale
-    const consistencyRating = 85; // Percentage consistency score
-    const totalTasksCompleted = userStats.totalWorkouts || 127; // Use existing data as fallback
-    const averageTime = 12; // minutes per task
-    const progressLevel = Math.min(10, Math.floor(totalTasksCompleted / 10) + 1);
-    
-    return (
-      <View style={styles.comprehensiveStatsContainer}>
-        {/* Primary Stats Grid */}
-        <View style={styles.primaryStatsGrid}>
-          {/* Current Streak */}
-          <View style={[styles.statCard, styles.primaryStatCard]}>
-            <Text style={styles.statNumber}>{userStats.streak}</Text>
-            <Text style={styles.statLabel}>Day Streak</Text>
-            <View style={styles.streakIndicator}>
-              <View style={[styles.streakDot, userStats.streak > 0 ? styles.streakActive : styles.streakInactive]} />
-              <Text style={styles.streakStatus}>{userStats.streak > 0 ? 'Active' : 'Start Today!'}</Text>
-            </View>
-          </View>
-
-          {/* Today's Tasks */}
-          <View style={[styles.statCard, styles.primaryStatCard]}>
-            <View style={styles.taskProgress}>
-              <Text style={styles.statNumber}>{todayCompletedTasks}/{totalAvailableTasks}</Text>
-              <Text style={styles.statLabel}>Today's Tasks</Text>
-            </View>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${todayProgress}%` }]} />
-            </View>
-            <Text style={styles.progressPercentage}>{todayProgress}% complete</Text>
-          </View>
-
-          {/* Weekly Progress */}
-          <View style={[styles.statCard, styles.primaryStatCard]}>
-            <Text style={styles.statNumber}>{weeklyProgress}%</Text>
-            <Text style={styles.statLabel}>Weekly Progress</Text>
-            <View style={styles.weeklyIndicator}>
-              {[1,2,3,4,5,6,7].map(day => (
-                <View 
-                  key={day} 
-                  style={[
-                    styles.weekDot, 
-                    day <= Math.ceil(weeklyProgress/100 * 7) ? styles.weekActive : styles.weekInactive
-                  ]} 
-                />
-              ))}
-            </View>
-          </View>
-
-          {/* Mental Health Score */}
-          <View style={[styles.statCard, styles.primaryStatCard]}>
-            <Text style={styles.statNumber}>{mentalHealthLevel}/10</Text>
-            <Text style={styles.statLabel}>Mental Health</Text>
-            <View style={styles.healthMeter}>
-              <View style={[styles.healthFill, { width: `${mentalHealthLevel * 10}%` }]} />
-            </View>
-            <Text style={styles.healthLevel}>
-              {mentalHealthLevel >= 8 ? 'Excellent' : mentalHealthLevel >= 6 ? 'Good' : mentalHealthLevel >= 4 ? 'Fair' : 'Needs Focus'}
-            </Text>
-          </View>
-        </View>
-
-        {/* Secondary Stats Row */}
-        <View style={styles.secondaryStatsRow}>
-          <View style={[styles.statCard, styles.secondaryStatCard]}>
-            <Text style={styles.miniStatNumber}>{totalTasksCompleted}</Text>
-            <Text style={styles.miniStatLabel}>Total Tasks</Text>
-          </View>
-          
-          <View style={[styles.statCard, styles.secondaryStatCard]}>
-            <Text style={styles.miniStatNumber}>{averageTime}m</Text>
-            <Text style={styles.miniStatLabel}>Avg Time</Text>
-          </View>
-          
-          <View style={[styles.statCard, styles.secondaryStatCard]}>
-            <Text style={styles.miniStatNumber}>Lv.{progressLevel}</Text>
-            <Text style={styles.miniStatLabel}>Progress</Text>
-          </View>
-          
-          <View style={[styles.statCard, styles.secondaryStatCard]}>
-            <Text style={styles.miniStatNumber}>{consistencyRating}%</Text>
-            <Text style={styles.miniStatLabel}>Consistency</Text>
-          </View>
-        </View>
-
-        {/* Quick Achievement Badge */}
-        {todayCompletedTasks > 0 && (
-          <View style={styles.achievementBadge}>
-            <Text style={styles.achievementText}>🎯 Great start today!</Text>
-          </View>
-        )}
-        
-        {userStats.streak >= 7 && (
-          <View style={styles.achievementBadge}>
-            <Text style={styles.achievementText}>🔥 Week streak champion!</Text>
-          </View>
-        )}
+  // Dashboard components
+  const renderMinimalStats = () => (
+    <View style={styles.minimalStatsContainer}>
+      <View style={styles.streakDisplay}>
+        <Text style={styles.streakNumber}>{userStats.streak}</Text>
+        <Text style={styles.streakLabel}>day streak</Text>
       </View>
-    );
-  };
+      <View style={styles.progressDisplay}>
+        <View style={styles.progressCircle}>
+          <Text style={styles.progressPercent}>{Math.round(getXPProgress())}%</Text>
+        </View>
+        <Text style={styles.progressLabel}>daily goal</Text>
+      </View>
+    </View>
+  );
 
   // PROFILE-BASED: Default difficulty determined by user's pathway from profile system
   const [selectedIntensity, setSelectedIntensity] = useState<'gentle' | 'steady' | 'beast'>('steady'); // Will be set from profile
@@ -2047,6 +1831,7 @@ export default function EmergencyEnhanced() {
       
       return 'steady'; // Default if no profile
     } catch (error) {
+      console.log('Could not load profile for difficulty:', error);
       return 'steady'; // Default fallback
     }
   };
@@ -2055,6 +1840,7 @@ export default function EmergencyEnhanced() {
   useEffect(() => {
     getDifficultyFromProfile().then(difficulty => {
       setSelectedIntensity(difficulty);
+      console.log('🎯 PROFILE-BASED DIFFICULTY:', difficulty);
     });
   }, []);
 
@@ -2063,6 +1849,7 @@ export default function EmergencyEnhanced() {
     
     // 🚨 EMERGENCY BYPASS: Show inline timer instead of difficulty selection if active
     if (showInlineTimer && inlineWorkout) {
+      console.log('🚨 EMERGENCY BYPASS: Rendering inline timer component');
       
       return (
         <View style={styles.inlineTimerContainer}>
@@ -2070,6 +1857,7 @@ export default function EmergencyEnhanced() {
           <TouchableOpacity 
             style={styles.inlineBackButton}
             onPress={() => {
+              console.log('🚨 EMERGENCY BYPASS: Going back to selection');
               setShowInlineTimer(false);
               setInlineWorkout(null);
               setIsRunning(false);
@@ -2110,6 +1898,7 @@ export default function EmergencyEnhanced() {
             <TouchableOpacity 
               style={[styles.inlineControlButton, styles.inlineStartPauseButton]}
               onPress={() => {
+                console.log('🚨 EMERGENCY BYPASS: Toggle start/pause');
                 setIsRunning(!isRunning);
               }}
             >
@@ -2121,6 +1910,7 @@ export default function EmergencyEnhanced() {
             <TouchableOpacity 
               style={[styles.inlineControlButton, styles.inlineCompleteButton]}
               onPress={() => {
+                console.log('🚨 EMERGENCY BYPASS: Workout completed manually');
                 // Mark as complete and show success
                 setShowInlineTimer(false);
                 setInlineWorkout(null);
@@ -2175,9 +1965,15 @@ export default function EmergencyEnhanced() {
               { backgroundColor: getDifficultyColor(selectedIntensity) }
             ]}
             onPress={() => {
+              console.log('🚨 DEBUG: DIRECT START BUTTON CLICKED!');
+              console.log('🚨 DEBUG: Profile-based intensity:', selectedIntensity);
               try {
+                console.log('🚨 DEBUG: About to call quickStartWorkout...');
                 quickStartWorkout(selectedIntensity);
+                console.log('🚨 DEBUG: quickStartWorkout completed successfully');
               } catch (error) {
+                console.error('🚨 CRASH: Start button error:', error);
+                console.error('🚨 CRASH: Stack trace:', error.stack);
               }
             }}
             activeOpacity={0.85}
@@ -2207,7 +2003,25 @@ export default function EmergencyEnhanced() {
         <Text style={styles.inspirationText}>{getMotivationalMessage()}</Text>
       </View>
 
-      {/* HOME SCREEN REDESIGN: "How are you feeling?" section completely removed */}
+      {/* Quick Access */}
+      <View style={styles.quickAccessCard}>
+        <TouchableOpacity 
+          style={styles.quickAccessButton}
+          onPress={quickMoodCheckin}
+        >
+          <Text style={styles.quickAccessIcon}>😊</Text>
+          <Text style={styles.quickAccessText}>How are you feeling?</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* DISABLED: Morning Flow Status (EMERGENCY DISABLE) */}
+      {/* Morning flow completely disabled to prevent onboarding conflicts */}
+      {false && (
+        <View style={styles.completionCard}>
+          <Text style={styles.completionEmoji}>✨</Text>
+          <Text style={styles.completionText}>Morning intention set</Text>
+        </View>
+      )}
     </View>
   );
 
@@ -2215,115 +2029,13 @@ export default function EmergencyEnhanced() {
 
   // CLEAN PROFILE-DRIVEN CONTENT: No selection required
   const renderTodaysActivities = () => {
-    // 🚨 WORKOUT ACTIVE: Show inline timer if workout is running
-    if (showInlineTimer && inlineWorkout) {
-      return renderFocusedActions();
-    }
-
-    // Show personalized daily tasks if available, otherwise show recommended activities
-    if (tasksLoaded && dailyTasks.length > 0) {
-      return (
-        <View style={styles.todaysActivitiesSection}>
-          <Text style={styles.sectionTitle}>Today's Personalized Tasks</Text>
-          <Text style={styles.sectionSubtitle}>
-            {userProgress ? 
-              `${DailyTaskManager.getProgressLevelDescription(Math.floor((userProgress.fitnessLevel + userProgress.mentalHealthProgress) / 2))}` : 
-              'Curated for your wellness journey'
-            }
-          </Text>
-          
-          {progressStats && (
-            <View style={styles.progressStatsCard}>
-              <Text style={styles.progressStatsText}>
-                🔥 {progressStats.currentStreak} day streak • 
-                ✅ {progressStats.todayCompleted} completed today • 
-                📈 Level {userProgress?.adaptedDifficulty || 'beginner'}
-              </Text>
-            </View>
-          )}
-          
-          {dailyTasks.map((task, index) => {
-            const isCompleted = completedTasks.has(task.id);
-            const isCompleting = completingTasks.has(task.id);
-            
-
-            
-            return (
-              <AnimatedTaskCard 
-                key={task.id} 
-                task={task}
-                isCompleted={isCompleted}
-                isCompleting={isCompleting}
-                onStartTask={() => {
-                  setSelectedTask(task);
-                  setShowTaskDetail(true);
-                }}
-                onCompleteTask={async () => {
-                  console.log('🔥 NUCLEAR HOME PAGE: Starting task completion for', task.id, task.title);
-                  
-                  try {
-                    // NUCLEAR FIX: Show completing state immediately
-                    console.log('⏳ NUCLEAR: Setting completing state for task', task.id);
-                    setCompletingTasks(prev => {
-                      const newSet = new Set([...prev, task.id]);
-                      console.log('⏳ NUCLEAR: New completing tasks set:', Array.from(newSet));
-                      return newSet;
-                    });
-                    
-                    // NUCLEAR FIX: Complete the task with detailed logging
-                    console.log('💾 NUCLEAR: Calling DailyTaskManager.completeTask for', task.id);
-                    await DailyTaskManager.completeTask(task.id, 'good');
-                    console.log('✅ NUCLEAR: DailyTaskManager.completeTask SUCCESS for', task.id);
-                    
-                    // NUCLEAR FIX: Mark as completed with bulletproof state update
-                    console.log('🎯 NUCLEAR: Setting completed state for task', task.id);
-                    setCompletedTasks(prev => {
-                      const newSet = new Set([...prev, task.id]);
-                      console.log('✅ NUCLEAR: New completed tasks set:', Array.from(newSet));
-                      return newSet;
-                    });
-                    
-                    // NUCLEAR FIX: Small delay to ensure state propagation
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    
-                    // NUCLEAR FIX: Remove from completing state
-                    console.log('🏁 NUCLEAR: Removing completing state for task', task.id);
-                    setCompletingTasks(prev => {
-                      const newSet = new Set(prev);
-                      newSet.delete(task.id);
-                      console.log('🏁 NUCLEAR: Final completing tasks set:', Array.from(newSet));
-                      return newSet;
-                    });
-                    
-                    console.log('🎉 NUCLEAR HOME PAGE: Task completion SUCCESS for', task.id);
-                    
-                  } catch (error) {
-                    console.error('❌ NUCLEAR HOME PAGE: Task completion ERROR for', task.id, error);
-                    Alert.alert('Error', 'Failed to complete task: ' + (error as Error).message);
-                    
-                    // NUCLEAR FIX: Remove from completing state on error
-                    setCompletingTasks(prev => {
-                      const newSet = new Set(prev);
-                      newSet.delete(task.id);
-                      console.log('❌ NUCLEAR: Cleared completing state after error for', task.id);
-                      return newSet;
-                    });
-                  }
-                }}
-              />
-            );
-          })}
-        </View>
-      );
-    }
-    
-    // Fallback to recommended activities if daily tasks aren't loaded yet
+    // Automatically determine recommended activities based on profile/time/previous completion
     const recommendedActivities = getRecommendedActivities();
     
     return (
       <View style={styles.todaysActivitiesSection}>
         <Text style={styles.sectionTitle}>Today's Activities</Text>
-        <Text style={styles.sectionSubtitle}>Loading personalized tasks...</Text>
+        <Text style={styles.sectionSubtitle}>Curated for your wellness journey</Text>
         
         {recommendedActivities.map((activity, index) => (
           <View key={index} style={styles.activityCard}>
@@ -2333,10 +2045,7 @@ export default function EmergencyEnhanced() {
             
             <TouchableOpacity 
               style={styles.startActivityButton}
-              onPress={() => {
-                startWorkout(activity);
-              }}
-              activeOpacity={0.7}
+              onPress={() => startWorkout(activity)}
             >
               <Text style={styles.startActivityButtonText}>Start Activity</Text>
             </TouchableOpacity>
@@ -2371,7 +2080,187 @@ export default function EmergencyEnhanced() {
   };
 
   // NUCLEAR RESET: Removed renderMotivationalStatsContent function (replaced by profile-driven content)
-  // NUCLEAR RESET: Large block of orphaned code removed completely
+  // const renderMotivationalStatsContent = () => { /* REMOVED - 160+ lines of redundant journey selection content */ };
+    const currentLevel = Math.floor(userStats.xp / 100) + 1;
+    const progressToNextLevel = userStats.xp % 100;
+    const weeklyGoal = 5; // 5 workouts per week
+    const weeklyProgress = Math.min(userStats.totalWorkouts % 7, weeklyGoal);
+    const monthlyWorkouts = userStats.totalWorkouts % 30;
+    
+    // Journey-specific messaging
+    const journeyMessage = selectedJourney === 'new' 
+      ? "Building your foundation step by step 🌱" 
+      : selectedJourney === 'potential'
+      ? "Unlocking your maximum potential ✨"
+      : "Select your journey above to personalize your experience";
+    
+    return (
+      <Animated.View style={[styles.motivationalContainer]}>
+        {/* Current Stats Overview */}
+        <View style={styles.statsOverviewSection}>
+          <Text style={styles.statsOverviewTitle}>Your THRIVE Journey</Text>
+          
+          {/* Main Stats Grid */}
+          <View style={styles.statsGrid}>
+            {/* Streak Card */}
+            <View style={styles.statCard}>
+              <Text style={styles.statEmoji}>🔥</Text>
+              <Text style={styles.statNumber}>{userStats.streak}</Text>
+              <Text style={styles.statLabel}>Day Streak</Text>
+              {userStats.streak > 0 && (
+                <Text style={styles.statSubtext}>Keep it going!</Text>
+              )}
+            </View>
+            
+            {/* XP & Level Card */}
+            <View style={styles.statCard}>
+              <Text style={styles.statEmoji}>💎</Text>
+              <Text style={styles.statNumber}>{userStats.xp}</Text>
+              <Text style={styles.statLabel}>Total XP</Text>
+              <Text style={styles.statSubtext}>Level {currentLevel}</Text>
+            </View>
+            
+            {/* Total Workouts Card */}
+            <View style={styles.statCard}>
+              <Text style={styles.statEmoji}>💪</Text>
+              <Text style={styles.statNumber}>{userStats.totalWorkouts}</Text>
+              <Text style={styles.statLabel}>Workouts</Text>
+              <Text style={styles.statSubtext}>Total completed</Text>
+            </View>
+          </View>
+        </View>
+        
+        {/* Progress & Goals Section */}
+        <View style={styles.progressSection}>
+          {/* Level Progress */}
+          <View style={styles.progressItem}>
+            <View style={styles.progressHeader}>
+              <Text style={styles.progressTitle}>⭐ Level {currentLevel} Progress</Text>
+              <Text style={styles.progressValue}>{progressToNextLevel}/100 XP</Text>
+            </View>
+            <View style={styles.progressBarContainer}>
+              <View 
+                style={[
+                  styles.progressBar, 
+                  { width: `${progressToNextLevel}%` }
+                ]} 
+              />
+            </View>
+          </View>
+          
+          {/* Weekly Goal Progress */}
+          <View style={styles.progressItem}>
+            <View style={styles.progressHeader}>
+              <Text style={styles.progressTitle}>🏆 Weekly Goal</Text>
+              <Text style={styles.progressValue}>{weeklyProgress}/{weeklyGoal} workouts</Text>
+            </View>
+            <View style={styles.progressBarContainer}>
+              <View 
+                style={[
+                  styles.progressBar, 
+                  { width: `${(weeklyProgress / weeklyGoal) * 100}%` }
+                ]} 
+              />
+            </View>
+            {weeklyProgress < weeklyGoal && (
+              <Text style={styles.goalMotivation}>
+                {weeklyGoal - weeklyProgress} more to reach your weekly goal!
+              </Text>
+            )}
+          </View>
+        </View>
+        
+        {/* Achievements & Badges */}
+        <View style={styles.achievementsSection}>
+          <Text style={styles.achievementsTitle}>Recent Achievements</Text>
+          <View style={styles.badgesContainer}>
+            {userStats.streak >= 7 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeEmoji}>⭐</Text>
+                <Text style={styles.badgeText}>Week Warrior</Text>
+              </View>
+            )}
+            {userStats.totalWorkouts >= 10 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeEmoji}>💪</Text>
+                <Text style={styles.badgeText}>10 Workouts</Text>
+              </View>
+            )}
+            {userStats.xp >= 250 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeEmoji}>💎</Text>
+                <Text style={styles.badgeText}>XP Master</Text>
+              </View>
+            )}
+            {/* Special first-time user badges */}
+            {userStats.totalWorkouts === 0 && (
+              <>
+                <View style={styles.badge}>
+                  <Text style={styles.badgeEmoji}>🌱</Text>
+                  <Text style={styles.badgeText}>New Journey</Text>
+                </View>
+                <View style={styles.badge}>
+                  <Text style={styles.badgeEmoji}>✨</Text>
+                  <Text style={styles.badgeText}>Full Potential</Text>
+                </View>
+              </>
+            )}
+            {/* Milestone badges for beginners */}
+            {userStats.totalWorkouts === 1 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeEmoji}>🎉</Text>
+                <Text style={styles.badgeText}>First Step!</Text>
+              </View>
+            )}
+          </View>
+        </View>
+        
+        {/* Journey Status & Call to Action */}
+        <View style={styles.journeyStatusContainer}>
+          <Text style={styles.journeyStatusText}>{journeyMessage}</Text>
+        </View>
+        
+        <View style={styles.motivationalCTA}>
+          {userStats.totalWorkouts === 0 ? (
+            <>
+              <Text style={styles.ctaTitle}>Welcome to THRIVE! 🚀</Text>
+              <Text style={styles.ctaSubtitle}>
+                {selectedJourney ? "Now select your intensity level to begin!" : "Choose your journey and intensity above to start!"}
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.ctaTitle}>Ready to THRIVE? 💚</Text>
+              <Text style={styles.ctaSubtitle}>
+                {selectedJourney && selectedDifficulty ? "Perfect! Your personalized workout awaits below." : "Complete your selections above to continue!"}
+              </Text>
+            </>
+          )}
+        </View>
+      </Animated.View>
+    );
+  };
+  
+  // WORKOUT TASKS: Selected difficulty state with journey modifications
+  // NUCLEAR RESET: Remove old workout tasks function (replaced by profile-driven activities)
+  // const renderWorkoutTasksContent = () => { /* REMOVED */ };
+
+  // NUCLEAR REBUILD: FRESH HOME PAGE FROM SCRATCH
+  const renderDashboard = () => (
+    <View style={styles.nuclearCleanPage}>
+      {/* CLEAN WELCOME HEADER */}
+      <View style={styles.cleanWelcomeHeader}>
+        <Text style={styles.welcomeTitle}>Ready to THRIVE Today?</Text>
+        <Text style={styles.welcomeSubtitle}>Your personalized activities are ready</Text>
+      </View>
+      
+      {/* TODAY'S ACTIVITIES SECTION */}
+      {renderTodaysActivities()}
+      
+      {/* PROFILE-DRIVEN CONTENT */}
+      {renderProfileDrivenContent()}
+    </View>
+  );
 
   // HELPER: Count completed activities for progressive revelation
   const getCompletedActivitiesCount = (workout: any) => {
@@ -2382,54 +2271,340 @@ export default function EmergencyEnhanced() {
     }).length;
   };
 
-  // NUCLEAR RESET: renderFreshWorkoutList function removed - replaced by profile-driven activities
+  // FRESH WORKOUT LIST - NO LEGACY CONSTRAINTS
+  // NUCLEAR RESET: Removed renderFreshWorkoutList function (replaced by profile-driven activities)
+  // const renderFreshWorkoutList = () => { /* REMOVED - depends on manual difficulty selection */ };
 
   // NUCLEAR RESET: All orphaned function code removed - clean slate ready
 
-  // MAIN DASHBOARD RENDER FUNCTION
-  const renderDashboard = () => {
-    return (
-      <ScrollView style={styles.minimalDashboard} showsVerticalScrollIndicator={false}>
-        {/* Comprehensive Stats Dashboard */}
-        {renderComprehensiveStats()}
-        
-        {/* Feed Section with Quick Access */}
-        {renderMinimalFeed()}
-        
-        {/* Today's Activities */}
-        {renderTodaysActivities()}
-        
-        {/* Profile-Driven Content */}
-        {renderProfileDrivenContent()}
-      </ScrollView>
+  // MAIN COMPONENT RENDER
+  // NUCLEAR RESET: All orphaned code removed
+
+                {/* COMPLETED TASKS SECTION - Compact at top */}
+                {workout.activities.filter((_, index) => {
+                  const activityKey = `${workout.id}-${workout.activities[index].id}`;
+                  return completedActivities[activityKey];
+                }).length > 0 && (
+                  <View style={styles.freshCompletedSection}>
+                    <Text style={styles.freshCompletedSectionTitle}>
+                      Completed Activities ({getCompletedActivitiesCount(workout)})
+                    </Text>
+                  </View>
+                )}
+
+                {workout.activities.map((activity, index) => {
+                  const activityKey = `${workout.id}-${activity.id}`;
+                  const isCompleted = completedActivities[activityKey];
+                  const isActive = activeTimers[activity.id] || activeInlineTimer?.activityId === activity.id;
+                  
+                  // FLEXIBLE TASK SYSTEM: Show all tasks, allow any order completion
+                  const completedCount = getCompletedActivitiesCount(workout);
+                  
+                  // Prepare active timer data for CollapsibleTaskCard
+                  const currentTimer = activeTimers[activity.id] || (activeInlineTimer?.activityId === activity.id ? activeInlineTimer : null);
+                  const activeTimerData = currentTimer ? {
+                    timeLeft: currentTimer.timeLeft,
+                    isRunning: currentTimer.isRunning // Use actual running state
+                  } : null;
+                  
+                  return (
+                    <CollapsibleTaskCard
+                      key={activity.id}
+                      activity={activity}
+                      workoutId={workout.id}
+                      index={index}
+                      isCompleted={isCompleted}
+                      isActive={isActive}
+                      onStartActivity={startInlineActivity}
+                      onShowDetails={showExerciseDetails}
+                      onShowDemo={showVideoDemo}
+                      onPauseResumeTimer={toggleInlineTimer}
+                      onStopTimer={stopInlineActivity}
+                      onCompleteActivity={completeInlineActivity}
+                      activeTimer={activeTimerData}
+                    />
+                  );
+                })}
+
+                {/* WORKOUT COMPLETION CELEBRATION */}
+                {getCompletedActivitiesCount(workout) === workout.activities.length && (
+                  <View style={styles.freshWorkoutComplete}>
+                    <Text style={styles.freshCelebrationTitle}>🎉 Workout Complete!</Text>
+                    <Text style={styles.freshCelebrationText}>
+                      Amazing work! You've completed all {workout.activities.length} activities.
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
+        ))}
+      </View>
     );
   };
 
-  // Loading state check - show loading until onboarding state is initialized
-  if (!onboardingState) {
-    return (
-      <SafeAreaView style={[styles.container, styles.thriveMainBackground]}>
-        <View style={styles.loadingContainer}>
-          <Text style={[styles.loadingText, styles.thriveHero]}>
-            {isMobile() ? '📱 Loading THRIVE Mobile...' : '🌟 Loading THRIVE...'}
-          </Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  // NUCLEAR RESET: Removed renderWorkoutList function (replaced by profile-driven activities)
+  // const renderWorkoutList = () => { /* REMOVED - depends on manual difficulty selection */ };
+    
+    if (!selectedDifficulty) {
+      console.log('❌ No difficulty selected, returning null');
+      return null;
+    }
 
-  // MAIN COMPONENT RENDER
-  return (
-    <EdgeSwipeDetector onSwipeFromEdge={handleDrawerOpen}>
-      <SafeAreaView style={[styles.container, styles.thriveMainBackground]}>
-        {/* HOME SCREEN REDESIGN: Clean Header without hamburger menu */}
-        <View style={styles.cleanHeader}>
-          <View style={styles.logoContainer}>
-            <Text style={[styles.logoText, styles.thriveHero]}>
-              <Text style={[styles.highlight, styles.thrivePrimaryColor]}>THRIVE</Text>
+    const workouts = workoutDatabase[selectedDifficulty];
+    console.log('📝 Workouts for', selectedDifficulty, ':', workouts);
+    
+    if (!workouts || workouts.length === 0) {
+      console.error('❌ No workouts found for difficulty:', selectedDifficulty);
+      return (
+        <View>
+  
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>No workouts available</Text>
+          </View>
+        </View>
+      );
+    }
+
+    return (
+      <View>
+
+        
+        <View style={styles.workoutContainer}>
+          <View style={styles.workoutHeader}>
+            <Text style={styles.workoutTitle}>
+              {getDifficultyEmoji(selectedDifficulty)} {selectedDifficulty.charAt(0).toUpperCase() + selectedDifficulty.slice(1)} Workouts
+            </Text>
+            <TouchableOpacity 
+              style={styles.resetButton}
+              onPress={handleReset}
+            >
+              <Text style={styles.resetButtonText}>Change Level</Text>
+            </TouchableOpacity>
+          </View>
+
+        {workouts.map((workout) => {
+          const isCompleted = completedWorkouts.includes(workout.id);
+          return (
+            <View key={workout.id} style={[
+              styles.workoutCard,
+              isCompleted && styles.completedWorkoutCard
+            ]}>
+              <View style={styles.workoutInfo}>
+                <View style={styles.workoutNameRow}>
+                  <Text style={[
+                    styles.workoutCardName,
+                    isCompleted && styles.completedWorkoutName
+                  ]}>
+                    {workout.name}
+                  </Text>
+                  {isCompleted && (
+                    <View style={styles.completedBadge}>
+                      <Text style={styles.completedBadgeText}>✓</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={[
+                  styles.workoutDuration,
+                  isCompleted && styles.completedText
+                ]}>
+                  {workout.duration} minutes
+                </Text>
+                <Text style={[
+                  styles.workoutCardDescription,
+                  isCompleted && styles.completedText
+                ]}>
+                  {workout.description}
+                </Text>
+
+                {/* MOBILE-OPTIMIZED ACTIVITY LIST */}
+                {workout.activities && (
+                  <View style={styles.activitiesContainer}>
+                    <Text style={styles.activitiesTitle}>Activities:</Text>
+                    {workout.activities.map((activity, index) => {
+                      const activityKey = `${workout.id}-${activity.id}`;
+                      const isCompleted = completedActivities[activityKey];
+                      const isActive = activeTimers[activity.id] || activeInlineTimer?.activityId === activity.id;
+                      const currentTimer = activeTimers[activity.id] || (activeInlineTimer?.activityId === activity.id ? activeInlineTimer : null);
+                      
+                      return (
+                        <View key={activity.id} style={styles.mobileActivityRow}>
+                          {/* Activity Info - Takes most space but prevents overflow */}
+                          <View style={styles.mobileActivityInfo}>
+                            <Text style={styles.mobileActivityText} numberOfLines={2}>
+                              • {activity.name}
+                            </Text>
+                            
+                            {/* ENHANCED TIMER DISPLAY - Clear state indication */}
+                            {isActive && currentTimer ? (
+                              <View style={[
+                                styles.timerDisplay,
+                                currentTimer.isRunning ? styles.timerDisplayActiveState : styles.timerDisplayPausedState
+                              ]}>
+                                <Text style={[
+                                  styles.timerDisplayText,
+                                  currentTimer.isRunning ? styles.timerDisplayRunning : styles.timerDisplayPaused
+                                ]}>
+                                  {currentTimer.isRunning ? '🟢' : '🔵'} {Math.floor(currentTimer.timeLeft / 60)}:{(currentTimer.timeLeft % 60).toString().padStart(2, '0')} 
+                                  {currentTimer.isRunning ? ' Running' : ' Paused'}
+                                </Text>
+                              </View>
+                            ) : (
+                              <Text style={styles.mobileActivityDuration}>
+                                {Math.floor(activity.duration / 60)}:{(activity.duration % 60).toString().padStart(2, '0')}
+                              </Text>
+                            )}
+                          </View>
+                          
+                          {/* DYNAMIC TIMER BUTTON LAYOUT - Adapts based on timer state */}
+                          {!isActive && !isCompleted ? (
+                            // NO TIMER: Show single PLAY button
+                            <TouchableOpacity 
+                              style={[styles.mobileActivityButton, styles.timerPlayState]}
+                              onPress={() => startInlineActivity(activity, workout.id)}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={[styles.mobileActivityButtonText]}>
+                                ▶️ Play
+                              </Text>
+                            </TouchableOpacity>
+                          ) : isCompleted ? (
+                            // COMPLETED: Show COMPLETE button
+                            <TouchableOpacity 
+                              style={[styles.mobileActivityButton, styles.timerCompleteState]}
+                              disabled={true}
+                            >
+                              <Text style={[styles.mobileActivityButtonText, styles.timerCompleteText]}>
+                                ✅ Complete
+                              </Text>
+                            </TouchableOpacity>
+                          ) : (
+                            // TIMER ACTIVE: Show dual buttons (Pause/Resume + Stop)
+                            <View style={styles.mobileTimerButtonGroup}>
+                              <TouchableOpacity 
+                                style={[
+                                  styles.mobileTimerButton,
+                                  currentTimer?.isRunning ? styles.timerPauseState : styles.timerResumeState
+                                ]}
+                                onPress={() => toggleInlineTimer(activity.id)}
+                                activeOpacity={0.7}
+                              >
+                                <Text style={[styles.mobileTimerButtonText]}>
+                                  {currentTimer?.isRunning ? '⏸️ Pause' : '▶️ Resume'}
+                                </Text>
+                              </TouchableOpacity>
+                              
+                              <TouchableOpacity 
+                                style={[styles.mobileTimerButton, styles.mobileStopButton]}
+                                onPress={() => stopInlineActivity(activity.id)}
+                                activeOpacity={0.7}
+                              >
+                                <Text style={[styles.mobileTimerButtonText]}>
+                                  ⏹️ Stop
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
+              
+            </View>
+            
+            {/* SIMPLIFIED MOBILE BUTTON LAYOUT - Essential actions only */}
+            <View style={styles.simplifiedMobileActions}>
+              {/* PRIMARY ACTION: Start/Complete Button */}
+              <TouchableOpacity 
+                style={[
+                  styles.simplifiedPrimaryButton,
+                  completedWorkouts.includes(workout.id) ? styles.simplifiedCompletedButton : styles.simplifiedStartButton
+                ]}
+                onPress={() => {
+                  if (completedWorkouts.includes(workout.id)) {
+                    // If completed, restart
+                    startWorkout(workout);
+                  } else {
+                    // If not started, begin workout
+                    startWorkout(workout);
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.simplifiedPrimaryButtonText}>
+                  {completedWorkouts.includes(workout.id) ? '✅ Complete' : '▶️ Start'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* MORE MENU: Demo & Details */}
+              <TouchableOpacity 
+                style={[styles.simplifiedSecondaryButton]}
+                onPress={() => {
+                  // Show action sheet with Demo and Details options
+                  Alert.alert(
+                    'Workout Options',
+                    'Choose an action:',
+                    [
+                      {
+                        text: '📺 Watch Demo',
+                        onPress: () => showVideoDemo(workout)
+                      },
+                      {
+                        text: '📋 View Details',
+                        onPress: () => {
+                          // Show first activity details as workout preview
+                          if (workout.activities && workout.activities.length > 0) {
+                            showExerciseDetails(workout.activities[0]);
+                          }
+                        }
+                      },
+                      {
+                        text: 'Cancel',
+                        style: 'cancel'
+                      }
+                    ]
+                  );
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.simplifiedSecondaryButtonText}>
+                  ⋯ More
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          );
+        })}
+
+          <View style={styles.progressSummary}>
+            <Text style={styles.progressText}>
+              Completed: {completedWorkouts.length} / {workouts.length} workouts
             </Text>
           </View>
         </View>
+      </View>
+    );
+  };
+
+  return (
+    <SafeAreaView style={[styles.container, styles.thriveMainBackground]}>
+      {/* Clean Header with Hamburger Menu */}
+      <View style={styles.cleanHeader}>
+        <HamburgerMenu
+          onMorningFlow={() => console.log('🚨 EMERGENCY DISABLE: Morning flow disabled')} // EMERGENCY DISABLE
+          onMoodCheckin={quickMoodCheckin}
+          onSettings={() => setShowSettings(true)}
+          onDemo={startDemoMode}
+          userStats={userStats}
+        />
+        <View style={styles.logoContainer}>
+          <Text style={[styles.logoText, styles.thriveHero]}>
+            <Text style={[styles.highlight, styles.thrivePrimaryColor]}>THRIVE</Text>
+          </Text>
+        </View>
+        <View style={styles.headerSpacer} />
+      </View>
 
       {/* Swipe Navigation with Main Content */}
         <SwipeNavigation
@@ -2512,7 +2687,12 @@ export default function EmergencyEnhanced() {
         workoutName={selectedVideoWorkout?.name || 'Exercise Demo'}
       />
 
-      {/* NUCLEAR RESET: Morning Flow Modal removed - using new onboarding system */}
+      {/* DISABLED: Morning Flow Modal (EMERGENCY DISABLE) */}
+      {/* <MorningFlow
+        visible={showMorningFlow}
+        onComplete={completeMorningFlow}
+        userStats={userStats}
+      /> */}
 
       {/* Settings Modal */}
       <SettingsModal
@@ -2653,12 +2833,10 @@ export default function EmergencyEnhanced() {
       </Modal>
 
       {/* SLIDE-BASED PROFILE SETUP - NO SCROLLING, ADHD-FRIENDLY */}
-      {!isMobile() && (
-        <SlideBasedProfile
-          visible={onboardingState?.showOnboarding || false}
-          onComplete={handleOnboardingComplete}
-        />
-      )}
+      <SlideBasedProfile
+        visible={onboardingState?.showOnboarding || false}
+        onComplete={handleOnboardingComplete}
+      />
       
       {/* DEMO MODE SLIDE-BASED PROFILE - NON-DESTRUCTIVE TUTORIAL */}
       <SlideBasedProfile
@@ -2669,92 +2847,7 @@ export default function EmergencyEnhanced() {
       
       {/* Debug banner removed - clean UI */}
 
-      {/* HOME SCREEN REDESIGN: Activity Placeholder Screen */}
-      <ActivityPlaceholder
-        visible={showActivityPlaceholder}
-        onClose={() => setShowActivityPlaceholder(false)}
-        activityName={currentActivityName}
-      />
-
-      {/* HOME SCREEN REDESIGN: Navigation Drawer */}
-      {/* Task Detail Screen Modal */}
-      {selectedTask && (
-        <TaskDetailScreen
-          task={selectedTask}
-          visible={showTaskDetail}
-          onClose={() => {
-            setShowTaskDetail(false);
-            setSelectedTask(null);
-          }}
-onComplete={async (performance: 'poor' | 'good' | 'excellent') => {
-            console.log('🔥 NUCLEAR TASKDETAIL: Starting task completion for', selectedTask.id, selectedTask.title, 'performance:', performance);
-            
-            try {
-              // NUCLEAR FIX: Store task reference before any async operations
-              const completedTask = selectedTask;
-              console.log('💾 NUCLEAR TASKDETAIL: Stored task reference:', completedTask.id);
-              
-              // NUCLEAR FIX: Complete the task with detailed logging
-              console.log('💾 NUCLEAR TASKDETAIL: Calling DailyTaskManager.completeTask for', completedTask.id);
-              await DailyTaskManager.completeTask(completedTask.id, performance);
-              console.log('✅ NUCLEAR TASKDETAIL: DailyTaskManager.completeTask SUCCESS for', completedTask.id);
-              
-              // NUCLEAR FIX: Close detail screen immediately
-              console.log('🚪 NUCLEAR TASKDETAIL: Closing detail screen for', completedTask.id);
-              setShowTaskDetail(false);
-              setSelectedTask(null);
-              console.log('🚪 NUCLEAR TASKDETAIL: Detail screen closed');
-              
-              // NUCLEAR FIX: Small delay to ensure UI state propagation
-              await new Promise(resolve => setTimeout(resolve, 50));
-              
-              // NUCLEAR FIX: Mark as completed with bulletproof state update
-              console.log('🎯 NUCLEAR TASKDETAIL: Setting completed state for task', completedTask.id);
-              setCompletedTasks(prev => {
-                const newSet = new Set([...prev, completedTask.id]);
-                console.log('✅ NUCLEAR TASKDETAIL: New completed tasks set:', Array.from(newSet));
-                return newSet;
-              });
-              
-              // NUCLEAR FIX: Refresh progress stats
-              try {
-                const { progress, stats } = await DailyTaskManager.getProgressStats();
-                setUserProgress(progress);
-                setProgressStats(stats);
-                console.log('📈 NUCLEAR TASKDETAIL: Progress stats refreshed');
-              } catch (statsError) {
-                console.warn('⚠️ NUCLEAR TASKDETAIL: Failed to refresh stats:', statsError);
-              }
-              
-              console.log('🎉 NUCLEAR TASKDETAIL: Task completion SUCCESS - screen closed, checkmark visible');
-              
-            } catch (error) {
-              console.error('❌ NUCLEAR TASKDETAIL: Task completion ERROR for', selectedTask.id, error);
-              Alert.alert('Error', 'Failed to save task completion: ' + (error as Error).message);
-              
-              // NUCLEAR FIX: Don't close screen on error, let user retry
-              console.log('❌ NUCLEAR TASKDETAIL: Keeping screen open due to error');
-            }
-          }
-          onStartTimer={(duration: number) => {
-            // Optional: integrate with existing timer if needed
-          }}
-        />
-      )}
-
-      <NavigationDrawer
-        visible={showDrawer}
-        onClose={handleDrawerClose}
-        onProfile={handleDrawerProfile}
-        onMorningFlow={handleDrawerMorningFlow}
-        onMood={handleDrawerMood}
-        onSettings={() => setShowSettings(true)}
-        onDemo={handleDrawerDemo}
-        onHelp={handleDrawerHelp}
-      />
-
     </SafeAreaView>
-    </EdgeSwipeDetector>
   );
 }
 
@@ -2897,18 +2990,17 @@ const createStyles = (theme: any) => StyleSheet.create({
     marginBottom: 20,
   },
   activityCard: {
-    backgroundColor: '#FFFFFF', // Clean white (Apple Health style)
-    borderRadius: 16, // More rounded (iOS style)
-    padding: 24, // Generous padding
-    marginBottom: 20, // More space between cards
-    marginHorizontal: 4, // Subtle margin for cleaner edges
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50', // THRIVE green accent
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08, // Subtle shadow (Apple style)
-    shadowRadius: 8,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.04)', // Very subtle border
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   activityName: {
     fontSize: 18,
@@ -2929,116 +3021,15 @@ const createStyles = (theme: any) => StyleSheet.create({
     marginBottom: 16,
   },
   startActivityButton: {
-    backgroundColor: '#4CAF50', // THRIVE green
-    paddingVertical: 14, // Larger touch target (44pt minimum)
-    paddingHorizontal: 28,
-    borderRadius: 12, // More rounded (iOS style)
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
     alignItems: 'center',
-    minHeight: 44, // Apple accessibility standard
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 2,
   },
   startActivityButtonText: {
     color: '#ffffff',
     fontSize: 16,
-    fontWeight: '600',
-  },
-  // Daily Task System Styles
-  progressStatsCard: {
-    backgroundColor: '#F0FDF4',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#4CAF50',
-  },
-  progressStatsText: {
-    fontSize: 14,
-    color: '#2E7D32',
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  dailyTaskCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
-  },
-  taskHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  taskType: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#4CAF50',
-    backgroundColor: '#F0FDF4',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  taskDifficulty: {
-    fontSize: 12,
-    color: '#666',
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    textTransform: 'capitalize',
-  },
-  taskTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 6,
-  },
-  taskDescription: {
-    fontSize: 14,
-    color: '#666666',
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  taskDuration: {
-    fontSize: 14,
-    color: '#4CAF50',
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  taskBenefits: {
-    marginBottom: 16,
-  },
-  benefitTag: {
-    fontSize: 12,
-    color: '#666',
-    lineHeight: 18,
-  },
-  dailyTaskButton: {
-    marginBottom: 8,
-  },
-  completeTaskButton: {
-    backgroundColor: '#F0FDF4',
-    borderWidth: 2,
-    borderColor: '#4CAF50',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  completeTaskButtonText: {
-    color: '#4CAF50',
-    fontSize: 14,
     fontWeight: '600',
   },
   profileContentSection: {
@@ -3309,7 +3300,7 @@ const createStyles = (theme: any) => StyleSheet.create({
     maxWidth: '100%',
     alignItems: 'stretch',
     alignSelf: 'stretch',
-    backgroundColor: theme.colors.surface, // CLEANED: Using theme color
+    backgroundColor: 'rgba(0,255,0,0.1)', // TEMPORARY DEBUG: Green container
   },
   
   // PROPER HORIZONTAL WIDE TASK CARD
@@ -4677,9 +4668,9 @@ const createStyles = (theme: any) => StyleSheet.create({
   cleanHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center', // CENTER the logo (Apple Health style)
-    paddingHorizontal: 24, // Generous padding (Apple style)
-    paddingVertical: 24,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
     backgroundColor: theme.colors.background,
     // Theme-specific styling
     ...(theme.isDark ? {
@@ -5226,21 +5217,10 @@ const createStyles = (theme: any) => StyleSheet.create({
   // Minimal Stats
   minimalStatsContainer: {
     flexDirection: 'row',
-    justifyContent: 'center', // Center the streak (since we removed daily goal)
+    justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF', // Clean white card
-    borderRadius: 16, // iOS-style rounded corners
-    paddingVertical: 24, // Generous padding
-    paddingHorizontal: 24,
-    marginBottom: 24, // More space
-    marginHorizontal: 4, // Subtle margin
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08, // Apple-style subtle shadow
-    shadowRadius: 8,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.04)', // Very subtle border
+    paddingVertical: 20,
+    marginBottom: 20,
   },
   streakDisplay: {
     alignItems: 'center',
@@ -5254,195 +5234,6 @@ const createStyles = (theme: any) => StyleSheet.create({
   streakLabel: {
     fontSize: 14,
     color: theme.colors.textSecondary,
-  },
-  
-  // Comprehensive Stats Dashboard Styles
-  comprehensiveStatsContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    marginBottom: 24,
-    marginHorizontal: 4,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.04)',
-  },
-  
-  primaryStatsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  
-  statCard: {
-    backgroundColor: '#F8FBF8', // Subtle green tint
-    borderRadius: 12,
-    padding: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(76, 175, 80, 0.1)', // Green theme border
-  },
-  
-  primaryStatCard: {
-    width: '48%',
-    marginBottom: 12,
-    minHeight: 85,
-  },
-  
-  secondaryStatCard: {
-    flex: 1,
-    marginHorizontal: 2,
-    minHeight: 60,
-  },
-  
-  statNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: theme.colors.primary,
-    marginBottom: 4,
-  },
-  
-  statLabel: {
-    fontSize: 12,
-    color: theme.colors.textSecondary,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 6,
-  },
-  
-  miniStatNumber: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: theme.colors.primary,
-    marginBottom: 2,
-  },
-  
-  miniStatLabel: {
-    fontSize: 10,
-    color: theme.colors.textSecondary,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  
-  // Progress Indicators
-  streakIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  
-  streakDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 4,
-  },
-  
-  streakActive: {
-    backgroundColor: '#4CAF50',
-  },
-  
-  streakInactive: {
-    backgroundColor: '#E0E0E0',
-  },
-  
-  streakStatus: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: theme.colors.textSecondary,
-  },
-  
-  taskProgress: {
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  
-  progressBar: {
-    width: '100%',
-    height: 6,
-    backgroundColor: '#E8F5E8',
-    borderRadius: 3,
-    marginBottom: 4,
-  },
-  
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#4CAF50',
-    borderRadius: 3,
-  },
-  
-  progressPercentage: {
-    fontSize: 10,
-    color: theme.colors.textSecondary,
-    fontWeight: '600',
-  },
-  
-  weeklyIndicator: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  
-  weekDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  
-  weekActive: {
-    backgroundColor: '#4CAF50',
-  },
-  
-  weekInactive: {
-    backgroundColor: '#E0E0E0',
-  },
-  
-  healthMeter: {
-    width: '100%',
-    height: 6,
-    backgroundColor: '#E8F5E8',
-    borderRadius: 3,
-    marginBottom: 4,
-  },
-  
-  healthFill: {
-    height: '100%',
-    backgroundColor: '#FF9800', // Orange for health meter
-    borderRadius: 3,
-  },
-  
-  healthLevel: {
-    fontSize: 10,
-    color: theme.colors.textSecondary,
-    fontWeight: '600',
-  },
-  
-  secondaryStatsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  
-  achievementBadge: {
-    backgroundColor: '#E8F5E8',
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    alignItems: 'center',
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(76, 175, 80, 0.2)',
-  },
-  
-  achievementText: {
-    fontSize: 12,
-    color: '#2E7D32',
-    fontWeight: '600',
   },
   progressDisplay: {
     alignItems: 'center',
@@ -5816,19 +5607,16 @@ const createStyles = (theme: any) => StyleSheet.create({
     gap: 12,
   },
   inspirationCard: {
-    backgroundColor: '#FFFFFF', // Clean white (Apple Health style)
-    borderRadius: 16, // iOS-style rounded corners
-    padding: 24, // Generous padding
+    backgroundColor: theme.colors.card,
+    borderRadius: 16,
+    padding: 24,
     alignItems: 'center',
-    marginBottom: 20, // More space
-    marginHorizontal: 4, // Subtle margin
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08, // Apple-style subtle shadow
-    shadowRadius: 8,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.04)', // Very subtle border
+    borderWidth: theme.isDark ? 2 : 1, // Subtle border for light theme
+    borderColor: theme.isDark 
+      ? 'rgba(0, 230, 118, 0.3)'
+      : '#E0E0E0', // Clean border for light theme
+    borderLeftWidth: 6, // Accent left border
+    borderLeftColor: theme.colors.primary,
     // Theme-specific backgrounds
     backgroundColor: theme.isDark
       ? 'rgba(0, 230, 118, 0.02)' // Subtle green tint for dark
@@ -6445,7 +6233,97 @@ const createStyles = (theme: any) => StyleSheet.create({
     // Inherits styles from existing workout list
   },
 
-  // NUCLEAR RESET: Removed journey button styles - no longer needed with profile-driven system
+  // JOURNEY BUTTON STYLES (Matching Difficulty Button Design)
+  freshJourneySection: {
+    marginBottom: 24,
+    paddingHorizontal: 20,
+  },
+
+  freshJourneyRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+
+  freshJourneyButton: {
+    flex: 1,
+    backgroundColor: theme.colors.surface,
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    shadowColor: '#16A34A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+
+  freshJourneyButtonSelected: {
+    backgroundColor: '#F0FDF4',
+    borderColor: '#16A34A',
+    shadowColor: '#16A34A',
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+
+  freshJourneyEmoji: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+
+  freshJourneyText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#16A34A',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+
+  freshJourneySubtext: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+
+  // JOURNEY STATUS DISPLAY
+  journeyStatusContainer: {
+    backgroundColor: '#F0FDF4',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#16A34A',
+  },
+
+  journeyStatusText: {
+    fontSize: 14,
+    color: '#16A34A',
+    fontWeight: '500',
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+
+  // JOURNEY ENHANCEMENT BANNER
+  journeyEnhancementBanner: {
+    backgroundColor: '#F0FDF4',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#16A34A',
+  },
+
+  journeyEnhancementText: {
+    fontSize: 14,
+    color: '#16A34A',
+    fontWeight: '500',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
 
   // ACTION BUTTONS ROW (START + DEMO)
   freshActionButtonsRow: {
@@ -6970,81 +6848,5 @@ const createStyles = (theme: any) => StyleSheet.create({
     color: '#666666',
     textAlign: 'center',
     marginTop: 16,
-  },
-
-  // Mobile-specific loading styles
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F8F9FA',
-    paddingHorizontal: 20,
-  },
-  
-  loadingText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#4CAF50',
-    textAlign: 'center',
-    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-  },
-  
-  // Task Completion Styles - Clean and Simple
-  completedTaskCard: {
-    backgroundColor: '#E8F5E8', // Soft green background
-    borderColor: '#4CAF50',
-    borderWidth: 1,
-  },
-  
-  taskContent: {
-    // Base container for task content
-  },
-  
-  completedTaskContent: {
-    // Keep content as-is when completed
-  },
-  
-  completedMessage: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: '#4CAF50',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  
-  completedMessageText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  
-  completionCheckmark: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#4CAF50',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  
-  checkmarkText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  
-  completingTaskButton: {
-    backgroundColor: '#CCCCCC',
-    opacity: 0.7,
   },
 });

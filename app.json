@@ -13,21 +13,51 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.thrive.mobile"
+      "bundleIdentifier": "com.thrive.mobile",
+      "infoPlist": {
+        "NSCalendarsUsageDescription": "THRIVE needs calendar access to sync your health and fitness events with your device calendar.",
+        "NSRemindersUsageDescription": "THRIVE needs reminders access to create health and fitness reminders."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#16A34A"
       },
-      "package": "com.thrive.mobile"
+      "package": "com.thrive.mobile",
+      "permissions": [
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "bundler": "metro"
+      "bundler": "metro",
+      "name": "THRIVE Mobile",
+      "shortName": "THRIVE",
+      "lang": "en",
+      "scope": "/",
+      "themeColor": "#16A34A",
+      "backgroundColor": "#16A34A",
+      "display": "standalone",
+      "orientation": "portrait",
+      "startUrl": "/",
+      "preferRelatedApplications": false,
+      "meta": {
+        "viewport": "width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no, viewport-fit=cover"
+      }
     },
     "assetBundlePatterns": [
       "**/*"
+    ],
+    "plugins": [
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "THRIVE needs calendar access to sync your health and fitness events.",
+          "remindersPermission": "THRIVE needs reminders access to create health and fitness reminders."
+        }
+      ]
     ]
   }
 }
