@@ -510,51 +510,51 @@ const styles = StyleSheet.create({
     backgroundColor: THRIVE_COLORS.white,
   },
   
-  // Profile Header Styles
+  // Profile Header Styles (Mobile Optimized)
   profileHeader: {
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 30,
+    paddingHorizontal: 16,
+    paddingTop: 20, // Reduced from 60
+    paddingBottom: 16, // Reduced from 30
   },
   
   avatarContainer: {
-    marginBottom: 16,
+    marginBottom: 12, // Reduced from 16
   },
   
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 60, // Reduced from 80
+    height: 60, // Reduced from 80
+    borderRadius: 30,
     backgroundColor: '#F0F0F0',
     alignItems: 'center',
     justifyContent: 'center',
   },
   
   avatarText: {
-    fontSize: 32,
+    fontSize: 24, // Reduced from 32
     fontWeight: 'bold',
     color: THRIVE_COLORS.black,
   },
   
   profileName: {
-    fontSize: 28,
+    fontSize: 22, // Reduced from 28
     fontWeight: 'bold',
     color: THRIVE_COLORS.black,
-    marginBottom: 8,
+    marginBottom: 4, // Reduced from 8
   },
   
   profileBio: {
-    fontSize: 16,
+    fontSize: 14, // Reduced from 16
     color: '#666',
-    marginBottom: 24,
+    marginBottom: 16, // Reduced from 24
   },
   
   metricsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16, // Reduced from 20
   },
   
   metricItem: {
@@ -562,72 +562,72 @@ const styles = StyleSheet.create({
   },
   
   metricIcon: {
-    fontSize: 20,
-    marginBottom: 4,
+    fontSize: 16, // Reduced from 20
+    marginBottom: 2, // Reduced from 4
   },
   
   metricValue: {
-    fontSize: 16,
+    fontSize: 14, // Reduced from 16
     fontWeight: 'bold',
     color: THRIVE_COLORS.black,
   },
   
   metricLabel: {
-    fontSize: 12,
+    fontSize: 11, // Reduced from 12
     color: '#666',
   },
   
-  // Cards Container Styles
+  // Cards Container Styles (Mobile Optimized)
   cardsContainer: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 12, // Reduced from 20
   },
   
   cardsGrid: {
-    paddingBottom: 20,
+    paddingBottom: 16, // Reduced from 20
   },
   
   cardRow: {
     flexDirection: 'row',
-    marginBottom: 16,
-    gap: 12,
+    marginBottom: 10, // Reduced from 16
+    gap: 8, // Reduced from 12
   },
   
-  // Card Size Styles
+  // Card Size Styles (Mobile Optimized)
   largeCardLeft: {
     flex: 1,
-    height: 160,
+    height: 120, // Reduced from 160
   },
   
   largeCardRight: {
     flex: 1,
-    height: 160,
+    height: 120, // Reduced from 160
   },
   
   mediumCardLeft: {
     flex: 1,
-    height: 120,
+    height: 90, // Reduced from 120
   },
   
   mediumCardRight: {
     flex: 1,
-    height: 120,
+    height: 90, // Reduced from 120
   },
   
   smallCardLeft: {
     flex: 1,
-    height: 100,
+    height: 80, // Reduced from 100
   },
   
   smallCardRight: {
     flex: 1,
-    height: 100,
+    height: 80, // Reduced from 100
   },
   
-  // Card Content Styles
+  // Card Content Styles (Mobile Optimized)
   largeCard: {
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    padding: 12, // Reduced from 16
     shadowColor: THRIVE_COLORS.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -636,8 +636,8 @@ const styles = StyleSheet.create({
   },
   
   smallCard: {
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 10,
+    padding: 10, // Reduced from 12
     shadowColor: THRIVE_COLORS.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -646,16 +646,16 @@ const styles = StyleSheet.create({
   },
   
   cardHeader: {
-    marginBottom: 8,
+    marginBottom: 6, // Reduced from 8
   },
   
   cardIcon: {
-    fontSize: 24,
-    marginBottom: 4,
+    fontSize: 20, // Reduced from 24
+    marginBottom: 2, // Reduced from 4
   },
   
   cardTitle: {
-    fontSize: 14,
+    fontSize: 12, // Reduced from 14
     fontWeight: '600',
     color: THRIVE_COLORS.white,
     textShadowColor: 'rgba(0,0,0,0.3)',
@@ -669,17 +669,17 @@ const styles = StyleSheet.create({
   },
   
   cardValue: {
-    fontSize: 28,
+    fontSize: 22, // Reduced from 28
     fontWeight: 'bold',
     color: THRIVE_COLORS.white,
     textShadowColor: 'rgba(0,0,0,0.3)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
-    marginBottom: 4,
+    marginBottom: 2, // Reduced from 4
   },
   
   cardSubtitle: {
-    fontSize: 12,
+    fontSize: 10, // Reduced from 12
     color: THRIVE_COLORS.white,
     opacity: 0.9,
     textShadowColor: 'rgba(0,0,0,0.2)',
@@ -693,12 +693,12 @@ const styles = StyleSheet.create({
   },
   
   moodEmoji: {
-    fontSize: 48,
-    marginBottom: 8,
+    fontSize: 36, // Reduced from 48
+    marginBottom: 4, // Reduced from 8
   },
   
   moodNumber: {
-    fontSize: 24,
+    fontSize: 18, // Reduced from 24
     fontWeight: 'bold',
     color: THRIVE_COLORS.white,
     textShadowColor: 'rgba(0,0,0,0.3)',
@@ -706,18 +706,18 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   
-  // Progress Ring Styles (for workout card)
+  // Progress Ring Styles (for workout card) - Mobile Optimized
   progressRingContainer: {
     position: 'absolute',
-    top: 16,
-    right: 16,
+    top: 12, // Reduced from 16
+    right: 12, // Reduced from 16
   },
   
   progressRing: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 4,
+    width: 50, // Reduced from 60
+    height: 50, // Reduced from 60
+    borderRadius: 25,
+    borderWidth: 3, // Reduced from 4
     borderColor: 'rgba(255,255,255,0.3)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -725,26 +725,26 @@ const styles = StyleSheet.create({
   
   progressRingFill: {
     position: 'absolute',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 4,
+    width: 50, // Reduced from 60
+    height: 50, // Reduced from 60
+    borderRadius: 25,
+    borderWidth: 3, // Reduced from 4
     borderColor: THRIVE_COLORS.white,
     borderTopColor: 'transparent',
     borderRightColor: 'transparent',
   },
   
   progressRingCenter: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 36, // Reduced from 44
+    height: 36, // Reduced from 44
+    borderRadius: 18,
     backgroundColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   
   progressPercentage: {
-    fontSize: 12,
+    fontSize: 10, // Reduced from 12
     fontWeight: 'bold',
     color: THRIVE_COLORS.white,
   },
@@ -765,30 +765,30 @@ const styles = StyleSheet.create({
   },
   
   addButtonText: {
-    fontSize: 32,
+    fontSize: 24, // Reduced from 32
     color: '#999',
-    marginBottom: 4,
+    marginBottom: 2, // Reduced from 4
   },
   
   addButtonLabel: {
-    fontSize: 12,
+    fontSize: 10, // Reduced from 12
     color: '#999',
     fontWeight: '500',
   },
   
-  // Customize Button
+  // Customize Button (Mobile Optimized)
   customizeButton: {
     backgroundColor: THRIVE_COLORS.primary,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
+    paddingVertical: 12, // Reduced from 16
+    paddingHorizontal: 24, // Reduced from 32
+    borderRadius: 10, // Reduced from 12
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 40,
+    marginTop: 16, // Reduced from 20
+    marginBottom: 24, // Reduced from 40
   },
   
   customizeButtonText: {
-    fontSize: 16,
+    fontSize: 14, // Reduced from 16
     fontWeight: '600',
     color: THRIVE_COLORS.white,
   },
