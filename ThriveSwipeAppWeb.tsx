@@ -4,6 +4,8 @@ import CalendarSyncService, { CalendarEvent, SyncStatus } from './CalendarSyncSe
 import CalendarSettings from './CalendarSettings';
 import EventCreationModal, { EventFormData, EVENT_CATEGORIES } from './EventCreationModal';
 import AICoachModal from './AICoachModal';
+import { useHealthData, useFitnessData, useMentalHealthData } from './useHealthData';
+import HealthPermissionsModal from './HealthPermissionsModal';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -109,6 +111,103 @@ const ThriveSwipeAppWeb = () => {
   const expandedCardScale = useRef(new Animated.Value(0)).current;
   const expandedCardOpacity = useRef(new Animated.Value(0)).current;
   const [isAnimating, setIsAnimating] = useState(false);
+
+  // 🏥 Health Data Integration
+  const {
+    healthData,
+    syncStatus,
+    isLoading: isHealthLoading,
+    forceSync: syncHealthData,
+    requestPermissions: requestHealthPermissions,
+    updateManualData,
+    isConnected: healthConnected,
+    lastSync: healthLastSync,
+    error: healthError
+  } = useHealthData();
+  
+  const { fitnessData } = useFitnessData();
+  const { mentalHealthData } = useMentalHealthData();
+  
+  // Health permissions modal state
+  const [showHealthPermissions, setShowHealthPermissions] = useState(false);
+
+  // 🔄 Health Data Integration Effects
+  // Update fitness dashboard when health data changes
+  useEffect(() => {
+    if (fitnessData && healthConnected) {
+      console.log('🔄 Updating fitness dashboard with real health data');
+      
+      setDashboardData(prevData => ({
+        ...prevData,
+        weight: {
+          current: fitnessData.weight.current || prevData.weight.current,
+          goal: fitnessData.weight.goal || prevData.weight.goal,
+          trend: fitnessData.weight.trend || prevData.weight.trend,
+          progress: fitnessData.weight.progress || prevData.weight.progress
+        },
+        // Update goal progress based on steps or other primary goal
+        goalProgress: {
+          type: 'Steps',
+          percentage: Math.round((fitnessData.steps.current / fitnessData.steps.goal) * 100),
+          achieved: fitnessData.steps.current,
+          target: fitnessData.steps.goal,
+          trend: fitnessData.steps.trend
+        },
+        // Keep existing task and streak data (these come from app usage)
+        todayTasks: prevData.todayTasks,
+        streakCounter: prevData.streakCounter
+      }));
+      
+      // Also update profile weight if available
+      if (fitnessData.weight.current > 0) {
+        setProfileData(prev => ({
+          ...prev,
+          weight: fitnessData.weight.current.toString()
+        }));
+      }
+    }
+  }, [fitnessData, healthConnected]);
+
+  // Update mental health dashboard when mental health data changes
+  useEffect(() => {
+    if (mentalHealthData && healthConnected) {
+      console.log('🔄 Updating mental health dashboard with real data');
+      
+      setMentalData(prevData => ({
+        ...prevData,
+        mindfulness: {
+          current: mentalHealthData.mindfulness.current || prevData.mindfulness.current,
+          goal: mentalHealthData.mindfulness.goal || prevData.mindfulness.goal,
+          trend: mentalHealthData.mindfulness.trend || prevData.mindfulness.trend,
+          progress: mentalHealthData.mindfulness.progress || prevData.mindfulness.progress
+        },
+        mood: {
+          current: mentalHealthData.mood.current || prevData.mood.current,
+          average: mentalHealthData.mood.average || prevData.mood.average,
+          trend: mentalHealthData.mood.trend || prevData.mood.trend,
+          progress: mentalHealthData.mood.progress || prevData.mood.progress
+        },
+        // Keep learning and gratitude as manual entries for now
+        learning: prevData.learning,
+        gratitude: prevData.gratitude
+      }));
+    }
+  }, [mentalHealthData, healthConnected]);
+
+  // Show health permissions on first launch if not connected
+  useEffect(() => {
+    const checkHealthConnection = async () => {
+      // Wait a bit for health manager to initialize
+      setTimeout(() => {
+        if (!healthConnected && !isHealthLoading && !syncStatus.permissions.granted) {
+          console.log('🏥 Health not connected, showing permissions modal');
+          setShowHealthPermissions(true);
+        }
+      }, 2000); // Wait 2 seconds after component mount
+    };
+    
+    checkHealthConnection();
+  }, [healthConnected, isHealthLoading, syncStatus.permissions.granted]);
 
   
   // Profile data state
@@ -1428,7 +1527,13 @@ const ThriveSwipeAppWeb = () => {
   const getCardInfo = (type) => {
     if (challengeMode === 'fitness') {
       switch (type) {
-        case 'weight': return { title: 'WEIGHT', icon: '⚖️', color: '#34C759' };
+        case 'steps': return { title: 'STEPS', icon: '👟', color: '#34C759' };
+        case 'calories': return { title: 'CALORIES', icon: '🔥', color: '#FF5722' };
+        case 'heartRate': return { title: 'HEART RATE', icon: '❤️', color: '#E91E63' };
+        case 'workouts': return { title: 'WORKOUTS', icon: '💪', color: '#2196F3' };
+        case 'weight': return { title: 'WEIGHT', icon: '⚖️', color: '#9C27B0' };
+        case 'sleep': return { title: 'SLEEP', icon: '😴', color: '#673AB7' };
+        // Legacy cards for backward compatibility
         case 'goal': return { title: 'PROGRESS', icon: '🎯', color: '#2196F3' };
         case 'tasks': return { title: 'TODAY', icon: '✅', color: '#FF9800' };
         case 'streak': return { title: 'STREAK', icon: '🔥', color: '#9C27B0' };
@@ -1446,14 +1551,50 @@ const ThriveSwipeAppWeb = () => {
   // Get card types for current mode
   const getCurrentCardTypes = () => {
     return challengeMode === 'fitness' 
-      ? ['weight', 'goal', 'tasks', 'streak'] 
+      ? ['steps', 'calories', 'heartRate', 'workouts', 'weight', 'sleep'] 
       : ['mindfulness', 'mood', 'learning', 'gratitude'];
   };
 
   // Get card data for specific type and mode
   const getCardData = (type) => {
-    const data = challengeMode === 'fitness' ? dashboardData : mentalData;
-    return data[type] || {};
+    if (challengeMode === 'fitness') {
+      // Use real health data if available, otherwise fallback to dashboard data
+      if (healthData && healthConnected) {
+        switch (type) {
+          case 'steps': 
+            return healthData.steps || { current: 0, goal: 10000, trend: 'neutral' };
+          case 'calories': 
+            return healthData.calories || { burned: 0, goal: 2000, trend: 'neutral' };
+          case 'heartRate': 
+            return healthData.heartRate || { current: 0, average: 75, trend: 'neutral' };
+          case 'workouts': 
+            return healthData.workouts || { todayCount: 0, totalDuration: 0, trend: 'neutral' };
+          case 'weight': 
+            return healthData.weight || dashboardData.weight || { current: 0, goal: 0, trend: 'neutral' };
+          case 'sleep': 
+            return healthData.sleep || { duration: 0, quality: 0, trend: 'neutral' };
+          default:
+            return dashboardData[type] || {};
+        }
+      } else {
+        // Fallback to static dashboard data
+        return dashboardData[type] || {};
+      }
+    } else {
+      // Mental health data
+      if (healthData && healthConnected) {
+        switch (type) {
+          case 'mindfulness':
+            return healthData.mindfulness || mentalData.mindfulness;
+          case 'mood':
+            return healthData.mood || mentalData.mood;
+          default:
+            return mentalData[type] || {};
+        }
+      } else {
+        return mentalData[type] || {};
+      }
+    }
   };
 
   // Get dynamic card display value based on date range
@@ -1463,9 +1604,25 @@ const ThriveSwipeAppWeb = () => {
     
     if (challengeMode === 'fitness') {
       switch (type) {
+        case 'steps':
+          return `${(data.current || 0).toLocaleString()}`;
+        case 'calories':
+          return `${Math.round(data.burned || 0)}`;
+        case 'heartRate':
+          const currentHR = data.current || data.average || 0;
+          return currentHR > 0 ? `${Math.round(currentHR)}` : '--';
+        case 'workouts':
+          const duration = data.totalDuration || 0;
+          return duration > 0 ? `${Math.round(duration)}m` : '0';
         case 'weight': 
-          const latestWeight = graphData[graphData.length - 1]?.value || data.current || 150;
+          const latestWeight = data.current || 150;
           return `${Math.round(latestWeight)}`;
+        case 'sleep':
+          const sleepHours = data.duration || 0;
+          const hours = Math.floor(sleepHours);
+          const minutes = Math.round((sleepHours - hours) * 60);
+          return sleepHours > 0 ? `${hours}h ${minutes}m` : '--';
+        // Legacy cards
         case 'goal': 
           const avgProgress = graphData.reduce((sum, point) => sum + point.value, 0) / graphData.length;
           return `${Math.round(avgProgress)}%`;
@@ -1480,10 +1637,10 @@ const ThriveSwipeAppWeb = () => {
     } else {
       switch (type) {
         case 'mindfulness':
-          const totalMinutes = graphData.reduce((sum, point) => sum + point.value, 0);
+          const totalMinutes = data.current || graphData.reduce((sum, point) => sum + point.value, 0);
           return `${Math.round(totalMinutes)}`;
         case 'mood':
-          const avgMood = graphData.reduce((sum, point) => sum + point.value, 0) / graphData.length;
+          const avgMood = data.current || graphData.reduce((sum, point) => sum + point.value, 0) / graphData.length;
           return `${Math.round(avgMood * 10) / 10}`;
         case 'learning':
           const totalLearning = graphData.reduce((sum, point) => sum + point.value, 0);
@@ -1499,9 +1656,24 @@ const ThriveSwipeAppWeb = () => {
   // Get dynamic card subtitle based on date range
   const getCardSubtitle = (type) => {
     const data = getCardData(type);
+    const source = data.source || 'Manual Entry';
+    const isConnected = healthConnected && source !== 'Manual Entry';
+    
     if (challengeMode === 'fitness') {
       switch (type) {
-        case 'weight': return `Goal: ${data.goal || 145} lbs`;
+        case 'steps': 
+          return `Goal: ${(data.goal || 10000).toLocaleString()} • ${isConnected ? source : 'Manual'}`;
+        case 'calories': 
+          return `Goal: ${data.goal || 2000} cal • ${isConnected ? source : 'Manual'}`;
+        case 'heartRate': 
+          return `Resting: ${data.resting || '--'} bpm • ${isConnected ? source : 'Manual'}`;
+        case 'workouts': 
+          return `Today: ${data.todayCount || 0} sessions • ${isConnected ? source : 'Manual'}`;
+        case 'weight': 
+          return `Goal: ${data.goal || 145} lbs • ${isConnected ? source : 'Manual'}`;
+        case 'sleep': 
+          return `Quality: ${data.quality || '--'}% • ${isConnected ? source : 'Manual'}`;
+        // Legacy cards
         case 'goal': return data.type || 'Weight Loss';
         case 'tasks': return `${dateRange === 'week' ? 'Week' : 'Month'} Progress`;
         case 'streak': return 'Days Logging';
@@ -4254,6 +4426,29 @@ const ThriveSwipeAppWeb = () => {
             {/* Dashboard Grid Container - 2x2 Grid */}
             <View style={styles.dashboardContainer}>
               
+              {/* Health Sync Status Indicator */}
+              {!showGraph && (
+                <View style={styles.healthSyncStatusContainer}>
+                  <Text style={styles.healthSyncStatus}>
+                    {healthConnected ? (
+                      syncStatus.syncInProgress ? '🔄 Syncing...' : 
+                      healthLastSync ? `✅ Last sync: ${healthLastSync.toLocaleTimeString()}` : '✅ Connected'
+                    ) : (
+                      healthError ? '❌ Connection error' : '📱 Manual entry mode'
+                    )}
+                  </Text>
+                  {!healthConnected && !healthError && (
+                    <Text 
+                      style={styles.healthConnectLink}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={() => setShowHealthPermissions(true)}
+                    >
+                      Connect Health Apps
+                    </Text>
+                  )}
+                </View>
+              )}
+
               {/* Date Range Toggle Buttons */}
               {!showGraph && (
                 <View style={styles.dateRangeButtonContainer}>
@@ -5253,6 +5448,17 @@ const ThriveSwipeAppWeb = () => {
       <AICoachModal
         visible={showAICoach}
         onClose={() => setShowAICoach(false)}
+      />
+      
+      {/* Health Permissions Modal */}
+      <HealthPermissionsModal
+        visible={showHealthPermissions}
+        onClose={() => setShowHealthPermissions(false)}
+        onSkip={() => {
+          console.log('🏥 Health permissions skipped by user');
+          setShowHealthPermissions(false);
+        }}
+        showSkipOption={true}
       />
       
       {/* Personal Chat Modal */}
@@ -8527,6 +8733,29 @@ const styles = StyleSheet.create({
     color: THRIVE_COLORS.primary,
   },
   
+  // Health Sync Status Styles
+  healthSyncStatusContainer: {
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingHorizontal: 20,
+  },
+
+  healthSyncStatus: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 4,
+    fontWeight: '500',
+  },
+
+  healthConnectLink: {
+    fontSize: 12,
+    color: THRIVE_COLORS.primary,
+    textAlign: 'center',
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+
   // Date Range Toggle Button Styles
   dateRangeButtonContainer: {
     flexDirection: 'row',
