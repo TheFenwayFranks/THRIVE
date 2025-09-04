@@ -1,8 +1,8 @@
 module.exports = {
   apps: [{
     name: 'thrive-expo-web',
-    script: 'npm',
-    args: 'run web',
+    script: 'npx',
+    args: 'expo start --web --port 19006 --dev-client',
     env: {
       NODE_ENV: 'development',
       EXPO_DEVTOOLS_LISTEN_ADDRESS: '0.0.0.0'

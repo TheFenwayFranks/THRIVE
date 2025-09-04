@@ -116,7 +116,7 @@ const ThriveSwipeAppWeb = () => {
   // 🏥 Health Data Integration
   const {
     healthData,
-    syncStatus,
+    syncStatus: healthSyncStatus,
     isLoading: isHealthLoading,
     forceSync: syncHealthData,
     requestPermissions: requestHealthPermissions,
@@ -200,7 +200,7 @@ const ThriveSwipeAppWeb = () => {
     const checkHealthConnection = async () => {
       // Wait a bit for health manager to initialize
       setTimeout(() => {
-        if (!healthConnected && !isHealthLoading && !syncStatus.permissions.granted) {
+        if (!healthConnected && !isHealthLoading && !healthSyncStatus.permissions.granted) {
           console.log('🏥 Health not connected, showing permissions modal');
           setShowHealthPermissions(true);
         }
@@ -208,7 +208,7 @@ const ThriveSwipeAppWeb = () => {
     };
     
     checkHealthConnection();
-  }, [healthConnected, isHealthLoading, syncStatus.permissions.granted]);
+  }, [healthConnected, isHealthLoading, healthSyncStatus.permissions.granted]);
 
   
   // Profile data state

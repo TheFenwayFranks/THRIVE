@@ -8,8 +8,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Platform, Alert } from 'react-native';
-import AppleHealthKit, { HealthKitPermissions } from 'react-native-health';
-import { GoogleFit, Scopes } from 'react-native-google-fit';
+// Temporarily commented out for web compatibility
+// import AppleHealthKit, { HealthKitPermissions } from 'react-native-health';
+// import { GoogleFit, Scopes } from 'react-native-google-fit';
 
 // Health Data Types Interface
 export interface HealthMetrics {
