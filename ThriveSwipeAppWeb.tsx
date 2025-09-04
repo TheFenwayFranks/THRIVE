@@ -2835,6 +2835,21 @@ const ThriveSwipeAppWeb = () => {
             <Text style={styles.menuItemText}>Import Data</Text>
           </View>
           
+          {/* Test Health Sync for Development */}
+          <View 
+            style={[styles.menuItem, { backgroundColor: '#f0f8ff', borderWidth: 1, borderColor: '#ddd' }]}
+            onStartShouldSetResponder={() => true}
+            onResponderGrant={() => {
+              console.log('🧪 Testing health sync modal');
+              setShowHealthPermissions(true);
+              setHealthPermissionsCompleted(false); // Reset completion flag for testing
+              toggleMenu();
+            }}
+          >
+            <Text style={styles.menuItemIcon}>🧪</Text>
+            <Text style={[styles.menuItemText, { color: '#666', fontSize: 13 }]}>Test Health Sync</Text>
+          </View>
+          
           {/* Logout */}
           <View style={styles.logoutItem}>
             <Text style={styles.menuItemIcon}>🚪</Text>
