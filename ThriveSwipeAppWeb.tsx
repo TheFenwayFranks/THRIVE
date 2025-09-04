@@ -7528,11 +7528,11 @@ const styles = StyleSheet.create({
   // Dashboard styles
   dashboardContainer: {
     flex: 1,
-    paddingHorizontal: 32, // Increased from 20px to bring content away from screen edges
-    paddingTop: 8, // Reduced from 12 to save space
-    paddingBottom: 5, // Minimal bottom padding
+    paddingHorizontal: 24, // Balanced padding for consistent phone edge spacing
+    paddingTop: 16, // Increased for better top spacing
+    paddingBottom: 16, // Increased for better bottom spacing
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between', // Even distribution of elements
   },
   dashboardGrid: {
     flexDirection: 'row',
@@ -7540,8 +7540,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     width: '100%',
-    maxWidth: 500, // Reduced from 600 to make grid more compact
-    marginBottom: 4, // Reduced from 6 to save space
+    maxWidth: 480, // Slightly smaller for better phone containment
+    marginBottom: 20, // Increased for better separation from goal cards
+    gap: 12, // Added gap for consistent spacing between cards
   },
   dashboardTitle: {
     fontSize: 18,
@@ -7559,12 +7560,12 @@ const styles = StyleSheet.create({
   
   // Dashboard Card Base styles
   dashboardCard: {
-    width: '48%',
-    minWidth: 110, // Reduced from 120 to make cards smaller
-    height: 85, // Significantly reduced from 108 to prevent overflow
-    borderRadius: 10, // Slightly smaller radius
-    padding: 10, // Reduced from 12 to save space
-    marginBottom: 6, // Reduced from 8 to save vertical space
+    width: 'calc(50% - 6px)', // Account for grid gap
+    minWidth: 110,
+    height: 85,
+    borderRadius: 12, // Restored for better visual appeal
+    padding: 12, // Restored for better content spacing
+    marginBottom: 0, // Remove since we're using grid gap
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -8521,9 +8522,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 16,
-    gap: 10,
+    marginBottom: 24, // Increased for better separation from cards
+    marginTop: 8, // Added top margin for separation from page title
+    paddingHorizontal: 0, // Removed to use container padding
+    gap: 16, // Increased gap between buttons
   },
   
   dateRangeButton: {
@@ -8562,9 +8564,9 @@ const styles = StyleSheet.create({
   
   // Custom Goal Cards Styles
   customGoalsContainer: {
-    marginTop: 20, // Reduced from 30 to prevent dashboard overflow
-    marginBottom: 8, // Reduced from 12 to save space
-    paddingHorizontal: 32, // Increased to match dashboard container padding for consistent margins
+    marginTop: 0, // Removed since dashboard container handles spacing
+    marginBottom: 0, // Removed since dashboard container handles spacing
+    paddingHorizontal: 24, // Match dashboard container for consistent margins
   },
   
   customGoalsTitle: {
@@ -8572,14 +8574,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#333',
     textAlign: 'center',
-    marginBottom: 14,
+    marginBottom: 20, // Increased for better separation from goal cards
     letterSpacing: 1,
   },
   
   customGoalsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
+    gap: 16, // Increased gap for better separation
   },
   
   customGoalCard: {
