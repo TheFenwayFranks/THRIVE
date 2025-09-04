@@ -7544,7 +7544,7 @@ const styles = StyleSheet.create({
   // Dashboard styles
   dashboardContainer: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 32, // Increased from 20px to bring content away from screen edges
     paddingTop: 12,
     paddingBottom: 5, // Minimal bottom padding
     alignItems: 'center',
@@ -8580,7 +8580,7 @@ const styles = StyleSheet.create({
   customGoalsContainer: {
     marginTop: 30, // Further increased margin to fill the space left by removed banner
     marginBottom: 12, // Slightly increased bottom margin for better spacing
-    paddingHorizontal: 20,
+    paddingHorizontal: 32, // Increased to match dashboard container padding for consistent margins
   },
   
   customGoalsTitle: {
