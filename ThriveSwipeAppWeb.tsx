@@ -131,6 +131,7 @@ const ThriveSwipeAppWeb = () => {
   
   // Health permissions modal state
   const [showHealthPermissions, setShowHealthPermissions] = useState(false);
+  const [healthPermissionsCompleted, setHealthPermissionsCompleted] = useState(false);
 
   // 🔄 Health Data Integration Effects
   // Update fitness dashboard when health data changes
@@ -200,7 +201,7 @@ const ThriveSwipeAppWeb = () => {
     const checkHealthConnection = async () => {
       // Wait a bit for health manager to initialize
       setTimeout(() => {
-        if (!healthConnected && !isHealthLoading && !healthSyncStatus.permissions.granted) {
+        if (!healthConnected && !isHealthLoading && !healthSyncStatus.permissions.granted && !healthPermissionsCompleted) {
           console.log('🏥 Health not connected, showing permissions modal');
           setShowHealthPermissions(true);
         }
@@ -208,7 +209,7 @@ const ThriveSwipeAppWeb = () => {
     };
     
     checkHealthConnection();
-  }, [healthConnected, isHealthLoading, healthSyncStatus.permissions.granted]);
+  }, [healthConnected, isHealthLoading, healthSyncStatus.permissions.granted, healthPermissionsCompleted]);
 
   
   // Profile data state
@@ -3299,10 +3300,14 @@ const ThriveSwipeAppWeb = () => {
       {/* Health Permissions Modal */}
       <HealthPermissionsModal
         visible={showHealthPermissions}
-        onClose={() => setShowHealthPermissions(false)}
+        onClose={() => {
+          setShowHealthPermissions(false);
+          setHealthPermissionsCompleted(true); // Mark as completed
+        }}
         onSkip={() => {
           console.log('🏥 Health permissions skipped by user');
           setShowHealthPermissions(false);
+          setHealthPermissionsCompleted(true); // Mark as completed even when skipped
         }}
         showSkipOption={true}
       />

@@ -125,22 +125,13 @@ const HealthPermissionsModal: React.FC<HealthPermissionsModalProps> = ({
     try {
       await requestPermissions();
       
-      if (syncStatus.permissions.granted) {
-        Alert.alert(
-          'Success! 🎉',
-          'Your health data is now connected. The app will automatically sync your latest data.',
-          [{ text: 'Great!', onPress: onClose }]
-        );
-      } else {
-        Alert.alert(
-          'Connection Issue',
-          'Some permissions were not granted. You can still use manual entry or try connecting again later.',
-          [
-            { text: 'Manual Entry', onPress: onClose },
-            { text: 'Try Again', onPress: handleConnect }
-          ]
-        );
-      }
+      // The requestPermissions now handles the success alert and closes the modal
+      // So we just need to close the modal after the process completes
+      setTimeout(() => {
+        setIsConnecting(false);
+        onClose(); // Close the modal after successful connection
+      }, 100);
+      
     } catch (error) {
       console.error('Connection failed:', error);
       Alert.alert(
@@ -148,7 +139,6 @@ const HealthPermissionsModal: React.FC<HealthPermissionsModalProps> = ({
         'Unable to connect to health data. You can still enter data manually.',
         [{ text: 'OK', onPress: onClose }]
       );
-    } finally {
       setIsConnecting(false);
     }
   };

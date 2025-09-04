@@ -169,15 +169,40 @@ export const useHealthData = (): UseHealthDataReturn => {
     console.log('🔒 Mock permission request');
     setIsInitializing(true);
     
-    // Simulate permission flow
-    setTimeout(() => {
-      Alert.alert(
-        'Health Data Demo',
-        'This is a demo with mock health data. On mobile devices, this would connect to Apple Health, Google Health, etc.',
-        [{ text: 'OK' }]
-      );
-      setIsInitializing(false);
-    }, 1000);
+    // Simulate permission flow with proper connection setup
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Simulate successful connection
+        setSyncStatus(prev => ({
+          ...prev,
+          isConnected: true,
+          permissions: {
+            granted: true,
+            requested: ['steps', 'calories', 'heartRate', 'sleep', 'workouts'],
+            denied: []
+          },
+          sources: {
+            ...prev.sources,
+            appleHealth: true, // Simulate successful Apple Health connection
+            googleHealth: true,
+          },
+          lastSync: new Date(),
+          error: null
+        }));
+        
+        Alert.alert(
+          'Health Data Connected! 🎉',
+          'Demo health data is now connected. On mobile devices, this would connect to Apple Health, Google Health, etc.',
+          [{ 
+            text: 'Great!', 
+            onPress: () => {
+              setIsInitializing(false);
+              resolve();
+            }
+          }]
+        );
+      }, 1000);
+    });
   }, []);
 
   /**
