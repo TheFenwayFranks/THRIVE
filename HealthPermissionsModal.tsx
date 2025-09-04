@@ -160,10 +160,30 @@ const HealthPermissionsModal: React.FC<HealthPermissionsModalProps> = ({
   const handleSkip = () => {
     Alert.alert(
       'Skip Health Connection?',
-      'You can always connect your health apps later in Settings. For now, you\'ll need to enter data manually.',
+      'No problem! You can always connect your health apps later from your profile settings. For now, you can manually track your progress.',
       [
         { text: 'Go Back', style: 'cancel' },
-        { text: 'Skip', onPress: () => { onSkip?.(); onClose(); } }
+        { 
+          text: 'Skip for Now', 
+          onPress: () => {
+            console.log('🏥 User skipped health connection - will use manual entry');
+            
+            // Mark health permissions as "skipped" but completed
+            // This ensures the modal doesn't show again
+            if (onSkip) {
+              onSkip();
+            }
+            
+            // Show confirmation that manual entry is available
+            setTimeout(() => {
+              Alert.alert(
+                'Manual Entry Ready! 📝',
+                'You can now track your health data manually. Visit your profile anytime to connect health apps later.',
+                [{ text: 'Got it!', onPress: onClose }]
+              );
+            }, 300);
+          }
+        }
       ]
     );
   };
@@ -279,6 +299,20 @@ const HealthPermissionsModal: React.FC<HealthPermissionsModalProps> = ({
           <Text style={styles.dataType}>• Sleep data</Text>
           <Text style={styles.dataType}>• Weight and body measurements</Text>
           <Text style={styles.dataType}>• Mindfulness sessions</Text>
+        </View>
+        
+        <View style={styles.alternativeOption}>
+          <Text style={styles.alternativeTitle}>Prefer Manual Entry?</Text>
+          <Text style={styles.alternativeDescription}>
+            No problem! You can track your progress manually and connect health apps anytime later.
+          </Text>
+          <View 
+            style={styles.manualEntryButton}
+            onStartShouldSetResponder={() => true}
+            onResponderGrant={handleSkip}
+          >
+            <Text style={styles.manualEntryButtonText}>Use Manual Entry Instead</Text>
+          </View>
         </View>
       </View>
     </View>
@@ -625,6 +659,46 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   
+  // Alternative Manual Entry Styles
+  alternativeOption: {
+    marginTop: 30,
+    padding: 20,
+    backgroundColor: '#f0f8ff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: THRIVE_COLORS.accent,
+  },
+  
+  alternativeTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: THRIVE_COLORS.black,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  
+  alternativeDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  
+  manualEntryButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: THRIVE_COLORS.accent,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  
+  manualEntryButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: THRIVE_COLORS.white,
+  },
+  
   // Error Styles
   errorContainer: {
     paddingHorizontal: 24,
@@ -658,12 +732,17 @@ const styles = StyleSheet.create({
   skipButton: {
     paddingVertical: 12,
     paddingHorizontal: 20,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
   
   skipButtonText: {
     fontSize: 16,
     color: '#666',
-    fontWeight: '500',
+    fontWeight: '600',
+    textAlign: 'center',
   },
   
   backButton: {
