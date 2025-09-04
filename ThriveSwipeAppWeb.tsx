@@ -5024,12 +5024,7 @@ const ThriveSwipeAppWeb = () => {
                 </View>
               )}
               
-              {/* Status text */}
-              {!showGraph && (
-                <Text style={styles.dashboardSubtitle}>
-                  Tap any card to view its progress graph
-                </Text>
-              )}
+
               
               {/* Dynamic Goal Cards - Short-term (week) / Long-term (month) */}
               {!showGraph && (
@@ -8498,7 +8493,7 @@ const styles = StyleSheet.create({
   
   // Custom Goal Cards Styles
   customGoalsContainer: {
-    marginTop: 14,
+    marginTop: 20, // Increased margin to fill the space
     marginBottom: 8, // Reduced bottom margin to prevent overflow
     paddingHorizontal: 20,
   },
@@ -8522,8 +8517,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    padding: 12, // Slightly reduced padding
-    minHeight: 88, // Slightly reduced height
+    padding: 16, // Increased padding for larger cards
+    minHeight: 110, // Increased height to fill more space
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -8540,12 +8535,12 @@ const styles = StyleSheet.create({
   },
   
   customGoalIcon: {
-    fontSize: 16,
+    fontSize: 18,
     marginRight: 4,
   },
   
   customGoalTitle: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '800',
     letterSpacing: 1,
   },
@@ -8556,21 +8551,21 @@ const styles = StyleSheet.create({
   },
   
   customGoalValue: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '900',
     textAlign: 'center',
     marginBottom: 2,
   },
   
   customGoalTarget: {
-    fontSize: 8,
+    fontSize: 9,
     color: '#666',
     textAlign: 'center',
     fontWeight: '600',
   },
   
   customGoalTimeframe: {
-    fontSize: 7,
+    fontSize: 8,
     color: '#999',
     textAlign: 'center',
     fontWeight: '500',
@@ -8579,9 +8574,9 @@ const styles = StyleSheet.create({
   },
   
   customGoalProgressContainer: {
-    height: 4,
+    height: 5,
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    borderRadius: 2,
+    borderRadius: 2.5,
     overflow: 'hidden',
   },
   
