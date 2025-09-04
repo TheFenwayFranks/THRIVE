@@ -7632,18 +7632,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 8, // Added bottom margin for better separation
   },
   
   cardContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 4, // Reduced padding
+    paddingVertical: 6, // Increased for better spacing
+    paddingHorizontal: 4, // Added horizontal padding
   },
   
   cardIcon: {
-    fontSize: 14, // Further reduced for smaller cards
-    opacity: 0.9,
+    fontSize: 16, // Increased for better visibility
+    opacity: 0.85, // Slightly more transparent for elegance
+    marginBottom: 2, // Added bottom margin
   },
   
   // Weight Card - Green Theme Styles
@@ -7924,22 +7927,29 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   cardMainValue: {
-    fontSize: 24, // Reduced from 28 to fit smaller cards
-    fontWeight: '900',
+    fontSize: 26, // Increased for better readability
+    fontWeight: '800', // Slightly reduced for elegance
     textAlign: 'center',
-    marginBottom: 1, // Reduced spacing
+    marginBottom: 4, // Increased for better spacing
+    lineHeight: 30, // Added for better text appearance
+    letterSpacing: -0.5, // Tighter spacing for numbers
   },
   cardLabel: {
-    fontSize: 9, // Reduced from 10
-    fontWeight: '800',
+    fontSize: 10, // Increased for better readability
+    fontWeight: '700', // Slightly reduced for balance
     textAlign: 'center',
-    letterSpacing: 0.5, // Reduced letter spacing
-    marginBottom: 1, // Reduced spacing
+    letterSpacing: 1.2, // Increased for elegant appearance
+    marginBottom: 3, // Increased spacing
+    lineHeight: 12, // Added line height
+    textTransform: 'uppercase',
   },
   cardSubtext: {
-    fontSize: 9,
-    fontWeight: '700',
+    fontSize: 10, // Increased for readability
+    fontWeight: '600', // Slightly reduced for subtlety
     textAlign: 'center',
+    marginTop: 2, // Added top margin
+    lineHeight: 14, // Added line height
+    letterSpacing: 0.3, // Added letter spacing
   },
   progressBar: {
     height: 3, // Reduced to match progressBarContainer
@@ -8571,12 +8581,14 @@ const styles = StyleSheet.create({
   },
   
   customGoalsTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
+    fontSize: 17, // Slightly increased for prominence
+    fontWeight: '600', // Reduced for elegance
+    color: '#2c2c2c', // Darker for better contrast
     textAlign: 'center',
-    marginBottom: 20, // Increased for better separation from goal cards
-    letterSpacing: 1,
+    marginBottom: 24, // Increased for better separation
+    letterSpacing: 1.2, // Increased for elegant spacing
+    lineHeight: 22, // Added line height
+    textTransform: 'uppercase', // Added for consistency
   },
   
   customGoalsGrid: {
@@ -8608,46 +8620,58 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 14, // Increased for better separation
+    paddingBottom: 4, // Added padding
   },
   
   customGoalIcon: {
-    fontSize: 22,
-    marginRight: 6,
+    fontSize: 20, // Slightly reduced for balance
+    marginRight: 8, // Increased margin
+    opacity: 0.9, // Added transparency for elegance
   },
   
   customGoalTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    letterSpacing: 1,
+    fontSize: 13, // Slightly reduced for elegance
+    fontWeight: '700', // Reduced for balance
+    letterSpacing: 1.5, // Increased for elegant spacing
+    textTransform: 'uppercase', // Added for consistency
+    lineHeight: 16, // Added line height
   },
   
   customGoalContent: {
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10, // Increased spacing
+    paddingVertical: 4, // Added vertical padding
   },
   
   customGoalValue: {
-    fontSize: 26,
-    fontWeight: '900',
+    fontSize: 28, // Increased for emphasis
+    fontWeight: '800', // Slightly reduced for elegance
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: 6, // Increased spacing
+    lineHeight: 32, // Added line height
+    letterSpacing: -0.5, // Tighter spacing for numbers
   },
   
   customGoalTarget: {
-    fontSize: 12,
+    fontSize: 11, // Slightly reduced for hierarchy
     color: '#666',
     textAlign: 'center',
     fontWeight: '600',
+    marginBottom: 4, // Added bottom margin
+    lineHeight: 14, // Added line height
+    letterSpacing: 0.2, // Added letter spacing
   },
   
   customGoalTimeframe: {
-    fontSize: 10,
+    fontSize: 9, // Slightly reduced for subtlety
     color: '#999',
     textAlign: 'center',
     fontWeight: '500',
     fontStyle: 'italic',
-    marginTop: 4,
+    marginTop: 6, // Increased margin
+    lineHeight: 12, // Added line height
+    letterSpacing: 0.3, // Added letter spacing
   },
   
   customGoalProgressContainer: {
