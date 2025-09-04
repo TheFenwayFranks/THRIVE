@@ -5239,13 +5239,7 @@ const ThriveSwipeAppWeb = () => {
         ))}
       </View>
       
-      {/* Instructions for web users */}
-      <View style={styles.instructions}>
-        <Text style={styles.instructionText}>
-          👆 Swipe or drag horizontally • Click dots to navigate
-        </Text>
-      </View>
-      
+
       {/* Calendar Settings Modal */}
       {showCalendarSettings && (
         <View style={styles.modalOverlay}>
@@ -6925,8 +6919,8 @@ const styles = StyleSheet.create({
     transform: 'scale(1)', // Force scale
   },
   header: {
-    paddingTop: 65,
-    paddingBottom: 25,
+    paddingTop: 50, // Reduced from 65 to save 15px
+    paddingBottom: 15, // Reduced from 25 to save 10px
     paddingHorizontal: 0, // Remove horizontal padding to avoid conflicts
     backgroundColor: THRIVE_COLORS.white,
     borderBottomWidth: 1,
@@ -6935,7 +6929,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center', // Center the content
     position: 'relative', // Allow absolute positioning of side elements
-    minHeight: 100, // Ensure adequate height for larger elements
+    minHeight: 80, // Reduced from 100 to save 20px
     zIndex: 10,
   },
   hamburgerButton: {
@@ -7014,7 +7008,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'column', // Stack logo and title vertically
-    paddingVertical: 8, // More vertical padding for bigger logo
+    paddingVertical: 4, // Reduced from 8 to save space
     flex: 1, // Take available space for centering
     marginHorizontal: 60, // Leave space for hamburger (left) and brain button (right)
   },
@@ -7172,12 +7166,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 12, // Reduced vertical padding
+    paddingVertical: 8, // Further reduced from 12 to 8px to save space
     backgroundColor: '#FFFFFF',
     zIndex: 10,
   },
   indicatorWrapper: {
-    padding: 8, // Larger touch target
+    padding: 6, // Reduced from 8 to make footer more compact
   },
   indicator: {
     width: 8,
@@ -7186,17 +7180,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     transition: 'all 0.3s ease', // Web-specific smooth transitions
   },
-  instructions: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: '#F8F9FA',
-    alignItems: 'center',
-  },
-  instructionText: {
-    fontSize: 12,
-    color: '#666666',
-    textAlign: 'center',
-  },
+
   slideMenu: {
     position: 'absolute',
     top: 0,
