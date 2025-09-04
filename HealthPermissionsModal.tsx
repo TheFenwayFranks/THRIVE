@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Modal, ScrollView, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, Modal, ScrollView, Alert, Platform, TouchableOpacity } from 'react-native';
 import { useHealthData } from './useHealthData';
 
 // Import your existing colors
@@ -158,30 +158,25 @@ const HealthPermissionsModal: React.FC<HealthPermissionsModalProps> = ({
   };
 
   const handleSkip = () => {
+    console.log('📝 Skip button pressed!');
+    
     Alert.alert(
-      'Skip Health Connection?',
-      'No problem! You can always connect your health apps later from your profile settings. For now, you can manually track your progress.',
+      'Skip Health Setup?',
+      'You can track your progress manually and connect health apps later if you change your mind.',
       [
         { text: 'Go Back', style: 'cancel' },
         { 
-          text: 'Skip for Now', 
+          text: 'Skip Setup', 
           onPress: () => {
-            console.log('🏥 User skipped health connection - will use manual entry');
+            console.log('🏥 User confirmed skip - closing modal');
             
-            // Mark health permissions as "skipped" but completed
-            // This ensures the modal doesn't show again
+            // Call the onSkip callback if provided
             if (onSkip) {
               onSkip();
             }
             
-            // Show confirmation that manual entry is available
-            setTimeout(() => {
-              Alert.alert(
-                'Manual Entry Ready! 📝',
-                'You can now track your health data manually. Visit your profile anytime to connect health apps later.',
-                [{ text: 'Got it!', onPress: onClose }]
-              );
-            }, 300);
+            // Close the modal
+            onClose();
           }
         }
       ]
@@ -306,13 +301,13 @@ const HealthPermissionsModal: React.FC<HealthPermissionsModalProps> = ({
           <Text style={styles.alternativeDescription}>
             No problem! You can track your progress manually and connect health apps anytime later.
           </Text>
-          <View 
+          <TouchableOpacity 
             style={styles.manualEntryButton}
-            onStartShouldSetResponder={() => true}
-            onResponderGrant={handleSkip}
+            onPress={handleSkip}
+            activeOpacity={0.8}
           >
             <Text style={styles.manualEntryButtonText}>Use Manual Entry Instead</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -379,39 +374,40 @@ const HealthPermissionsModal: React.FC<HealthPermissionsModalProps> = ({
           <View style={styles.buttonRow}>
             {/* Skip Button */}
             {showSkipOption && (
-              <View 
+              <TouchableOpacity 
                 style={styles.skipButton}
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={handleSkip}
+                onPress={handleSkip}
+                activeOpacity={0.7}
               >
-                <Text style={styles.skipButtonText}>Skip</Text>
-              </View>
+                <Text style={styles.skipButtonText}>Skip Setup</Text>
+              </TouchableOpacity>
             )}
             
             {/* Back Button */}
             {currentStep > 0 && (
-              <View 
+              <TouchableOpacity 
                 style={styles.backButton}
-                onStartShouldSetResponder={() => true}
-                onResponderGrant={handleBack}
+                onPress={handleBack}
+                activeOpacity={0.7}
               >
                 <Text style={styles.backButtonText}>Back</Text>
-              </View>
+              </TouchableOpacity>
             )}
             
             {/* Next/Connect Button */}
-            <View 
+            <TouchableOpacity 
               style={[styles.primaryButton, 
                 (isConnecting || isInitializing) && styles.disabledButton
               ]}
-              onStartShouldSetResponder={() => !(isConnecting || isInitializing)}
-              onResponderGrant={handleNext}
+              onPress={handleNext}
+              disabled={isConnecting || isInitializing}
+              activeOpacity={0.8}
             >
               <Text style={styles.primaryButtonText}>
                 {isConnecting || isInitializing ? 'Connecting...' : 
                  currentStep === steps.length - 1 ? 'Connect Health Data' : 'Next'}
               </Text>
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
       </View>

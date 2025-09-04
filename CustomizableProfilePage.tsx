@@ -510,51 +510,51 @@ const styles = StyleSheet.create({
     backgroundColor: THRIVE_COLORS.white,
   },
   
-  // Profile Header Styles (Mobile Optimized)
+  // Profile Header Styles (Restored Comfortable Spacing)
   profileHeader: {
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 20, // Reduced from 60
-    paddingBottom: 16, // Reduced from 30
+    paddingHorizontal: 20,
+    paddingTop: 40, // Restored comfortable spacing
+    paddingBottom: 24, // Restored comfortable spacing
   },
   
   avatarContainer: {
-    marginBottom: 12, // Reduced from 16
+    marginBottom: 16, // Restored comfortable spacing
   },
   
   avatar: {
-    width: 60, // Reduced from 80
-    height: 60, // Reduced from 80
-    borderRadius: 30,
+    width: 80, // Restored original size
+    height: 80, // Restored original size
+    borderRadius: 40,
     backgroundColor: '#F0F0F0',
     alignItems: 'center',
     justifyContent: 'center',
   },
   
   avatarText: {
-    fontSize: 24, // Reduced from 32
+    fontSize: 32, // Restored original size
     fontWeight: 'bold',
     color: THRIVE_COLORS.black,
   },
   
   profileName: {
-    fontSize: 22, // Reduced from 28
+    fontSize: 28, // Restored original size
     fontWeight: 'bold',
     color: THRIVE_COLORS.black,
-    marginBottom: 4, // Reduced from 8
+    marginBottom: 8, // Restored comfortable spacing
   },
   
   profileBio: {
-    fontSize: 14, // Reduced from 16
+    fontSize: 16, // Restored original size
     color: '#666',
-    marginBottom: 16, // Reduced from 24
+    marginBottom: 24, // Restored comfortable spacing
   },
   
   metricsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-    paddingHorizontal: 16, // Reduced from 20
+    paddingHorizontal: 20, // Restored comfortable spacing
   },
   
   metricItem: {
@@ -562,72 +562,72 @@ const styles = StyleSheet.create({
   },
   
   metricIcon: {
-    fontSize: 16, // Reduced from 20
-    marginBottom: 2, // Reduced from 4
+    fontSize: 20, // Restored original size
+    marginBottom: 4, // Restored comfortable spacing
   },
   
   metricValue: {
-    fontSize: 14, // Reduced from 16
+    fontSize: 16, // Restored original size
     fontWeight: 'bold',
     color: THRIVE_COLORS.black,
   },
   
   metricLabel: {
-    fontSize: 11, // Reduced from 12
+    fontSize: 12, // Restored original size
     color: '#666',
   },
   
-  // Cards Container Styles (Mobile Optimized)
+  // Cards Container Styles (Restored Comfortable Spacing)
   cardsContainer: {
     flex: 1,
-    paddingHorizontal: 12, // Reduced from 20
+    paddingHorizontal: 20, // Restored comfortable spacing
   },
   
   cardsGrid: {
-    paddingBottom: 16, // Reduced from 20
+    paddingBottom: 20, // Restored comfortable spacing
   },
   
   cardRow: {
     flexDirection: 'row',
-    marginBottom: 10, // Reduced from 16
-    gap: 8, // Reduced from 12
+    marginBottom: 16, // Restored comfortable spacing
+    gap: 12, // Restored comfortable spacing
   },
   
-  // Card Size Styles (Mobile Optimized)
+  // Card Size Styles (Restored Original Comfortable Sizes)
   largeCardLeft: {
     flex: 1,
-    height: 120, // Reduced from 160
+    height: 160, // Restored original size
   },
   
   largeCardRight: {
     flex: 1,
-    height: 120, // Reduced from 160
+    height: 160, // Restored original size
   },
   
   mediumCardLeft: {
     flex: 1,
-    height: 90, // Reduced from 120
+    height: 120, // Restored original size
   },
   
   mediumCardRight: {
     flex: 1,
-    height: 90, // Reduced from 120
+    height: 120, // Restored original size
   },
   
   smallCardLeft: {
     flex: 1,
-    height: 80, // Reduced from 100
+    height: 100, // Restored original size
   },
   
   smallCardRight: {
     flex: 1,
-    height: 80, // Reduced from 100
+    height: 100, // Restored original size
   },
   
-  // Card Content Styles (Mobile Optimized)
+  // Card Content Styles (Restored Original Comfortable Padding)
   largeCard: {
-    borderRadius: 14,
-    padding: 12, // Reduced from 16
+    borderRadius: 16,
+    padding: 16, // Restored comfortable padding
     shadowColor: THRIVE_COLORS.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -636,8 +636,8 @@ const styles = StyleSheet.create({
   },
   
   smallCard: {
-    borderRadius: 10,
-    padding: 10, // Reduced from 12
+    borderRadius: 12,
+    padding: 12, // Restored comfortable padding
     shadowColor: THRIVE_COLORS.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -646,16 +646,16 @@ const styles = StyleSheet.create({
   },
   
   cardHeader: {
-    marginBottom: 6, // Reduced from 8
+    marginBottom: 8, // Restored comfortable spacing
   },
   
   cardIcon: {
-    fontSize: 20, // Reduced from 24
-    marginBottom: 2, // Reduced from 4
+    fontSize: 24, // Restored original size
+    marginBottom: 4, // Restored comfortable spacing
   },
   
   cardTitle: {
-    fontSize: 12, // Reduced from 14
+    fontSize: 14, // Restored original size
     fontWeight: '600',
     color: THRIVE_COLORS.white,
     textShadowColor: 'rgba(0,0,0,0.3)',
@@ -669,17 +669,17 @@ const styles = StyleSheet.create({
   },
   
   cardValue: {
-    fontSize: 22, // Reduced from 28
+    fontSize: 28, // Restored original size
     fontWeight: 'bold',
     color: THRIVE_COLORS.white,
     textShadowColor: 'rgba(0,0,0,0.3)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
-    marginBottom: 2, // Reduced from 4
+    marginBottom: 4, // Restored comfortable spacing
   },
   
   cardSubtitle: {
-    fontSize: 10, // Reduced from 12
+    fontSize: 12, // Restored original size
     color: THRIVE_COLORS.white,
     opacity: 0.9,
     textShadowColor: 'rgba(0,0,0,0.2)',
@@ -693,12 +693,12 @@ const styles = StyleSheet.create({
   },
   
   moodEmoji: {
-    fontSize: 36, // Reduced from 48
-    marginBottom: 4, // Reduced from 8
+    fontSize: 48, // Restored original size
+    marginBottom: 8, // Restored comfortable spacing
   },
   
   moodNumber: {
-    fontSize: 18, // Reduced from 24
+    fontSize: 24, // Restored original size
     fontWeight: 'bold',
     color: THRIVE_COLORS.white,
     textShadowColor: 'rgba(0,0,0,0.3)',
