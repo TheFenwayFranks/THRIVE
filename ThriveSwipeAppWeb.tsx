@@ -1906,7 +1906,7 @@ const ThriveSwipeAppWeb = () => {
   // 🗑️ DATA MANAGEMENT: Clear all user data for clean state
   const handleClearAllData = () => {
     const confirmed = window.confirm(
-      '🗑️ Clear All Data?\n\nThis will remove all your profile info, posts, notifications, and reset the app to a clean state.\n\nAre you sure?'
+      '🗑️ Clear All Data?\n\nThis will remove all your profile info, notifications, routines, customizations, and reset the app to a clean state.\n\nAre you sure?'
     );
     
     if (confirmed) {
@@ -1927,35 +1927,105 @@ const ThriveSwipeAppWeb = () => {
         bio: ''
       });
       
-      // Clear any remaining data (photo references removed)
+      // Clear editable profile data
+      setEditableProfileData({
+        name: '',
+        username: '',
+        location: '',
+        bio: '',
+        links: [],
+        tags: []
+      });
       
       // Clear notifications
       setNotifications([]);
       
-      // Reset dashboard data
+      // Reset dashboard data to clean state
       setDashboardData({
         weight: { current: 0, goal: 0, trend: 'neutral', progress: 0 },
         goalProgress: { type: '', percentage: 0, achieved: 0, target: 100 },
-        tasksCompleted: { today: 0, total: 7, streak: 0 },
+        tasksCompleted: { today: 0, total: 0, streak: 0 },
         mindfulnessMins: { today: 0, target: 20, streak: 0, trend: 'up' }
       });
       
-      // Clear chat history
+      // Reset mental data
+      setMentalData({
+        currentLevel: 0,
+        dailyGoal: 0,
+        weeklyStreak: 0,
+        progressHistory: [],
+        achievements: []
+      });
+      
+      // Clear chat history  
       setPersonalChatHistory([]);
       
-      // Clear completed tasks and challenges
+      // Clear tasks and challenges
       setCompletedTasks([]);
       setCompletedChallenges([]);
       setChallengeCompletedTasks([]);
+      setActiveTask(null);
+      setTaskTimer(0);
+      setTaskProgress(0);
+      setIsTaskRunning(false);
       
-      // Reset UI states
+      // Reset routine customizations
+      setSelectedRoutines([]);
+      setUserCustomizations({});
+      setExpandedRoutine(null);
+      setEditingRoutineId(null);
+      setShowDetailedSteps({});
+      
+      // Clear Q&A data
+      setIncomingQuestions([]);
+      setSelectedQuestion(null);
+      setQuestionAnswer('');
+      setNewQuestion('');
+      
+      // Reset social data  
+      setFollowerCount(0);
+      setFollowingCount(0);
+      setIsFollowing(false);
+      
+      // Reset form states
+      setNewMessage('');
+      setEditingField(null);
+      setTempValue('');
+      
+      // Reset UI states and close all modals
       setCurrentPage(2); // Back to dashboard
+      setActiveProfileTab(0); // Reset to Overview tab
       setShowAICoach(false);
       setShowNotifications(false);
       setShowProfileSettings(false);
+      setShowSearch(false);
+      setShowAnalytics(false);
+      setShowAchievements(false);
+      setShowRoutineCustomizer(false);
+      setShowRoutineEditor(false);
+      setShowTaskStarter(null);
+      setShowPersonalChat(false);
+      setShowChallengeWalkthrough(false);
+      setShowFollowersList(false);
+      setShowFollowingList(false);
+      setShowMessaging(false);
+      setShowChallengeSelector(false);
+      setShowAskQuestion(false);
+      setShowQuestionManager(false);
+      setIsProfileEditMode(false);
+      setEditingCardId(null);
       
-      console.log('🗑️ All user data cleared - clean state restored');
-      alert('✅ All data cleared! App is now in clean state.');
+      // Reset dashboard view states
+      setDashboardView('overview');
+      setSelectedCard(null);
+      setShowGraph(false);
+      setGraphType(null);
+      setChallengeMode('fitness');
+      setDateRange('week');
+      setCalendarView('week');
+      
+      console.log('🗑️ All user data cleared - complete clean state restored');
+      alert('✅ All data cleared! App is now in completely clean state.');
     }
   };
 
