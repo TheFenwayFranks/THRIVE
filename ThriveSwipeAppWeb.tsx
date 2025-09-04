@@ -7528,7 +7528,7 @@ const styles = StyleSheet.create({
   // Dashboard styles
   dashboardContainer: {
     flex: 1,
-    paddingHorizontal: 24, // Balanced padding for consistent phone edge spacing
+    paddingHorizontal: 40, // Significantly increased to prevent card cropping at edges
     paddingTop: 16, // Increased for better top spacing
     paddingBottom: 16, // Increased for better bottom spacing
     alignItems: 'center',
@@ -7540,9 +7540,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     width: '100%',
-    maxWidth: 480, // Slightly smaller for better phone containment
+    maxWidth: 400, // Reduced to ensure cards fit within increased padding
     marginBottom: 20, // Increased for better separation from goal cards
-    gap: 12, // Added gap for consistent spacing between cards
+    gap: 10, // Slightly reduced gap to accommodate smaller max width
   },
   dashboardTitle: {
     fontSize: 18,
@@ -7560,8 +7560,8 @@ const styles = StyleSheet.create({
   
   // Dashboard Card Base styles
   dashboardCard: {
-    width: 'calc(50% - 6px)', // Account for grid gap
-    minWidth: 110,
+    width: 'calc(50% - 5px)', // Account for reduced grid gap
+    minWidth: 100, // Reduced to fit better in smaller container
     height: 85,
     borderRadius: 12, // Restored for better visual appeal
     padding: 12, // Restored for better content spacing
@@ -8566,7 +8566,7 @@ const styles = StyleSheet.create({
   customGoalsContainer: {
     marginTop: 0, // Removed since dashboard container handles spacing
     marginBottom: 0, // Removed since dashboard container handles spacing
-    paddingHorizontal: 24, // Match dashboard container for consistent margins
+    paddingHorizontal: 40, // Match dashboard container for consistent margins and prevent cropping
   },
   
   customGoalsTitle: {
@@ -8581,7 +8581,7 @@ const styles = StyleSheet.create({
   customGoalsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 16, // Increased gap for better separation
+    gap: 12, // Reduced to ensure cards fit within increased padding
   },
   
   customGoalCard: {
