@@ -98,8 +98,8 @@ const ThriveLogoComponent = ({ size = 40, showText = false, textSize = 24 }) => 
 };
 
 const ThriveSwipeAppWeb = () => {
-  const [currentPage, setCurrentPage] = useState(2); // 0: Calendar, 1: Profile, 2: Dashboard, 3: Goals, 4: Social
-  const translateX = useRef(new Animated.Value(-screenWidth * 2)).current; // Start at Dashboard (third page)
+  const [currentPage, setCurrentPage] = useState(1); // 0: Calendar, 1: Dashboard, 2: Profile, 3: Goals, 4: Social
+  const translateX = useRef(new Animated.Value(-screenWidth * 1)).current; // Start at Dashboard (second page)
   const lastGestureState = useRef(0);
   
   // Menu state and animation
@@ -1955,7 +1955,7 @@ const ThriveSwipeAppWeb = () => {
     };
   }, [isTaskRunning, activeTask]);
 
-  const pages = ['Calendar', 'Profile', 'Dashboard', 'Goals', 'Social'];
+  const pages = ['Calendar', 'Dashboard', 'Profile', 'Goals', 'Social'];
 
   // Handle page indicator clicks
   const goToPage = (pageIndex: number) => {
@@ -3253,6 +3253,58 @@ const ThriveSwipeAppWeb = () => {
 
           </View>
           
+          {/* Dashboard Page */}
+          <View style={[styles.page, { backgroundColor: THRIVE_COLORS.white }]}>
+            <View style={styles.dashboardContainer}>
+              <Text style={styles.pageLabel}>Wellness Dashboard</Text>
+              
+              {/* Main Action Buttons */}
+              <View style={styles.mainButtonsContainer}>
+                <View 
+                  style={[styles.mainButton, styles.fitnessButton]}
+                  onStartShouldSetResponder={() => true}
+                  onResponderGrant={() => {
+                    console.log('FITNESS mode selected');
+                    setSelectedMode('FITNESS');
+                    setCurrentTask(null);
+                  }}
+                >
+                  <Text style={styles.mainButtonIcon}>💪</Text>
+                  <Text style={styles.mainButtonText}>FITNESS</Text>
+                </View>
+                
+                <View 
+                  style={[styles.mainButton, styles.mentalButton]}
+                  onStartShouldSetResponder={() => true}
+                  onResponderGrant={() => {
+                    console.log('MENTAL mode selected');
+                    setSelectedMode('MENTAL');
+                    setCurrentTask(null);
+                  }}
+                >
+                  <Text style={styles.mainButtonIcon}>🧠</Text>
+                  <Text style={styles.mainButtonText}>MENTAL</Text>
+                </View>
+              </View>
+              
+              {/* Quick Stats */}
+              <View style={styles.quickStats}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{healthData?.steps?.current || 0}</Text>
+                  <Text style={styles.statLabel}>Steps Today</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{Math.round(healthData?.sleep?.duration || 0)}h</Text>
+                  <Text style={styles.statLabel}>Sleep</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{healthData?.workouts?.todayCount || 0}</Text>
+                  <Text style={styles.statLabel}>Workouts</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+          
           {/* Profile Page */}
           {/* Profile Page - Redesigned with Customizable 6-Card Layout */}
           <View style={[styles.page, { backgroundColor: THRIVE_COLORS.white }]}>
@@ -3266,6 +3318,72 @@ const ThriveSwipeAppWeb = () => {
                 setEditableProfileData(prev => ({ ...prev, ...data }));
               }}
             />
+          </View>
+          
+          {/* Goals Page */}
+          <View style={[styles.page, { backgroundColor: '#F0FFF0' }]}>
+            <View style={styles.goalsContainer}>
+              <Text style={styles.pageLabel}>Goals & Progress</Text>
+              
+              <View style={styles.goalsList}>
+                <View style={styles.goalItem}>
+                  <Text style={styles.goalIcon}>🎯</Text>
+                  <View style={styles.goalContent}>
+                    <Text style={styles.goalTitle}>Daily Steps</Text>
+                    <Text style={styles.goalProgress}>8,752 / 10,000</Text>
+                    <View style={styles.goalProgressBar}>
+                      <View style={[styles.goalProgressFill, { width: '87%' }]} />
+                    </View>
+                  </View>
+                </View>
+                
+                <View style={styles.goalItem}>
+                  <Text style={styles.goalIcon}>💪</Text>
+                  <View style={styles.goalContent}>
+                    <Text style={styles.goalTitle}>Weekly Workouts</Text>
+                    <Text style={styles.goalProgress}>4 / 5</Text>
+                    <View style={styles.goalProgressBar}>
+                      <View style={[styles.goalProgressFill, { width: '80%' }]} />
+                    </View>
+                  </View>
+                </View>
+                
+                <View style={styles.goalItem}>
+                  <Text style={styles.goalIcon}>🌙</Text>
+                  <View style={styles.goalContent}>
+                    <Text style={styles.goalTitle}>Sleep Target</Text>
+                    <Text style={styles.goalProgress}>7.3 / 8.0 hrs</Text>
+                    <View style={styles.goalProgressBar}>
+                      <View style={[styles.goalProgressFill, { width: '91%' }]} />
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+          
+          {/* Social Page */}
+          <View style={[styles.page, { backgroundColor: '#FFF8F0' }]}>
+            <View style={styles.socialContainer}>
+              <Text style={styles.pageLabel}>Community</Text>
+              
+              <View style={styles.socialContent}>
+                <Text style={styles.socialIcon}>👥</Text>
+                <Text style={styles.socialTitle}>Connect & Share</Text>
+                <Text style={styles.socialSubtitle}>Share your wellness journey with friends</Text>
+                
+                <View style={styles.socialFeaturesList}>
+                  <Text style={styles.socialFeature}>• Challenge friends to fitness goals</Text>
+                  <Text style={styles.socialFeature}>• Share achievements and milestones</Text>
+                  <Text style={styles.socialFeature}>• Join community wellness challenges</Text>
+                  <Text style={styles.socialFeature}>• Get motivation from your network</Text>
+                </View>
+                
+                <View style={styles.comingSoonBadge}>
+                  <Text style={styles.comingSoonText}>Coming Soon!</Text>
+                </View>
+              </View>
+            </View>
           </View>
         </Animated.View>
       </View>
@@ -5223,10 +5341,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   pageLabel: {
-    fontSize: 32, // Bigger page label for better visibility
-    fontWeight: '600',
-    color: '#666666',
-    marginBottom: 8, // Slightly more margin
+    fontSize: 24, // Reduced from 32 for better proportion
+    fontWeight: '700',
+    color: THRIVE_COLORS.black,
+    marginBottom: 20,
+    textAlign: 'center',
   },
   pageDescription: {
     fontSize: 18, // Bigger description for better readability
@@ -12853,7 +12972,190 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
-
+  
+  // Dashboard Page Styles
+  dashboardContainer: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  mainButtonsContainer: {
+    flexDirection: 'row',
+    gap: 20,
+    marginBottom: 40,
+  },
+  
+  mainButton: {
+    width: 140,
+    height: 140,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  
+  fitnessButton: {
+    backgroundColor: THRIVE_COLORS.primary,
+  },
+  
+  mentalButton: {
+    backgroundColor: THRIVE_COLORS.accent,
+  },
+  
+  mainButtonIcon: {
+    fontSize: 40,
+    marginBottom: 8,
+  },
+  
+  mainButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: THRIVE_COLORS.white,
+  },
+  
+  quickStats: {
+    flexDirection: 'row',
+    gap: 30,
+    marginTop: 20,
+  },
+  
+  statItem: {
+    alignItems: 'center',
+  },
+  
+  statValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: THRIVE_COLORS.primary,
+  },
+  
+  statLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+  },
+  
+  // Goals Page Styles
+  goalsContainer: {
+    flex: 1,
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  
+  goalsList: {
+    gap: 20,
+  },
+  
+  goalItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: THRIVE_COLORS.white,
+    padding: 20,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  
+  goalIcon: {
+    fontSize: 32,
+    marginRight: 16,
+  },
+  
+  goalContent: {
+    flex: 1,
+  },
+  
+  goalTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: THRIVE_COLORS.black,
+    marginBottom: 4,
+  },
+  
+  goalProgress: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  
+  goalProgressBar: {
+    height: 6,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  
+  goalProgressFill: {
+    height: '100%',
+    backgroundColor: THRIVE_COLORS.primary,
+  },
+  
+  // Social Page Styles
+  socialContainer: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  
+  socialContent: {
+    alignItems: 'center',
+    maxWidth: 300,
+  },
+  
+  socialIcon: {
+    fontSize: 60,
+    marginBottom: 20,
+  },
+  
+  socialTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: THRIVE_COLORS.black,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  
+  socialSubtitle: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 30,
+    textAlign: 'center',
+  },
+  
+  socialFeaturesList: {
+    marginBottom: 30,
+  },
+  
+  socialFeature: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+    textAlign: 'left',
+  },
+  
+  comingSoonBadge: {
+    backgroundColor: THRIVE_COLORS.accent,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  
+  comingSoonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: THRIVE_COLORS.white,
+  },
 
 });
 
