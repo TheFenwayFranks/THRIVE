@@ -103,6 +103,12 @@ const ThriveSwipeAppWeb = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuTranslateX = useRef(new Animated.Value(-260)).current; // Menu starts hidden (260px wide, fully off-screen)
   
+  // Card animation state
+  const cardScale = useRef(new Animated.Value(1)).current;
+  const cardOpacity = useRef(new Animated.Value(1)).current;
+  const expandedCardScale = useRef(new Animated.Value(0)).current;
+  const expandedCardOpacity = useRef(new Animated.Value(0)).current;
+  const [isAnimating, setIsAnimating] = useState(false);
 
   
   // Profile data state
@@ -1205,29 +1211,103 @@ const ThriveSwipeAppWeb = () => {
     }
   };
 
-  // Close graph view with delay check
+  // Animate card opening
+  const animateCardOpen = (cardType) => {
+    if (isAnimating) return;
+    
+    console.log(`Animating card open for: ${cardType}`);
+    setIsAnimating(true);
+    setCardJustOpened(true);
+    
+    // Start the animations in parallel
+    Animated.parallel([
+      // Shrink the grid cards
+      Animated.timing(cardScale, {
+        toValue: 0.8,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(cardOpacity, {
+        toValue: 0.3,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      // Grow the expanded card
+      Animated.timing(expandedCardScale, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(expandedCardOpacity, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      // Animation complete
+      setIsAnimating(false);
+      setTimeout(() => {
+        setCardJustOpened(false);
+      }, 300);
+    });
+    
+    // Set the card states
+    setSelectedCard(cardType);
+    setGraphType(cardType);
+    setShowGraph(true);
+    setDashboardView('graph');
+  };
+
+  // Close graph view with smooth animation
   const closeGraphView = () => {
     // Prevent immediate closing if card was just opened
-    if (cardJustOpened) {
+    if (cardJustOpened || isAnimating) {
       return;
     }
     
-    // Set flag to prevent underlying card from immediately reopening
+    console.log('Animating card close');
+    setIsAnimating(true);
     setCardJustOpened(true);
-    
-    // Disable all card interactions for half a second after closing
     setCardsDisabled(true);
     
-    setShowGraph(false);
-    setDashboardView('overview');
-    setGraphType(null);
-    setSelectedCard(null);
-    
-    // Re-enable card interactions after 500ms
-    setTimeout(() => {
-      setCardJustOpened(false);
-      setCardsDisabled(false);
-    }, 500);
+    // Start the reverse animations
+    Animated.parallel([
+      // Restore the grid cards
+      Animated.timing(cardScale, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(cardOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      // Shrink the expanded card
+      Animated.timing(expandedCardScale, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(expandedCardOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      // Animation complete - reset states
+      setShowGraph(false);
+      setDashboardView('overview');
+      setGraphType(null);
+      setSelectedCard(null);
+      setIsAnimating(false);
+      
+      // Re-enable card interactions after animation
+      setTimeout(() => {
+        setCardJustOpened(false);
+        setCardsDisabled(false);
+      }, 100);
+    });
   };
 
   // 🎯 TASK EXECUTION FUNCTIONS
@@ -4210,7 +4290,15 @@ const ThriveSwipeAppWeb = () => {
               {/* Show either grid view or expanded card view */}
               {!showGraph ? (
                 /* Normal 2x2 Grid */
-                <View style={styles.dashboardGrid}>
+                <Animated.View 
+                  style={[
+                    styles.dashboardGrid,
+                    {
+                      transform: [{ scale: cardScale }],
+                      opacity: cardOpacity,
+                    }
+                  ]}
+                >
                 
                 {/* Dynamic Cards Based on Mode */}
                 {getCurrentCardTypes().map((cardType, index) => {
@@ -4233,23 +4321,14 @@ const ThriveSwipeAppWeb = () => {
                       style={[styles.dashboardCard, cardStyleMap[index]]}
                       onStartShouldSetResponder={() => true}
                       onResponderGrant={() => {
-                        // Prevent opening if cards are disabled
-                        if (cardsDisabled) {
-                          console.log('Card opening disabled - waiting for delay to finish');
+                        // Prevent opening if cards are disabled or animating
+                        if (cardsDisabled || isAnimating) {
+                          console.log('Card opening disabled - animation in progress or waiting');
                           return;
                         }
                         
-                        console.log(`${cardInfo.title} card clicked - showing graph!`);
-                        setCardJustOpened(true);
-                        setSelectedCard(cardType);
-                        setGraphType(cardType);
-                        setShowGraph(true);
-                        setDashboardView('graph');
-                        
-                        // Reset the "just opened" flag after a short delay
-                        setTimeout(() => {
-                          setCardJustOpened(false);
-                        }, 300);
+                        console.log(`${cardInfo.title} card clicked - starting smooth animation!`);
+                        animateCardOpen(cardType);
                       }}
                     >
                       {/* Card Header */}
@@ -4299,10 +4378,18 @@ const ThriveSwipeAppWeb = () => {
                 
 
                 
-                </View>
+                </Animated.View>
               ) : (
                 /* Expanded Card View */
-                <View style={styles.expandedCardContainer}>
+                <Animated.View 
+                  style={[
+                    styles.expandedCardContainer,
+                    {
+                      transform: [{ scale: expandedCardScale }],
+                      opacity: expandedCardOpacity,
+                    }
+                  ]}
+                >
                   {selectedCard === 'weight' && (
                     <View 
                       style={[styles.expandedCard, styles.expandedWeightCard]}
@@ -5021,7 +5108,7 @@ const ThriveSwipeAppWeb = () => {
                       </View>
                     </View>
                   )}
-                </View>
+                </Animated.View>
               )}
               
 
