@@ -3251,6 +3251,2157 @@ const ThriveSwipeAppWeb = () => {
               }}
             />
           </View>
+          
+          {/* Goals Page */}
+                
+                {/* Edit Mode Indicator */}
+                {isProfileEditMode && (
+                  <View style={styles.editModeIndicator}>
+                    <Text style={styles.editModeIndicatorText}>✨ Tap to edit • Drag to move</Text>
+                  </View>
+                )}
+                
+                {/* Avatar moved to top */}
+                <View style={styles.profileAvatarContainerTop}>
+                  <View style={styles.profileAvatar}>
+                    <Text style={styles.profileAvatarText}>AB</Text>
+                  </View>
+                  <View style={styles.verifiedBadge}>
+                    <Text style={styles.verifiedBadgeText}>✓</Text>
+                  </View>
+                </View>
+                
+                {/* User Info */}
+                <View style={styles.profileInfo}>
+                  {/* Name - Editable */}
+                  <View 
+                    style={[
+                      styles.editableInlineCard,
+                      isProfileEditMode && styles.editableCardActive
+                    ]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      if (isProfileEditMode) {
+                        setEditingCardId(editingCardId === 'name' ? null : 'name');
+                      }
+                    }}
+                  >
+                    {editingCardId === 'name' ? (
+                      <TextInput
+                        style={[styles.profileName, styles.editableTextInputInline]}
+                        value={editableProfileData.name}
+                        onChangeText={(text) => 
+                          setEditableProfileData(prev => ({ ...prev, name: text }))
+                        }
+                        onBlur={() => setEditingCardId(null)}
+                        autoFocus
+                      />
+                    ) : (
+                      <Text style={[
+                        styles.profileName,
+                        isProfileEditMode && styles.editableText
+                      ]}>
+                        {editableProfileData.name}
+                      </Text>
+                    )}
+                  </View>
+                  
+                  {/* Username - Editable */}
+                  <View 
+                    style={[
+                      styles.editableInlineCard,
+                      isProfileEditMode && styles.editableCardActive
+                    ]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      if (isProfileEditMode) {
+                        setEditingCardId(editingCardId === 'username' ? null : 'username');
+                      }
+                    }}
+                  >
+                    {editingCardId === 'username' ? (
+                      <TextInput
+                        style={[styles.profileUsername, styles.editableTextInputInline]}
+                        value={editableProfileData.username}
+                        onChangeText={(text) => 
+                          setEditableProfileData(prev => ({ ...prev, username: text }))
+                        }
+                        onBlur={() => setEditingCardId(null)}
+                        autoFocus
+                      />
+                    ) : (
+                      <Text style={[
+                        styles.profileUsername,
+                        isProfileEditMode && styles.editableText
+                      ]}>
+                        {editableProfileData.username}
+                      </Text>
+                    )}
+                  </View>
+                  
+                  {/* Location - Editable */}
+                  <View 
+                    style={[
+                      styles.editableInlineCard,
+                      isProfileEditMode && styles.editableCardActive
+                    ]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      if (isProfileEditMode) {
+                        setEditingCardId(editingCardId === 'location' ? null : 'location');
+                      }
+                    }}
+                  >
+                    {editingCardId === 'location' ? (
+                      <TextInput
+                        style={[styles.profileLocation, styles.editableTextInputInline]}
+                        value={editableProfileData.location}
+                        onChangeText={(text) => 
+                          setEditableProfileData(prev => ({ ...prev, location: text }))
+                        }
+                        onBlur={() => setEditingCardId(null)}
+                        autoFocus
+                      />
+                    ) : (
+                      <Text style={[
+                        styles.profileLocation,
+                        isProfileEditMode && styles.editableText
+                      ]}>
+                        {editableProfileData.location}
+                      </Text>
+                    )}
+                  </View>
+                  
+                  {/* Stats - Now Interactive with Live Updates */}
+                  <View style={styles.profileStats}>
+                    <View style={styles.statItem}>
+                      <Text style={styles.statNumber}>152</Text>
+                      <Text style={styles.statLabel}>posts</Text>
+                    </View>
+                    <View 
+                      style={[styles.statItem, styles.clickableStatItem]}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={() => setShowFollowersList(true)}
+                    >
+                      <Text style={styles.statNumber}>{formatCount(followerCount)}</Text>
+                      <Text style={styles.statLabel}>followers</Text>
+                    </View>
+                    <View 
+                      style={[styles.statItem, styles.clickableStatItem]}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={() => setShowFollowingList(true)}
+                    >
+                      <Text style={styles.statNumber}>{followingCount}</Text>
+                      <Text style={styles.statLabel}>following</Text>
+                    </View>
+                  </View>
+                  
+                  {/* Bio - Editable Card */}
+                  <View 
+                    style={[
+                      styles.editableCard,
+                      isProfileEditMode && styles.editableCardActive,
+                      editingCardId === 'bio' && styles.editableCardEditing
+                    ]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      if (isProfileEditMode) {
+                        setEditingCardId(editingCardId === 'bio' ? null : 'bio');
+                      }
+                    }}
+                  >
+                    {isProfileEditMode && (
+                      <View style={styles.editCardHeader}>
+                        <Text style={styles.editCardLabel}>Bio</Text>
+                        {editingCardId === 'bio' && (
+                          <View style={styles.editCardActions}>
+                            <View 
+                              style={styles.saveCardButton}
+                              onStartShouldSetResponder={() => true}
+                              onResponderGrant={() => setEditingCardId(null)}
+                            >
+                              <Text style={styles.saveCardButtonText}>✓</Text>
+                            </View>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                    
+                    {editingCardId === 'bio' ? (
+                      <TextInput
+                        style={styles.editableTextInput}
+                        value={editableProfileData.bio}
+                        onChangeText={(text) => 
+                          setEditableProfileData(prev => ({ ...prev, bio: text }))
+                        }
+                        multiline={true}
+                        placeholder="Tell people about yourself..."
+                        autoFocus
+                      />
+                    ) : (
+                      <Text style={[
+                        styles.profileBio,
+                        isProfileEditMode && styles.editableText
+                      ]}>
+                        {editableProfileData.bio}
+                      </Text>
+                    )}
+                  </View>
+                  
+                  {/* Links - Editable Card */}
+                  <View 
+                    style={[
+                      styles.editableCard,
+                      isProfileEditMode && styles.editableCardActive,
+                      editingCardId === 'links' && styles.editableCardEditing
+                    ]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      if (isProfileEditMode) {
+                        setEditingCardId(editingCardId === 'links' ? null : 'links');
+                      }
+                    }}
+                  >
+                    {isProfileEditMode && (
+                      <View style={styles.editCardHeader}>
+                        <Text style={styles.editCardLabel}>Links & Tags</Text>
+                        {editingCardId === 'links' && (
+                          <View style={styles.editCardActions}>
+                            <View 
+                              style={styles.saveCardButton}
+                              onStartShouldSetResponder={() => true}
+                              onResponderGrant={() => setEditingCardId(null)}
+                            >
+                              <Text style={styles.saveCardButtonText}>✓</Text>
+                            </View>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                    
+                    <View style={styles.profileLinks}>
+                      {editableProfileData.links.map((link, index) => (
+                        <View key={index} style={styles.editableLinkContainer}>
+                          {editingCardId === 'links' ? (
+                            <TextInput
+                              style={styles.editableLinkInput}
+                              value={link}
+                              onChangeText={(text) => {
+                                const newLinks = [...editableProfileData.links];
+                                newLinks[index] = text;
+                                setEditableProfileData(prev => ({ ...prev, links: newLinks }));
+                              }}
+                              placeholder={`Link ${index + 1}`}
+                            />
+                          ) : (
+                            <Text style={[
+                              styles.profileLink,
+                              isProfileEditMode && styles.editableText
+                            ]}>
+                              {link}
+                            </Text>
+                          )}
+                        </View>
+                      ))}
+                      
+                      {editableProfileData.tags.map((tag, index) => (
+                        <View key={`tag-${index}`} style={styles.profileTag}>
+                          {editingCardId === 'links' ? (
+                            <TextInput
+                              style={styles.editableTagInput}
+                              value={tag}
+                              onChangeText={(text) => {
+                                const newTags = [...editableProfileData.tags];
+                                newTags[index] = text;
+                                setEditableProfileData(prev => ({ ...prev, tags: newTags }));
+                              }}
+                              placeholder="Tag"
+                            />
+                          ) : (
+                            <Text style={[
+                              styles.profileTagText,
+                              isProfileEditMode && styles.editableText
+                            ]}>
+                              {tag}
+                            </Text>
+                          )}
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                  
+                  {/* Action Buttons - Now Functional */}
+                  <View style={styles.profileActions}>
+                    <View 
+                      style={[styles.followButton, isFollowing && styles.followingButton]}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={handleFollowToggle}
+                    >
+                      <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText]}>
+                        {isFollowing ? '✓ Following' : '+ Follow'}
+                      </Text>
+                    </View>
+                    <View 
+                      style={styles.messageButton}
+                      onClick={() => setShowPersonalChat(true)}
+                    >
+                      <Text style={styles.messageButtonText}>Message</Text>
+                    </View>
+                  </View>
+                  
+                  <View 
+                    style={styles.challengeButton}
+                    onClick={() => setShowChallengeSelector(true)}
+                  >
+                    <Text style={styles.challengeButtonText}>Start Challenge</Text>
+                  </View>
+                </View>
+              </View>
+              
+
+              
+              {/* Tab Navigation - Now Interactive */}
+              <View style={styles.profileTabs}>
+                {['Overview', 'Progress', 'Routines', 'Q&A'].map((tab, index) => (
+                  <View 
+                    key={tab} 
+                    style={[styles.profileTab, index === activeProfileTab && styles.activeProfileTab]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => setActiveProfileTab(index)}
+                  >
+                    <Text style={[styles.profileTabText, index === activeProfileTab && styles.activeProfileTabText]}>
+                      {tab}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+              
+              {/* Tab Content */}
+              <View style={styles.profileContent}>
+                
+                {/* Overview Tab Content */}
+                {activeProfileTab === 0 && (
+                  <View>
+                
+                {/* Removed post creation section - profile now focuses on wellness routines */}
+
+                {/* Success Routines - Customizable Playlists */}
+                <View style={styles.profileSection}>
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>My Success Routines</Text>
+                    <View 
+                      style={styles.customizeRoutinesButtonSmall}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={() => setShowRoutineCustomizer(true)}
+                    >
+                      <Text style={styles.customizeRoutinesTextSmall}>⚙️ Edit</Text>
+                    </View>
+                  </View>
+                  
+                  <View style={styles.playlistsContainer}>
+                    {selectedRoutines.map((routineId, index) => {
+                      const routine = routineCategories[routineId];
+                      if (!routine) return null;
+                      
+                      const taskCount = routine.details.length + (routine.tasks ? routine.tasks.length : 0);
+                      
+                      return (
+                        <View key={routine.id}>
+                          <View 
+                            style={[
+                              styles.playlistItem, 
+                              { borderColor: routine.color },
+                              expandedPlaylist === routine.id && styles.playlistItemExpanded
+                            ]}
+                            onStartShouldSetResponder={() => true}
+                            onResponderGrant={() => {
+                              setExpandedPlaylist(expandedPlaylist === routine.id ? null : routine.id);
+                            }}
+                          >
+                            <View style={styles.playlistContent}>
+                              <View style={styles.playlistTitleRow}>
+                                <Text style={styles.playlistIcon}>{routine.icon}</Text>
+                                <View style={styles.playlistInfo}>
+                                  <Text style={styles.playlistName}>{routine.title}</Text>
+                                  <Text style={styles.playlistCount}>{taskCount} guidance areas</Text>
+                                </View>
+                              </View>
+                            </View>
+                            <Text style={[
+                              styles.playlistArrow,
+                              expandedPlaylist === routine.id && styles.playlistArrowExpanded
+                            ]}>
+                              {expandedPlaylist === routine.id ? '⌄' : '›'}
+                            </Text>
+                          </View>
+                          
+                          {/* Expanded Content */}
+                          {expandedPlaylist === routine.id && (
+                            <View style={[styles.playlistExpandedContent, { borderLeftColor: routine.color }]}>
+                              <Text style={styles.playlistDescription}>{routine.description}</Text>
+                              
+                              <View style={styles.playlistTasksContainer}>
+                                <Text style={styles.playlistTasksTitle}>Key Areas & Guidance</Text>
+                                {routine.details.slice(0, 4).map((detail, detailIndex) => {
+                                  const detailKey = `${routine.id}-detail-${detailIndex}`;
+                                  const isExpanded = showDetailedSteps[detailKey];
+                                  
+                                  return (
+                                    <View key={detailIndex}>
+                                      <View style={styles.playlistTask}>
+                                        <View style={styles.playlistTaskInfo}>
+                                          <Text style={styles.playlistTaskName}>
+                                            {typeof detail === 'object' ? detail.title : detail}
+                                          </Text>
+                                          <View style={styles.playlistTaskMeta}>
+                                            <Text style={styles.playlistTaskType}>Core Principle</Text>
+                                            <Text style={styles.playlistTaskDivider}>•</Text>
+                                            <Text style={[styles.playlistTaskDifficulty, styles.difficultyMedium]}>
+                                              Essential
+                                            </Text>
+                                          </View>
+                                        </View>
+                                        <View 
+                                          style={[styles.playlistTaskAction, { backgroundColor: routine.color }]}
+                                          onStartShouldSetResponder={() => true}
+                                          onResponderGrant={() => {
+                                            setShowDetailedSteps(prev => ({
+                                              ...prev,
+                                              [detailKey]: !prev[detailKey]
+                                            }));
+                                          }}
+                                        >
+                                          <Text style={styles.playlistTaskActionText}>
+                                            {isExpanded ? 'Hide' : 'Learn'}
+                                          </Text>
+                                        </View>
+                                      </View>
+                                      
+                                      {/* Expandable Steps Section */}
+                                      {isExpanded && typeof detail === 'object' && detail.steps && (
+                                        <View style={[styles.expandedStepsContainer, { borderLeftColor: routine.color }]}>
+                                          <Text style={styles.expandedStepsTitle}>Step-by-step guide:</Text>
+                                          {detail.steps.map((step, stepIndex) => (
+                                            <View key={stepIndex} style={styles.expandedStep}>
+                                              <View style={[styles.stepNumber, { backgroundColor: routine.color }]}>
+                                                <Text style={styles.stepNumberText}>{stepIndex + 1}</Text>
+                                              </View>
+                                              <Text style={styles.stepText}>{step}</Text>
+                                            </View>
+                                          ))}
+                                        </View>
+                                      )}
+                                    </View>
+                                  );
+                                })}
+                                
+                                {routine.tasks && routine.tasks.length > 0 && (
+                                  <>
+                                    <Text style={[styles.playlistTasksTitle, { marginTop: 16 }]}>Action Tasks</Text>
+                                    {routine.tasks.map((task, taskIndex) => (
+                                      <View key={`task-${taskIndex}`} style={styles.playlistTask}>
+                                        <View style={styles.playlistTaskInfo}>
+                                          <Text style={styles.playlistTaskName}>{task.name}</Text>
+                                          <View style={styles.playlistTaskMeta}>
+                                            <Text style={styles.playlistTaskDuration}>{task.duration}</Text>
+                                            <Text style={styles.playlistTaskDivider}>•</Text>
+                                            <Text style={styles.playlistTaskType}>{task.type}</Text>
+                                            <Text style={styles.playlistTaskDivider}>•</Text>
+                                            <Text style={[
+                                              styles.playlistTaskDifficulty,
+                                              task.difficulty === 'easy' ? styles.difficultyEasy :
+                                              task.difficulty === 'medium' ? styles.difficultyMedium : 
+                                              styles.difficultyHard
+                                            ]}>{task.difficulty}</Text>
+                                          </View>
+                                        </View>
+                                        <View 
+                                          style={[styles.playlistTaskAction, { backgroundColor: routine.color }]}
+                                          onStartShouldSetResponder={() => true}
+                                          onResponderGrant={() => {
+                                            setShowTaskStarter(`${routine.id}-task-${taskIndex}`);
+                                          }}
+                                        >
+                                          <Text style={styles.playlistTaskActionText}>Start</Text>
+                                        </View>
+                                      </View>
+                                    ))}
+                                  </>
+                                )}
+                              </View>
+                            </View>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+                
+                {/* Q&A Section - Now Functional */}
+                <View style={styles.profileSection}>
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Q&A</Text>
+                    <View 
+                      style={styles.askQuestionButton}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={handleAskQuestion}
+                    >
+                      <Text style={styles.askQuestionText}>Ask Question</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.qaDescription}>
+                    Ask me anything about workouts, ADHD-friendly habits, or lawn-care balance 🌱
+                  </Text>
+                  
+                  {/* Preview of Recent Q&A */}
+                  <View style={styles.qaPreview}>
+                    {getAnsweredQuestions().slice(0, 2).map((qa) => (
+                      <View key={qa.id} style={styles.qaPreviewItem}>
+                        <Text style={styles.qaPreviewQuestion}>Q: {qa.question}</Text>
+                        <Text style={styles.qaPreviewAnswer}>A: {qa.answer}</Text>
+                      </View>
+                    ))}
+                    {getAnsweredQuestions().length > 2 && (
+                      <View 
+                        style={styles.seeMoreQA}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={() => setActiveProfileTab(3)}
+                      >
+                        <Text style={styles.seeMoreQAText}>View all Q&As →</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+                
+                {/* Badges - Now Interactive */}
+                <View style={styles.profileSection}>
+                  <Text style={styles.sectionTitle}>Badges</Text>
+                  <View style={styles.badgesContainer}>
+                    {[
+                      { name: '30-Day Streak', color: '#FF9500', description: 'Completed 30 consecutive days of workouts' },
+                      { name: 'Early Supporter', color: THRIVE_COLORS.primary, description: 'One of the first 1000 THRIVE members' },
+                      { name: 'Coach', color: THRIVE_COLORS.accent, description: 'Certified fitness and wellness coach' },
+                    ].map((badge, index) => (
+                      <View 
+                        key={index} 
+                        style={[styles.badgeItem, { backgroundColor: badge.color + '15' }]}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={() => setShowBadgeDetail(badge)}
+                      >
+                        <Text style={[styles.badgeName, { color: badge.color }]}>{badge.name}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+                
+                {/* Share Profile */}
+                <View style={styles.profileSection}>
+                  <Text style={styles.sectionTitle}>Share Profile</Text>
+                  <View style={styles.shareProfileContainer}>
+                    <View style={styles.qrCodePlaceholder}>
+                      <Text style={styles.qrCodeIcon}>📱</Text>
+                    </View>
+                    <Text style={styles.shareDescription}>Scan to follow on THRIVE</Text>
+                  </View>
+                </View>
+                
+                  </View>
+                )}
+                
+                {/* Progress Tab Content */}
+                {activeProfileTab === 1 && (
+                  <View>
+                    <Text style={styles.tabContentTitle}>My Progress</Text>
+                    <Text style={styles.tabContentSubtitle}>Achievements, milestones, and personal growth tracking</Text>
+                    
+                    {/* Top Accomplished Goals */}
+                    <View style={styles.progressSection}>
+                      <Text style={styles.progressSectionTitle}>🏆 Top Accomplished Goals</Text>
+                      <View style={styles.accomplishedGoalsContainer}>
+                        {[
+                          {
+                            id: 1,
+                            title: 'Lost 15 lbs',
+                            description: 'Achieved weight loss goal',
+                            completedDate: '2 weeks ago',
+                            category: 'Weight Loss',
+                            icon: '🏋️‍♂️',
+                            color: THRIVE_COLORS.primary,
+                            progress: 100
+                          },
+                          {
+                            id: 2,
+                            title: '30-Day Meditation Streak',
+                            description: 'Completed daily mindfulness practice',
+                            completedDate: '1 week ago',
+                            category: 'Mental Health',
+                            icon: '🧘‍♀️',
+                            color: THRIVE_COLORS.accent,
+                            progress: 100
+                          },
+                          {
+                            id: 3,
+                            title: 'Marathon Training Complete',
+                            description: '16-week training program finished',
+                            completedDate: '3 weeks ago',
+                            category: 'Fitness',
+                            icon: '🏃‍♂️',
+                            color: '#FF6B35',
+                            progress: 100
+                          }
+                        ].map((goal, index) => (
+                          <View key={goal.id} style={[styles.accomplishedGoalCard, { borderLeftColor: goal.color }]}>
+                            <View style={styles.accomplishedGoalHeader}>
+                              <Text style={styles.accomplishedGoalIcon}>{goal.icon}</Text>
+                              <View style={styles.accomplishedGoalInfo}>
+                                <Text style={styles.accomplishedGoalTitle}>{goal.title}</Text>
+                                <Text style={styles.accomplishedGoalDescription}>{goal.description}</Text>
+                              </View>
+                              <View style={styles.accomplishedGoalBadge}>
+                                <Text style={styles.accomplishedGoalBadgeText}>✓</Text>
+                              </View>
+                            </View>
+                            <View style={styles.accomplishedGoalFooter}>
+                              <Text style={styles.accomplishedGoalCategory}>{goal.category}</Text>
+                              <Text style={styles.accomplishedGoalDate}>{goal.completedDate}</Text>
+                            </View>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Weight Loss Progress */}
+                    <View style={styles.progressSection}>
+                      <Text style={styles.progressSectionTitle}>📉 Weight Loss Journey</Text>
+                      <View style={styles.weightProgressContainer}>
+                        <View style={styles.weightProgressSummary}>
+                          <View style={styles.weightStat}>
+                            <Text style={styles.weightStatValue}>15 lbs</Text>
+                            <Text style={styles.weightStatLabel}>Total Lost</Text>
+                          </View>
+                          <View style={styles.weightStat}>
+                            <Text style={styles.weightStatValue}>165 lbs</Text>
+                            <Text style={styles.weightStatLabel}>Current</Text>
+                          </View>
+                          <View style={styles.weightStat}>
+                            <Text style={styles.weightStatValue}>155 lbs</Text>
+                            <Text style={styles.weightStatLabel}>Goal</Text>
+                          </View>
+                        </View>
+                        
+                        <View style={styles.weightProgressChart}>
+                          <Text style={styles.weightProgressChartTitle}>Last 6 Months</Text>
+                          <View style={styles.weightChartContainer}>
+                            {[180, 175, 172, 168, 165, 165].map((weight, index) => (
+                              <View key={index} style={styles.weightChartBar}>
+                                <View 
+                                  style={[
+                                    styles.weightChartBarFill, 
+                                    { 
+                                      height: `${((weight - 150) / 30) * 100}%`,
+                                      backgroundColor: weight === 165 ? THRIVE_COLORS.primary : '#E5E5E5'
+                                    }
+                                  ]} 
+                                />
+                                <Text style={styles.weightChartLabel}>
+                                  {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'][index]}
+                                </Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+
+                        <View style={styles.weightMilestones}>
+                          <Text style={styles.weightMilestonesTitle}>Weight Milestones</Text>
+                          <View style={styles.milestonesContainer}>
+                            {[
+                              { milestone: 'First 5 lbs', date: '4 months ago', achieved: true },
+                              { milestone: 'First 10 lbs', date: '2 months ago', achieved: true },
+                              { milestone: 'First 15 lbs', date: '2 weeks ago', achieved: true },
+                              { milestone: 'Goal Weight', date: 'In progress', achieved: false }
+                            ].map((milestone, index) => (
+                              <View key={index} style={styles.milestoneItem}>
+                                <View style={[
+                                  styles.milestoneIcon, 
+                                  { backgroundColor: milestone.achieved ? THRIVE_COLORS.primary : '#E5E5E5' }
+                                ]}>
+                                  <Text style={[
+                                    styles.milestoneIconText,
+                                    { color: milestone.achieved ? 'white' : '#999' }
+                                  ]}>
+                                    {milestone.achieved ? '✓' : '○'}
+                                  </Text>
+                                </View>
+                                <View style={styles.milestoneInfo}>
+                                  <Text style={styles.milestoneTitle}>{milestone.milestone}</Text>
+                                  <Text style={styles.milestoneDate}>{milestone.date}</Text>
+                                </View>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Mental Achievements */}
+                    <View style={styles.progressSection}>
+                      <Text style={styles.progressSectionTitle}>🧠 Mental Achievements</Text>
+                      <View style={styles.achievementsGrid}>
+                        {[
+                          {
+                            title: 'Mindful Master',
+                            description: '100+ meditation sessions',
+                            progress: 100,
+                            icon: '🧘‍♀️',
+                            color: THRIVE_COLORS.accent,
+                            achieved: true,
+                            level: 'Advanced'
+                          },
+                          {
+                            title: 'Mood Tracker',
+                            description: '60-day mood logging streak',
+                            progress: 85,
+                            icon: '😊',
+                            color: '#FFB800',
+                            achieved: false,
+                            level: 'Intermediate'
+                          },
+                          {
+                            title: 'Gratitude Guardian',
+                            description: '30 days of gratitude journaling',
+                            progress: 100,
+                            icon: '🙏',
+                            color: '#AF52DE',
+                            achieved: true,
+                            level: 'Beginner'
+                          },
+                          {
+                            title: 'Stress Buster',
+                            description: 'Reduced stress by 40%',
+                            progress: 75,
+                            icon: '😌',
+                            color: '#34C759',
+                            achieved: false,
+                            level: 'Intermediate'
+                          }
+                        ].map((achievement, index) => (
+                          <View key={index} style={[styles.achievementCard, { borderTopColor: achievement.color }]}>
+                            <View style={styles.achievementHeader}>
+                              <Text style={styles.achievementIcon}>{achievement.icon}</Text>
+                              <View style={[styles.achievementBadge, { backgroundColor: achievement.color + '20' }]}>
+                                <Text style={[styles.achievementLevel, { color: achievement.color }]}>
+                                  {achievement.level}
+                                </Text>
+                              </View>
+                            </View>
+                            <Text style={styles.achievementTitle}>{achievement.title}</Text>
+                            <Text style={styles.achievementDescription}>{achievement.description}</Text>
+                            <View style={styles.achievementProgressContainer}>
+                              <View style={styles.achievementProgressTrack}>
+                                <View 
+                                  style={[
+                                    styles.achievementProgressFill, 
+                                    { 
+                                      width: `${achievement.progress}%`,
+                                      backgroundColor: achievement.color 
+                                    }
+                                  ]} 
+                                />
+                              </View>
+                              <Text style={[styles.achievementProgressText, { color: achievement.color }]}>
+                                {achievement.progress}%
+                              </Text>
+                            </View>
+                            {achievement.achieved && (
+                              <View style={styles.achievedOverlay}>
+                                <Text style={styles.achievedBadge}>🏆 ACHIEVED</Text>
+                              </View>
+                            )}
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Physical Achievements */}
+                    <View style={styles.progressSection}>
+                      <Text style={styles.progressSectionTitle}>💪 Physical Achievements</Text>
+                      <View style={styles.physicalAchievementsContainer}>
+                        <View style={styles.fitnessMetrics}>
+                          <View style={styles.fitnessMetricCard}>
+                            <Text style={styles.fitnessMetricIcon}>🏃‍♂️</Text>
+                            <Text style={styles.fitnessMetricValue}>156</Text>
+                            <Text style={styles.fitnessMetricLabel}>Workouts Completed</Text>
+                            <Text style={styles.fitnessMetricChange}>+12 this month</Text>
+                            <View 
+                              style={styles.completeGoalButton}
+                              onStartShouldSetResponder={() => true}
+                              onResponderGrant={() => {
+                                // Simulate goal completion
+                                addNotification(
+                                  'achievement',
+                                  'Daily Workout Complete! 🎉',
+                                  'You completed your daily workout goal. Great job!',
+                                  '🏆'
+                                );
+                              }}
+                            >
+                              <Text style={styles.completeGoalButtonText}>Complete Daily Workout</Text>
+                            </View>
+                          </View>
+                          <View style={styles.fitnessMetricCard}>
+                            <Text style={styles.fitnessMetricIcon}>⏱️</Text>
+                            <Text style={styles.fitnessMetricValue}>45h 32m</Text>
+                            <Text style={styles.fitnessMetricLabel}>Total Exercise Time</Text>
+                            <Text style={styles.fitnessMetricChange}>+8h this month</Text>
+                          </View>
+                          <View style={styles.fitnessMetricCard}>
+                            <Text style={styles.fitnessMetricIcon}>🔥</Text>
+                            <Text style={styles.fitnessMetricValue}>18,450</Text>
+                            <Text style={styles.fitnessMetricLabel}>Calories Burned</Text>
+                            <Text style={styles.fitnessMetricChange}>+2,100 this month</Text>
+                          </View>
+                        </View>
+
+                        <View style={styles.strengthProgress}>
+                          <Text style={styles.strengthProgressTitle}>Strength Progress</Text>
+                          <View style={styles.strengthMetrics}>
+                            {[
+                              { exercise: 'Push-ups', start: 10, current: 25, goal: 50, unit: 'reps' },
+                              { exercise: 'Plank Hold', start: 30, current: 90, goal: 120, unit: 'sec' },
+                              { exercise: 'Squats', start: 15, current: 35, goal: 100, unit: 'reps' }
+                            ].map((metric, index) => (
+                              <View key={index} style={styles.strengthMetricItem}>
+                                <Text style={styles.strengthExercise}>{metric.exercise}</Text>
+                                <View style={styles.strengthProgressBar}>
+                                  <View 
+                                    style={[
+                                      styles.strengthProgressFill, 
+                                      { width: `${((metric.current - metric.start) / (metric.goal - metric.start)) * 100}%` }
+                                    ]} 
+                                  />
+                                </View>
+                                <Text style={styles.strengthNumbers}>
+                                  {metric.current} / {metric.goal} {metric.unit}
+                                </Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Key Progress Metrics */}
+                    <View style={styles.progressSection}>
+                      <Text style={styles.progressSectionTitle}>📊 Key Progress Metrics</Text>
+                      <View style={styles.keyMetricsContainer}>
+                        <View style={styles.metricsSummaryCard}>
+                          <Text style={styles.metricsSummaryTitle}>Overall Health Score</Text>
+                          <View style={styles.healthScoreCircle}>
+                            <Text style={styles.healthScoreValue}>8.4</Text>
+                            <Text style={styles.healthScoreMax}>/10</Text>
+                          </View>
+                          <View style={styles.healthScoreBreakdown}>
+                            <View style={styles.scoreBreakdownItem}>
+                              <Text style={styles.scoreBreakdownLabel}>Physical</Text>
+                              <Text style={styles.scoreBreakdownValue}>8.7</Text>
+                            </View>
+                            <View style={styles.scoreBreakdownItem}>
+                              <Text style={styles.scoreBreakdownLabel}>Mental</Text>
+                              <Text style={styles.scoreBreakdownValue}>8.1</Text>
+                            </View>
+                            <View style={styles.scoreBreakdownItem}>
+                              <Text style={styles.scoreBreakdownLabel}>Nutrition</Text>
+                              <Text style={styles.scoreBreakdownValue}>8.4</Text>
+                            </View>
+                          </View>
+                        </View>
+
+                        <View style={styles.streaksContainer}>
+                          <Text style={styles.streaksTitle}>Current Streaks</Text>
+                          <View style={styles.streaksList}>
+                            {[
+                              { name: 'Daily Movement', count: 23, icon: '🏃‍♂️', color: THRIVE_COLORS.primary },
+                              { name: 'Hydration Goal', count: 15, icon: '💧', color: THRIVE_COLORS.accent },
+                              { name: 'Sleep Schedule', count: 12, icon: '😴', color: '#9C27B0' },
+                              { name: 'Mood Check-ins', count: 8, icon: '😊', color: '#FFB800' }
+                            ].map((streak, index) => (
+                              <View key={index} style={styles.streakItem}>
+                                <Text style={styles.streakIcon}>{streak.icon}</Text>
+                                <View style={styles.streakInfo}>
+                                  <Text style={styles.streakName}>{streak.name}</Text>
+                                  <View style={styles.streakCountContainer}>
+                                    <Text style={[styles.streakCount, { color: streak.color }]}>{streak.count}</Text>
+                                    <Text style={styles.streakDays}>days</Text>
+                                  </View>
+                                </View>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Monthly Summary */}
+                    <View style={styles.progressSection}>
+                      <Text style={styles.progressSectionTitle}>📅 This Month's Highlights</Text>
+                      <View style={styles.monthlyHighlights}>
+                        <View style={styles.highlightCard}>
+                          <Text style={styles.highlightTitle}>🎯 Goals Achieved</Text>
+                          <Text style={styles.highlightValue}>7 of 10</Text>
+                          <Text style={styles.highlightSubtext}>70% completion rate</Text>
+                        </View>
+                        <View style={styles.highlightCard}>
+                          <Text style={styles.highlightTitle}>🔥 Most Active Day</Text>
+                          <Text style={styles.highlightValue}>March 15</Text>
+                          <Text style={styles.highlightSubtext}>95 minutes active</Text>
+                        </View>
+                        <View style={styles.highlightCard}>
+                          <Text style={styles.highlightTitle}>⭐ Biggest Win</Text>
+                          <Text style={styles.highlightValue}>Marathon PR</Text>
+                          <Text style={styles.highlightSubtext}>Personal record!</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                )}
+                
+                {/* Routines Tab Content */}
+                {activeProfileTab === 2 && (
+                  <View>
+                    <Text style={styles.tabContentTitle}>My Success Routines</Text>
+                    <Text style={styles.tabContentSubtitle}>3 vital areas customized for your success</Text>
+                    
+                    {/* Customize Button */}
+                    <View style={styles.routineCustomizeSection}>
+                      <View 
+                        style={styles.customizeRoutinesButton}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={() => setShowRoutineCustomizer(true)}
+                      >
+                        <Text style={styles.customizeRoutinesText}>⚙️ Customize My 3 Vital Areas</Text>
+                      </View>
+                    </View>
+
+                    {/* Selected Routines */}
+                    <View style={styles.routinesContainer}>
+                      {selectedRoutines.map((routineId, index) => {
+                        const routine = routineCategories[routineId];
+                        if (!routine) return null;
+                        
+                        return (
+                          <View key={routine.id}>
+                            <View 
+                              style={[
+                                styles.routineItem,
+                                { borderLeftColor: routine.color },
+                                expandedRoutine === routine.id && styles.routineItemExpanded
+                              ]}
+                              onStartShouldSetResponder={() => true}
+                              onResponderGrant={() => {
+                                setExpandedRoutine(expandedRoutine === routine.id ? null : routine.id);
+                              }}
+                            >
+                              <View style={styles.routineHeader}>
+                                <View style={styles.routineInfo}>
+                                  <View style={styles.routineNameRow}>
+                                    <Text style={styles.routineIcon}>{routine.icon}</Text>
+                                    <Text style={styles.routineName}>{routine.title}</Text>
+                                  </View>
+                                  <Text style={styles.routineDescription}>{routine.description}</Text>
+                                </View>
+                                <Text style={[
+                                  styles.routineArrow,
+                                  expandedRoutine === routine.id && styles.routineArrowExpanded
+                                ]}>
+                                  {expandedRoutine === routine.id ? '⌄' : '›'}
+                                </Text>
+                              </View>
+                            </View>
+                            
+                            {/* Expanded Routine Content */}
+                            {expandedRoutine === routine.id && (
+                              <View style={[styles.routineExpandedContent, { borderLeftColor: routine.color }]}>
+                                <View style={styles.routineDetailSection}>
+                                  <Text style={styles.routineDetailTitle}>Key Areas Covered:</Text>
+                                  {routine.details.map((detail, detailIndex) => {
+                                    const detailKey = `${routine.id}-detail-${detailIndex}-full`;
+                                    const isExpanded = showDetailedSteps[detailKey];
+                                    
+                                    return (
+                                      <View key={detailIndex}>
+                                        <View style={styles.routineDetailItem}>
+                                          <Text style={styles.routineDetailBullet}>•</Text>
+                                          <View style={styles.routineDetailContent}>
+                                            <Text style={styles.routineDetailText}>
+                                              {typeof detail === 'object' ? detail.title : detail}
+                                            </Text>
+                                            {typeof detail === 'object' && detail.steps && (
+                                              <View 
+                                                style={styles.learnButton}
+                                                onStartShouldSetResponder={() => true}
+                                                onResponderGrant={() => {
+                                                  setShowDetailedSteps(prev => ({
+                                                    ...prev,
+                                                    [detailKey]: !prev[detailKey]
+                                                  }));
+                                                }}
+                                              >
+                                                <Text style={styles.learnButtonText}>
+                                                  {isExpanded ? '▲ Hide Steps' : '▼ Learn More'}
+                                                </Text>
+                                              </View>
+                                            )}
+                                          </View>
+                                        </View>
+                                        
+                                        {/* Expandable Steps for Routines Tab */}
+                                        {isExpanded && typeof detail === 'object' && detail.steps && (
+                                          <View style={[styles.routineExpandedSteps, { borderLeftColor: routine.color }]}>
+                                            <Text style={styles.routineStepsTitle}>Detailed Steps:</Text>
+                                            {detail.steps.map((step, stepIndex) => (
+                                              <View key={stepIndex} style={styles.routineStep}>
+                                                <View style={[styles.routineStepNumber, { backgroundColor: routine.color }]}>
+                                                  <Text style={styles.routineStepNumberText}>{stepIndex + 1}</Text>
+                                                </View>
+                                                <Text style={styles.routineStepText}>{step}</Text>
+                                              </View>
+                                            ))}
+                                          </View>
+                                        )}
+                                      </View>
+                                    );
+                                  })}
+                                </View>
+                                
+                                {routine.tasks && routine.tasks.length > 0 && (
+                                  <View style={styles.routineTasksContainer}>
+                                    <Text style={styles.routineTasksTitle}>Sample Tasks</Text>
+                                    {routine.tasks.map((task, taskIndex) => (
+                                      <View key={taskIndex} style={styles.routineTask}>
+                                        <View style={styles.routineTaskNumber}>
+                                          <Text style={styles.routineTaskNumberText}>{taskIndex + 1}</Text>
+                                        </View>
+                                        <View style={styles.routineTaskInfo}>
+                                          <Text style={styles.routineTaskName}>{task.name}</Text>
+                                          <View style={styles.routineTaskMeta}>
+                                            <Text style={styles.routineTaskDuration}>{task.duration}</Text>
+                                            <Text style={styles.routineTaskDivider}>•</Text>
+                                            <Text style={styles.routineTaskType}>{task.type}</Text>
+                                            <Text style={styles.routineTaskDivider}>•</Text>
+                                            <Text style={[styles.routineTaskDifficulty, 
+                                              task.difficulty === 'easy' ? styles.difficultyEasy : 
+                                              task.difficulty === 'medium' ? styles.difficultyMedium : styles.difficultyHard
+                                            ]}>{task.difficulty}</Text>
+                                          </View>
+                                          {task.steps && (
+                                            <View style={styles.taskStepsContainer}>
+                                              {task.steps.map((step, stepIndex) => (
+                                                <Text key={stepIndex} style={styles.taskStep}>
+                                                  {stepIndex + 1}. {step}
+                                                </Text>
+                                              ))}
+                                            </View>
+                                          )}
+                                        </View>
+                                      </View>
+                                    ))}
+                                  </View>
+                                )}
+                                
+                                <View style={styles.routineActions}>
+                                  <View 
+                                    style={styles.routineActionRow}
+                                  >
+                                    <View 
+                                      style={[styles.routineEditButton, { borderColor: routine.color }]}
+                                      onStartShouldSetResponder={() => true}
+                                      onResponderGrant={() => {
+                                        setEditingRoutineId(routine.id);
+                                        setShowRoutineEditor(true);
+                                      }}
+                                    >
+                                      <Text style={[styles.routineEditButtonText, { color: routine.color }]}>✏️ Customize</Text>
+                                    </View>
+                                    <View 
+                                      style={[styles.routineStartButton, { backgroundColor: routine.color }]}
+                                      onStartShouldSetResponder={() => true}
+                                      onResponderGrant={() => {
+                                        setShowTaskStarter(`${routine.id}-main`);
+                                      }}
+                                    >
+                                      <Text style={styles.routineStartButtonText}>▶️ Start Routine</Text>
+                                    </View>
+                                  </View>
+                                </View>
+                              </View>
+                            )}
+                          </View>
+                        );
+                      })}
+                    </View>
+                  </View>
+                )}
+                
+                {/* Q&A Tab Content */}
+                {activeProfileTab === 3 && (
+                  <View>
+                    <View style={styles.qaTabHeader}>
+                      <Text style={styles.tabContentTitle}>Questions & Answers</Text>
+                      <View 
+                        style={styles.notificationBadge}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={() => setShowQuestionManager(true)}
+                      >
+                        <Text style={styles.notificationBadgeText}>
+                          {getUnansweredQuestionsCount()}
+                        </Text>
+                        <Text style={styles.notificationBadgeLabel}>new</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.tabContentSubtitle}>Manage your questions and answers</Text>
+                    
+                    {/* Question Management Actions */}
+                    <View style={styles.qaActions}>
+                      <View 
+                        style={styles.qaActionButton}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={() => setShowQuestionManager(true)}
+                      >
+                        <Text style={styles.qaActionButtonText}>
+                          📥 Manage Questions ({getUnansweredQuestionsCount()})
+                        </Text>
+                      </View>
+                      <View 
+                        style={styles.qaActionButton}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={handleAskQuestion}
+                      >
+                        <Text style={styles.qaActionButtonText}>❓ Ask Question</Text>
+                      </View>
+                    </View>
+
+                    {/* Answered Questions Display */}
+                    <View style={styles.answeredQuestionsSection}>
+                      <Text style={styles.sectionTitle}>Answered Questions</Text>
+                      {getAnsweredQuestions().length > 0 ? (
+                        <View style={styles.answeredQuestionsList}>
+                          {getAnsweredQuestions().map((qa) => (
+                            <View key={qa.id} style={styles.answeredQuestionCard}>
+                              <View style={styles.questionHeader}>
+                                <Text style={styles.questionAsker}>From {qa.asker}</Text>
+                                <Text style={styles.questionTimestamp}>
+                                  {qa.timestamp.toLocaleDateString()}
+                                </Text>
+                              </View>
+                              <View style={styles.questionContent}>
+                                <Text style={styles.questionText}>Q: {qa.question}</Text>
+                                <Text style={styles.answerText}>A: {qa.answer}</Text>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      ) : (
+                        <View style={styles.noQuestionsCard}>
+                          <Text style={styles.noQuestionsIcon}>💬</Text>
+                          <Text style={styles.noQuestionsTitle}>No Answered Questions</Text>
+                          <Text style={styles.noQuestionsSubtitle}>
+                            Questions you answer will appear here for others to see
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                )}
+              
+              </View>
+            </ScrollView>
+          </View>
+          
+          {/* Dashboard Page */}
+          {/* Dashboard Page - Pure white */}
+          <View style={[styles.page, { backgroundColor: THRIVE_COLORS.white }]}>
+            {/* Dashboard Grid Container - 2x2 Grid */}
+            <View style={styles.dashboardContainer}>
+              
+              {/* Health Sync Status Indicator */}
+              {!showGraph && (
+                <View style={styles.healthSyncStatusContainer}>
+                  <Text style={styles.healthSyncStatus}>
+                    {healthConnected ? (
+                      syncStatus.syncInProgress ? '🔄 Syncing...' : 
+                      healthLastSync ? `✅ Last sync: ${healthLastSync.toLocaleTimeString()}` : '✅ Connected'
+                    ) : (
+                      healthError ? '❌ Connection error' : '📱 Manual entry mode'
+                    )}
+                  </Text>
+                  {!healthConnected && !healthError && (
+                    <Text 
+                      style={styles.healthConnectLink}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={() => setShowHealthPermissions(true)}
+                    >
+                      Connect Health Apps
+                    </Text>
+                  )}
+                </View>
+              )}
+
+              {/* Date Range Toggle Buttons */}
+              {!showGraph && (
+                <View style={styles.dateRangeButtonContainer}>
+                  <View 
+                    style={[styles.dateRangeButton, dateRange === 'week' ? styles.activeDateButton : styles.inactiveDateButton]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      console.log('Week range selected');
+                      setDateRange('week');
+                    }}
+                  >
+                    <Text style={[styles.dateRangeButtonText, dateRange === 'week' ? styles.activeDateButtonText : styles.inactiveDateButtonText]}>
+                      WEEK
+                    </Text>
+                  </View>
+                  
+                  <View 
+                    style={[styles.dateRangeButton, dateRange === 'month' ? styles.activeDateButton : styles.inactiveDateButton]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      console.log('Month range selected');
+                      setDateRange('month');
+                    }}
+                  >
+                    <Text style={[styles.dateRangeButtonText, dateRange === 'month' ? styles.activeDateButtonText : styles.inactiveDateButtonText]}>
+                      MONTH
+                    </Text>
+                  </View>
+                </View>
+              )}
+              
+              {/* Show either grid view or expanded card view */}
+              {!showGraph ? (
+                /* Normal 2x2 Grid */
+                <Animated.View 
+                  style={[
+                    styles.dashboardGrid,
+                    {
+                      transform: [{ scale: cardScale }],
+                      opacity: cardOpacity,
+                    }
+                  ]}
+                >
+                
+                {/* Dynamic Cards Based on Mode */}
+                {getCurrentCardTypes().map((cardType, index) => {
+                  const cardInfo = getCardInfo(cardType);
+                  const cardStyleMap = challengeMode === 'fitness' ? {
+                    0: styles.weightCard, // Green
+                    1: styles.goalCard,   // Blue
+                    2: styles.tasksCard,  // Orange
+                    3: styles.streakCard  // Purple
+                  } : {
+                    0: styles.mindfulnessCard, // Purple (different from fitness)
+                    1: styles.moodCard,        // Orange-Red
+                    2: styles.learningCard,    // Cyan
+                    3: styles.gratitudeCard    // Amber
+                  };
+                  
+                  return (
+                    <View 
+                      key={`${challengeMode}-${cardType}`}
+                      style={[styles.dashboardCard, cardStyleMap[index]]}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={() => {
+                        // Prevent opening if cards are disabled or animating
+                        if (cardsDisabled || isAnimating) {
+                          console.log('Card opening disabled - animation in progress or waiting');
+                          return;
+                        }
+                        
+                        console.log(`${cardInfo.title} card clicked - starting smooth animation!`);
+                        animateCardOpen(cardType);
+                      }}
+                    >
+                      {/* Card Header */}
+                      <View style={styles.cardHeader}>
+                        <Text style={styles.cardIcon}>{cardInfo.icon}</Text>
+                      </View>
+                      
+                      {/* Main Content */}
+                      <View style={styles.cardContent}>
+                        <Text style={[styles.cardMainValue, challengeMode === 'fitness' ? 
+                          (index === 0 ? styles.weightMainValue : index === 1 ? styles.goalMainValue : index === 2 ? styles.tasksMainValue : styles.streakMainValue) :
+                          (index === 0 ? styles.mindfulnessMainValue : index === 1 ? styles.moodMainValue : index === 2 ? styles.learningMainValue : styles.gratitudeMainValue)
+                        ]}>
+                          {getCardDisplayValue(cardType)}
+                        </Text>
+                        
+                        <Text style={[styles.cardLabel, challengeMode === 'fitness' ?
+                          (index === 0 ? styles.weightLabel : index === 1 ? styles.goalLabel : index === 2 ? styles.tasksLabel : styles.streakLabel) :
+                          (index === 0 ? styles.mindfulnessLabel : index === 1 ? styles.moodLabel : index === 2 ? styles.learningLabel : styles.gratitudeLabel)
+                        ]}>
+                          {cardInfo.title}
+                        </Text>
+                        
+                        <Text style={[styles.cardSubtext, challengeMode === 'fitness' ?
+                          (index === 0 ? styles.weightSubtext : index === 1 ? styles.goalSubtext : index === 2 ? styles.tasksSubtext : styles.streakSubtext) :
+                          (index === 0 ? styles.mindfulnessSubtext : index === 1 ? styles.moodSubtext : index === 2 ? styles.learningSubtext : styles.gratitudeSubtext)
+                        ]}>
+                          {getCardSubtitle(cardType)}
+                        </Text>
+                      </View>
+                      
+                      {/* Progress Bar */}
+                      <View style={styles.progressBarContainer}>
+                        <View 
+                          style={[
+                            styles.progressBar, 
+                            challengeMode === 'fitness' ?
+                              (index === 0 ? styles.weightProgressBar : index === 1 ? styles.goalProgressBar : index === 2 ? styles.tasksProgressBar : styles.streakProgressBar) :
+                              (index === 0 ? styles.mindfulnessProgressBar : index === 1 ? styles.moodProgressBar : index === 2 ? styles.learningProgressBar : styles.gratitudeProgressBar),
+                            { width: `${Math.min(getCardProgressPercentage(cardType), 100)}%` }
+                          ]} 
+                        />
+                      </View>
+                    </View>
+                  );
+                })}
+                
+
+                
+                </Animated.View>
+              ) : (
+                /* Expanded Card View */
+                <Animated.View 
+                  style={[
+                    styles.expandedCardContainer,
+                    {
+                      transform: [{ scale: expandedCardScale }],
+                      opacity: expandedCardOpacity,
+                    }
+                  ]}
+                >
+                  {selectedCard === 'weight' && (
+                    <View 
+                      style={[styles.expandedCard, styles.expandedWeightCard]}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={closeGraphView}
+                    >
+                      {/* Expanded Card Header */}
+                      <View style={styles.expandedCardHeader}>
+                        <View style={styles.expandedCardTitleSection}>
+                          <Text style={styles.expandedCardIcon}>⚖️</Text>
+                          <View>
+                            <Text style={[styles.expandedCardTitle, styles.weightTitle]}>WEIGHT</Text>
+                            <Text style={[styles.expandedCardValue, styles.weightValue]}>
+                              {dashboardData.weight.current || 150} lbs
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                      
+                      {/* Graph inside expanded card */}
+                      <View style={styles.expandedCardGraph}>
+                        <Text style={styles.expandedGraphTitle}>{dateRange === 'week' ? '7-Day' : '30-Day'} Progress</Text>
+                        {dateRange === 'week' ? (
+                          /* Bar Chart for Week View */
+                          <View style={styles.expandedGraphArea}>
+                            {generateGraphData('weight').map((point, index) => {
+                              const allData = generateGraphData('weight');
+                              const maxValue = Math.max(...allData.map(p => p.value));
+                              const minValue = Math.min(...allData.map(p => p.value));
+                              const normalizedHeight = ((point.value - minValue) / Math.max(maxValue - minValue, 1)) * 60 + 20;
+                              
+                              return (
+                                <View key={index} style={styles.expandedGraphColumn}>
+                                  <View 
+                                    style={[styles.expandedGraphBar, {
+                                      height: normalizedHeight,
+                                      backgroundColor: '#34C759'
+                                    }]}
+                                  />
+                                  <Text style={styles.expandedGraphLabel}>{point.date.split(' ')[1]}</Text>
+                                  <Text style={styles.expandedGraphValue}>{Math.round(point.value)}lbs</Text>
+                                </View>
+                              );
+                            })}
+                          </View>
+                        ) : (
+                          /* Line Graph for Month View */
+                          <View style={styles.lineGraphContainer}>
+                            <View style={styles.lineGraphArea}>
+                              {/* Render line path */}
+                              {generateGraphData('weight').map((point, index, array) => {
+                                const allData = array;
+                                const maxValue = Math.max(...allData.map(p => p.value));
+                                const minValue = Math.min(...allData.map(p => p.value));
+                                const normalizedY = 100 - (((point.value - minValue) / Math.max(maxValue - minValue, 1)) * 80);
+                                const x = (index / (array.length - 1)) * 100;
+                                
+                                return (
+                                  <View key={index}>
+                                    {/* Data Point */}
+                                    <View 
+                                      style={[styles.lineGraphPoint, {
+                                        left: `${x}%`,
+                                        top: `${normalizedY}%`,
+                                        backgroundColor: '#34C759'
+                                      }]}
+                                    />
+                                    {/* Line to next point */}
+                                    {index < array.length - 1 && (
+                                      <View 
+                                        style={[styles.lineGraphLine, {
+                                          left: `${x}%`,
+                                          top: `${normalizedY}%`,
+                                          width: `${100 / (array.length - 1)}%`,
+                                          backgroundColor: '#34C759'
+                                        }]}
+                                      />
+                                    )}
+                                  </View>
+                                );
+                              })}
+                            </View>
+                            {/* Show min/max values */}
+                            <View style={styles.lineGraphLabels}>
+                              <Text style={styles.lineGraphStartLabel}>
+                                {generateGraphData('weight')[0]?.date.split(' ')[1]}
+                              </Text>
+                              <Text style={styles.lineGraphEndLabel}>
+                                {generateGraphData('weight')[generateGraphData('weight').length - 1]?.date.split(' ')[1]}
+                              </Text>
+                            </View>
+                            <Text style={styles.lineGraphSummary}>
+                              Avg: {Math.round(generateGraphData('weight').reduce((sum, p) => sum + p.value, 0) / generateGraphData('weight').length)} lbs
+                            </Text>
+                          </View>
+                        )}
+                        <Text style={styles.expandedGraphGoal}>Goal: {dashboardData.weight.goal || 145} lbs</Text>
+                      </View>
+                    </View>
+                  )}
+                  
+                  {selectedCard === 'goal' && (
+                    <View 
+                      style={[styles.expandedCard, styles.expandedGoalCard]}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={closeGraphView}
+                    >
+                      <View style={styles.expandedCardHeader}>
+                        <View style={styles.expandedCardTitleSection}>
+                          <Text style={styles.expandedCardIcon}>🎯</Text>
+                          <View>
+                            <Text style={[styles.expandedCardTitle, styles.goalTitle]}>PROGRESS</Text>
+                            <Text style={[styles.expandedCardValue, styles.goalValue]}>
+                              {Math.round(dashboardData.goalProgress.percentage || 0)}%
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.expandedCardGraph}>
+                        <Text style={styles.expandedGraphTitle}>{dateRange === 'week' ? '7-Day' : '30-Day'} Achievement Progress</Text>
+                        {dateRange === 'week' ? (
+                          /* Bar Chart for Week View */
+                          <View style={styles.expandedGraphArea}>
+                            {generateGraphData('goal').map((point, index) => {
+                              const normalizedHeight = (point.value / 100) * 60 + 20;
+                              
+                              return (
+                                <View key={index} style={styles.expandedGraphColumn}>
+                                  <View 
+                                    style={[styles.expandedGraphBar, {
+                                      height: normalizedHeight,
+                                      backgroundColor: '#2196F3'
+                                    }]}
+                                  />
+                                  <Text style={styles.expandedGraphLabel}>{point.date.split(' ')[1]}</Text>
+                                  <Text style={styles.expandedGraphValue}>{Math.round(point.value)}%</Text>
+                                </View>
+                              );
+                            })}
+                          </View>
+                        ) : (
+                          /* Line Graph for Month View */
+                          <View style={styles.lineGraphContainer}>
+                            <View style={styles.lineGraphArea}>
+                              {generateGraphData('goal').map((point, index, array) => {
+                                const normalizedY = 100 - (point.value * 0.8);
+                                const x = (index / (array.length - 1)) * 100;
+                                
+                                return (
+                                  <View key={index}>
+                                    <View 
+                                      style={[styles.lineGraphPoint, {
+                                        left: `${x}%`,
+                                        top: `${normalizedY}%`,
+                                        backgroundColor: '#2196F3'
+                                      }]}
+                                    />
+                                    {index < array.length - 1 && (
+                                      <View 
+                                        style={[styles.lineGraphLine, {
+                                          left: `${x}%`,
+                                          top: `${normalizedY}%`,
+                                          width: `${100 / (array.length - 1)}%`,
+                                          backgroundColor: '#2196F3'
+                                        }]}
+                                      />
+                                    )}
+                                  </View>
+                                );
+                              })}
+                            </View>
+                            <View style={styles.lineGraphLabels}>
+                              <Text style={styles.lineGraphStartLabel}>
+                                {generateGraphData('goal')[0]?.date.split(' ')[1]}
+                              </Text>
+                              <Text style={styles.lineGraphEndLabel}>
+                                {generateGraphData('goal')[generateGraphData('goal').length - 1]?.date.split(' ')[1]}
+                              </Text>
+                            </View>
+                            <Text style={styles.lineGraphSummary}>
+                              Avg: {Math.round(generateGraphData('goal').reduce((sum, p) => sum + p.value, 0) / generateGraphData('goal').length)}%
+                            </Text>
+                          </View>
+                        )}
+                        <Text style={styles.expandedGraphGoal}>Target: {dashboardData.goalProgress.type || 'Weight Loss'}</Text>
+                      </View>
+                    </View>
+                  )}
+                  
+                  {selectedCard === 'tasks' && (
+                    <View 
+                      style={[styles.expandedCard, styles.expandedTasksCard]}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={closeGraphView}
+                    >
+                      <View style={styles.expandedCardHeader}>
+                        <View style={styles.expandedCardTitleSection}>
+                          <Text style={styles.expandedCardIcon}>✅</Text>
+                          <View>
+                            <Text style={[styles.expandedCardTitle, styles.tasksTitle]}>TODAY</Text>
+                            <Text style={[styles.expandedCardValue, styles.tasksValue]}>
+                              {dashboardData.todayTasks.completed}/{dashboardData.todayTasks.total}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.expandedCardGraph}>
+                        <Text style={styles.expandedGraphTitle}>{dateRange === 'week' ? '7-Day' : '30-Day'} Task Completion</Text>
+                        {dateRange === 'week' ? (
+                          <View style={styles.expandedGraphArea}>
+                            {generateGraphData('tasks').map((point, index) => {
+                              const normalizedHeight = (point.value / 4) * 60 + 20;
+                              
+                              return (
+                                <View key={index} style={styles.expandedGraphColumn}>
+                                  <View 
+                                    style={[styles.expandedGraphBar, {
+                                      height: normalizedHeight,
+                                      backgroundColor: '#FF9800'
+                                    }]}
+                                  />
+                                  <Text style={styles.expandedGraphLabel}>{point.date.split(' ')[1]}</Text>
+                                  <Text style={styles.expandedGraphValue}>{point.value}</Text>
+                                </View>
+                              );
+                            })}
+                          </View>
+                        ) : (
+                          <View style={styles.lineGraphContainer}>
+                            <View style={styles.lineGraphArea}>
+                              {generateGraphData('tasks').map((point, index, array) => {
+                                const normalizedY = 100 - ((point.value / 4) * 80);
+                                const x = (index / (array.length - 1)) * 100;
+                                
+                                return (
+                                  <View key={index}>
+                                    <View 
+                                      style={[styles.lineGraphPoint, {
+                                        left: `${x}%`,
+                                        top: `${normalizedY}%`,
+                                        backgroundColor: '#FF9800'
+                                      }]}
+                                    />
+                                    {index < array.length - 1 && (
+                                      <View 
+                                        style={[styles.lineGraphLine, {
+                                          left: `${x}%`,
+                                          top: `${normalizedY}%`,
+                                          width: `${100 / (array.length - 1)}%`,
+                                          backgroundColor: '#FF9800'
+                                        }]}
+                                      />
+                                    )}
+                                  </View>
+                                );
+                              })}
+                            </View>
+                            <View style={styles.lineGraphLabels}>
+                              <Text style={styles.lineGraphStartLabel}>
+                                {generateGraphData('tasks')[0]?.date.split(' ')[1]}
+                              </Text>
+                              <Text style={styles.lineGraphEndLabel}>
+                                {generateGraphData('tasks')[generateGraphData('tasks').length - 1]?.date.split(' ')[1]}
+                              </Text>
+                            </View>
+                            <Text style={styles.lineGraphSummary}>
+                              Avg: {Math.round(generateGraphData('tasks').reduce((sum, p) => sum + p.value, 0) / generateGraphData('tasks').length)} tasks/day
+                            </Text>
+                          </View>
+                        )}
+                        <Text style={styles.expandedGraphGoal}>Tasks: {dashboardData.todayTasks.tasks.join(', ')}</Text>
+                      </View>
+                    </View>
+                  )}
+                  
+                  {selectedCard === 'streak' && (
+                    <View 
+                      style={[styles.expandedCard, styles.expandedStreakCard]}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={closeGraphView}
+                    >
+                      <View style={styles.expandedCardHeader}>
+                        <View style={styles.expandedCardTitleSection}>
+                          <Text style={styles.expandedCardIcon}>🔥</Text>
+                          <View>
+                            <Text style={[styles.expandedCardTitle, styles.streakTitle]}>STREAK</Text>
+                            <Text style={[styles.expandedCardValue, styles.streakValue]}>
+                              {dashboardData.streakCounter.current || 0} days
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.expandedCardGraph}>
+                        <Text style={styles.expandedGraphTitle}>{dateRange === 'week' ? '7-Day' : '30-Day'} Logging Consistency</Text>
+                        {dateRange === 'week' ? (
+                          <View style={styles.expandedGraphArea}>
+                            {generateGraphData('streak').map((point, index) => {
+                              const maxStreak = Math.max(...generateGraphData('streak').map(p => p.value));
+                              const normalizedHeight = (point.value / Math.max(maxStreak, 1)) * 60 + 20;
+                              
+                              return (
+                                <View key={index} style={styles.expandedGraphColumn}>
+                                  <View 
+                                    style={[styles.expandedGraphBar, {
+                                      height: normalizedHeight,
+                                      backgroundColor: '#9C27B0'
+                                    }]}
+                                  />
+                                  <Text style={styles.expandedGraphLabel}>{point.date.split(' ')[1]}</Text>
+                                  <Text style={styles.expandedGraphValue}>{point.value}</Text>
+                                </View>
+                              );
+                            })}
+                          </View>
+                        ) : (
+                          <View style={styles.lineGraphContainer}>
+                            <View style={styles.lineGraphArea}>
+                              {generateGraphData('streak').map((point, index, array) => {
+                                const maxStreak = Math.max(...array.map(p => p.value));
+                                const normalizedY = 100 - ((point.value / Math.max(maxStreak, 1)) * 80);
+                                const x = (index / (array.length - 1)) * 100;
+                                
+                                return (
+                                  <View key={index}>
+                                    <View 
+                                      style={[styles.lineGraphPoint, {
+                                        left: `${x}%`,
+                                        top: `${normalizedY}%`,
+                                        backgroundColor: '#9C27B0'
+                                      }]}
+                                    />
+                                    {index < array.length - 1 && (
+                                      <View 
+                                        style={[styles.lineGraphLine, {
+                                          left: `${x}%`,
+                                          top: `${normalizedY}%`,
+                                          width: `${100 / (array.length - 1)}%`,
+                                          backgroundColor: '#9C27B0'
+                                        }]}
+                                      />
+                                    )}
+                                  </View>
+                                );
+                              })}
+                            </View>
+                            <View style={styles.lineGraphLabels}>
+                              <Text style={styles.lineGraphStartLabel}>
+                                {generateGraphData('streak')[0]?.date.split(' ')[1]}
+                              </Text>
+                              <Text style={styles.lineGraphEndLabel}>
+                                {generateGraphData('streak')[generateGraphData('streak').length - 1]?.date.split(' ')[1]}
+                              </Text>
+                            </View>
+                            <Text style={styles.lineGraphSummary}>
+                              Current: {generateGraphData('streak')[generateGraphData('streak').length - 1]?.value} days
+                            </Text>
+                          </View>
+                        )}
+                        <Text style={styles.expandedGraphGoal}>Keep the momentum going!</Text>
+                      </View>
+                    </View>
+                  )}
+                  
+                  {/* Mental Health Card Expanded Views */}
+                  {selectedCard === 'mindfulness' && (
+                    <View 
+                      style={[styles.expandedCard, styles.expandedMindfulnessCard]}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={closeGraphView}
+                    >
+                      <View style={styles.expandedCardHeader}>
+                        <View style={styles.expandedCardTitleSection}>
+                          <Text style={styles.expandedCardIcon}>🧘</Text>
+                          <View>
+                            <Text style={[styles.expandedCardTitle, styles.mindfulnessTitle]}>MINDFULNESS</Text>
+                            <Text style={[styles.expandedCardValue, styles.mindfulnessValue]}>
+                              {mentalData.mindfulness.current || 0} min
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.expandedCardGraph}>
+                        <Text style={styles.expandedGraphTitle}>{dateRange === 'week' ? '7-Day' : '30-Day'} Mindfulness Practice</Text>
+                        {dateRange === 'week' ? (
+                          <View style={styles.expandedGraphArea}>
+                            {generateGraphData('mindfulness').map((point, index) => {
+                              const maxValue = Math.max(...generateGraphData('mindfulness').map(p => p.value));
+                              const normalizedHeight = (point.value / Math.max(maxValue, 1)) * 60 + 20;
+                              
+                              return (
+                                <View key={index} style={styles.expandedGraphColumn}>
+                                  <View 
+                                    style={[styles.expandedGraphBar, {
+                                      height: normalizedHeight,
+                                      backgroundColor: '#D32F2F'
+                                    }]}
+                                  />
+                                  <Text style={styles.expandedGraphLabel}>{point.date.split(' ')[1]}</Text>
+                                  <Text style={styles.expandedGraphValue}>{point.value}m</Text>
+                                </View>
+                              );
+                            })}
+                          </View>
+                        ) : (
+                          <View style={styles.lineGraphContainer}>
+                            <View style={styles.lineGraphArea}>
+                              {generateGraphData('mindfulness').map((point, index, array) => {
+                                const maxValue = Math.max(...array.map(p => p.value));
+                                const normalizedY = 100 - ((point.value / Math.max(maxValue, 1)) * 80);
+                                const x = (index / (array.length - 1)) * 100;
+                                
+                                return (
+                                  <View key={index}>
+                                    <View 
+                                      style={[styles.lineGraphPoint, {
+                                        left: `${x}%`,
+                                        top: `${normalizedY}%`,
+                                        backgroundColor: '#D32F2F'
+                                      }]}
+                                    />
+                                    {index < array.length - 1 && (
+                                      <View 
+                                        style={[styles.lineGraphLine, {
+                                          left: `${x}%`,
+                                          top: `${normalizedY}%`,
+                                          width: `${100 / (array.length - 1)}%`,
+                                          backgroundColor: '#D32F2F'
+                                        }]}
+                                      />
+                                    )}
+                                  </View>
+                                );
+                              })}
+                            </View>
+                            <View style={styles.lineGraphLabels}>
+                              <Text style={styles.lineGraphStartLabel}>
+                                {generateGraphData('mindfulness')[0]?.date.split(' ')[1]}
+                              </Text>
+                              <Text style={styles.lineGraphEndLabel}>
+                                {generateGraphData('mindfulness')[generateGraphData('mindfulness').length - 1]?.date.split(' ')[1]}
+                              </Text>
+                            </View>
+                            <Text style={styles.lineGraphSummary}>
+                              Avg: {Math.round(generateGraphData('mindfulness').reduce((sum, p) => sum + p.value, 0) / generateGraphData('mindfulness').length)} min/day
+                            </Text>
+                          </View>
+                        )}
+                        <Text style={styles.expandedGraphGoal}>Target: {mentalData.mindfulness.goal || 20} minutes daily</Text>
+                      </View>
+                    </View>
+                  )}
+                  
+                  {selectedCard === 'mood' && (
+                    <View 
+                      style={[styles.expandedCard, styles.expandedMoodCard]}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={closeGraphView}
+                    >
+                      <View style={styles.expandedCardHeader}>
+                        <View style={styles.expandedCardTitleSection}>
+                          <Text style={styles.expandedCardIcon}>😊</Text>
+                          <View>
+                            <Text style={[styles.expandedCardTitle, styles.moodTitle]}>MOOD</Text>
+                            <Text style={[styles.expandedCardValue, styles.moodValue]}>
+                              {mentalData.mood.current || 7}/10
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.expandedCardGraph}>
+                        <Text style={styles.expandedGraphTitle}>{dateRange === 'week' ? '7-Day' : '30-Day'} Mood Progress</Text>
+{dateRange === 'week' ? (
+                          <View style={styles.expandedGraphArea}>
+                            {generateGraphData('mood').map((point, index) => {
+                              const normalizedHeight = (point.value / 10) * 60 + 20;
+                              
+                              return (
+                                <View key={index} style={styles.expandedGraphColumn}>
+                                  <View 
+                                    style={[styles.expandedGraphBar, {
+                                      height: normalizedHeight,
+                                      backgroundColor: '#7B1FA2'
+                                    }]}
+                                  />
+                                  <Text style={styles.expandedGraphLabel}>{point.date.split(' ')[1]}</Text>
+                                  <Text style={styles.expandedGraphValue}>{point.value}/10</Text>
+                                </View>
+                              );
+                            })}
+                          </View>
+                        ) : (
+                          <View style={styles.lineGraphContainer}>
+                            <View style={styles.lineGraphArea}>
+                              {generateGraphData('mood').map((point, index, array) => {
+                                const normalizedY = 100 - ((point.value / 10) * 80);
+                                const x = (index / (array.length - 1)) * 100;
+                                
+                                return (
+                                  <View key={index}>
+                                    <View 
+                                      style={[styles.lineGraphPoint, {
+                                        left: `${x}%`,
+                                        top: `${normalizedY}%`,
+                                        backgroundColor: '#7B1FA2'
+                                      }]}
+                                    />
+                                    {index < array.length - 1 && (
+                                      <View 
+                                        style={[styles.lineGraphLine, {
+                                          left: `${x}%`,
+                                          top: `${normalizedY}%`,
+                                          width: `${100 / (array.length - 1)}%`,
+                                          backgroundColor: '#7B1FA2'
+                                        }]}
+                                      />
+                                    )}
+                                  </View>
+                                );
+                              })}
+                            </View>
+                            <View style={styles.lineGraphLabels}>
+                              <Text style={styles.lineGraphStartLabel}>
+                                {generateGraphData('mood')[0]?.date.split(' ')[1]}
+                              </Text>
+                              <Text style={styles.lineGraphEndLabel}>
+                                {generateGraphData('mood')[generateGraphData('mood').length - 1]?.date.split(' ')[1]}
+                              </Text>
+                            </View>
+                            <Text style={styles.lineGraphSummary}>
+                              Avg: {(generateGraphData('mood').reduce((sum, p) => sum + p.value, 0) / generateGraphData('mood').length).toFixed(1)}/10
+                            </Text>
+                          </View>
+                        )}
+                        <Text style={styles.expandedGraphGoal}>Average: {mentalData.mood.average || 6.8}/10 this week</Text>
+                      </View>
+                    </View>
+                  )}
+                  
+                  {selectedCard === 'learning' && (
+                    <View 
+                      style={[styles.expandedCard, styles.expandedLearningCard]}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={closeGraphView}
+                    >
+                      <View style={styles.expandedCardHeader}>
+                        <View style={styles.expandedCardTitleSection}>
+                          <Text style={styles.expandedCardIcon}>📚</Text>
+                          <View>
+                            <Text style={[styles.expandedCardTitle, styles.learningTitle]}>LEARNING</Text>
+                            <Text style={[styles.expandedCardValue, styles.learningValue]}>
+                              {mentalData.learning.completed || 0}/{mentalData.learning.goal || 3}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.expandedCardGraph}>
+                        <Text style={styles.expandedGraphTitle}>{dateRange === 'week' ? '7-Day' : '30-Day'} Learning Activity</Text>
+{dateRange === 'week' ? (
+                          <View style={styles.expandedGraphArea}>
+                            {generateGraphData('learning').map((point, index) => {
+                              const normalizedHeight = (point.value / 3) * 60 + 20;
+                              
+                              return (
+                                <View key={index} style={styles.expandedGraphColumn}>
+                                  <View 
+                                    style={[styles.expandedGraphBar, {
+                                      height: normalizedHeight,
+                                      backgroundColor: '#F57C00'
+                                    }]}
+                                  />
+                                  <Text style={styles.expandedGraphLabel}>{point.date.split(' ')[1]}</Text>
+                                  <Text style={styles.expandedGraphValue}>{point.value}</Text>
+                                </View>
+                              );
+                            })}
+                          </View>
+                        ) : (
+                          <View style={styles.lineGraphContainer}>
+                            <View style={styles.lineGraphArea}>
+                              {generateGraphData('learning').map((point, index, array) => {
+                                const normalizedY = 100 - ((point.value / 3) * 80);
+                                const x = (index / (array.length - 1)) * 100;
+                                
+                                return (
+                                  <View key={index}>
+                                    <View 
+                                      style={[styles.lineGraphPoint, {
+                                        left: `${x}%`,
+                                        top: `${normalizedY}%`,
+                                        backgroundColor: '#F57C00'
+                                      }]}
+                                    />
+                                    {index < array.length - 1 && (
+                                      <View 
+                                        style={[styles.lineGraphLine, {
+                                          left: `${x}%`,
+                                          top: `${normalizedY}%`,
+                                          width: `${100 / (array.length - 1)}%`,
+                                          backgroundColor: '#F57C00'
+                                        }]}
+                                      />
+                                    )}
+                                  </View>
+                                );
+                              })}
+                            </View>
+                            <View style={styles.lineGraphLabels}>
+                              <Text style={styles.lineGraphStartLabel}>
+                                {generateGraphData('learning')[0]?.date.split(' ')[1]}
+                              </Text>
+                              <Text style={styles.lineGraphEndLabel}>
+                                {generateGraphData('learning')[generateGraphData('learning').length - 1]?.date.split(' ')[1]}
+                              </Text>
+                            </View>
+                            <Text style={styles.lineGraphSummary}>
+                              Total: {generateGraphData('learning').reduce((sum, p) => sum + p.value, 0)} items this month
+                            </Text>
+                          </View>
+                        )}
+                        <Text style={styles.expandedGraphGoal}>Streak: {mentalData.learning.streak || 8} days of continuous learning</Text>
+                      </View>
+                    </View>
+                  )}
+                  
+                  {selectedCard === 'gratitude' && (
+                    <View 
+                      style={[styles.expandedCard, styles.expandedGratitudeCard]}
+                      onStartShouldSetResponder={() => true}
+                      onResponderGrant={closeGraphView}
+                    >
+                      <View style={styles.expandedCardHeader}>
+                        <View style={styles.expandedCardTitleSection}>
+                          <Text style={styles.expandedCardIcon}>🙏</Text>
+                          <View>
+                            <Text style={[styles.expandedCardTitle, styles.gratitudeTitle]}>GRATITUDE</Text>
+                            <Text style={[styles.expandedCardValue, styles.gratitudeValue]}>
+                              {mentalData.gratitude.entries || 0} entries
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.expandedCardGraph}>
+                        <Text style={styles.expandedGraphTitle}>{dateRange === 'week' ? '7-Day' : '30-Day'} Gratitude Practice</Text>
+{dateRange === 'week' ? (
+                          <View style={styles.expandedGraphArea}>
+                            {generateGraphData('gratitude').map((point, index) => {
+                              const maxEntries = Math.max(...generateGraphData('gratitude').map(p => p.value));
+                              const normalizedHeight = (point.value / Math.max(maxEntries, 1)) * 60 + 20;
+                              
+                              return (
+                                <View key={index} style={styles.expandedGraphColumn}>
+                                  <View 
+                                    style={[styles.expandedGraphBar, {
+                                      height: normalizedHeight,
+                                      backgroundColor: '#388E3C'
+                                    }]}
+                                  />
+                                  <Text style={styles.expandedGraphLabel}>{point.date.split(' ')[1]}</Text>
+                                  <Text style={styles.expandedGraphValue}>{point.value}</Text>
+                                </View>
+                              );
+                            })}
+                          </View>
+                        ) : (
+                          <View style={styles.lineGraphContainer}>
+                            <View style={styles.lineGraphArea}>
+                              {generateGraphData('gratitude').map((point, index, array) => {
+                                const maxEntries = Math.max(...array.map(p => p.value));
+                                const normalizedY = 100 - ((point.value / Math.max(maxEntries, 1)) * 80);
+                                const x = (index / (array.length - 1)) * 100;
+                                
+                                return (
+                                  <View key={index}>
+                                    <View 
+                                      style={[styles.lineGraphPoint, {
+                                        left: `${x}%`,
+                                        top: `${normalizedY}%`,
+                                        backgroundColor: '#388E3C'
+                                      }]}
+                                    />
+                                    {index < array.length - 1 && (
+                                      <View 
+                                        style={[styles.lineGraphLine, {
+                                          left: `${x}%`,
+                                          top: `${normalizedY}%`,
+                                          width: `${100 / (array.length - 1)}%`,
+                                          backgroundColor: '#388E3C'
+                                        }]}
+                                      />
+                                    )}
+                                  </View>
+                                );
+                              })}
+                            </View>
+                            <View style={styles.lineGraphLabels}>
+                              <Text style={styles.lineGraphStartLabel}>
+                                {generateGraphData('gratitude')[0]?.date.split(' ')[1]}
+                              </Text>
+                              <Text style={styles.lineGraphEndLabel}>
+                                {generateGraphData('gratitude')[generateGraphData('gratitude').length - 1]?.date.split(' ')[1]}
+                              </Text>
+                            </View>
+                            <Text style={styles.lineGraphSummary}>
+                              Avg: {(generateGraphData('gratitude').reduce((sum, p) => sum + p.value, 0) / generateGraphData('gratitude').length).toFixed(1)} entries/day
+                            </Text>
+                          </View>
+                        )}
+                        <Text style={styles.expandedGraphGoal}>Goal: {mentalData.gratitude.goal || 3} entries daily</Text>
+                      </View>
+                    </View>
+                  )}
+                </Animated.View>
+              )}
+              
+
+              
+              {/* Dynamic Goal Cards - Short-term (week) / Long-term (month) */}
+              {!showGraph && (
+                <View style={styles.customGoalsContainer}>
+                  <Text style={styles.customGoalsTitle}>
+                    {dateRange === 'week' ? 'Short-Term Goals' : 'Long-Term Goals'}
+                  </Text>
+                  <View style={styles.customGoalsGrid}>
+                    {getCurrentGoals().map((goal, index) => (
+                      <View 
+                        key={goal.id}
+                        style={[styles.customGoalCard, { borderLeftColor: goal.color, borderLeftWidth: 4 }]}
+                        onStartShouldSetResponder={() => true}
+                        onResponderGrant={() => {
+                          console.log(`Custom goal ${goal.title} tapped`);
+                          // TODO: Add goal editing functionality
+                        }}
+                      >
+                        <View style={styles.customGoalHeader}>
+                          <Text style={styles.customGoalIcon}>{goal.icon}</Text>
+                          <Text style={[styles.customGoalTitle, { color: goal.color }]}>{goal.title}</Text>
+                        </View>
+                        
+                        <View style={styles.customGoalContent}>
+                          <Text style={[styles.customGoalValue, { color: goal.color }]}>
+                            {goal.currentValue}
+                            {goal.unit === 'hours' ? 'h' : 
+                             goal.unit === 'steps' ? '' : 
+                             goal.unit === 'kcal' ? '' :
+                             goal.unit === 'lbs lost' ? '' :
+                             goal.unit}
+                          </Text>
+                          <Text style={styles.customGoalTarget}>
+                            of {goal.targetValue} {goal.unit === 'hours' ? 'hrs' : goal.unit}
+                          </Text>
+                          <Text style={styles.customGoalTimeframe}>
+                            {goal.timeframe}
+                          </Text>
+                        </View>
+                        
+                        <View style={styles.customGoalProgressContainer}>
+                          <View 
+                            style={[styles.customGoalProgressBar, {
+                              width: `${Math.min(goal.progress, 100)}%`,
+                              backgroundColor: goal.color
+                            }]}
+                          />
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+              
+              {/* Mode Toggle Buttons - Moved to bottom */}
+              {!showGraph && (
+                <View style={styles.modeButtonContainer}>
+                  <View 
+                    style={[styles.modeButton, challengeMode === 'fitness' ? styles.activeButton : styles.inactiveButton]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      console.log('Fitness mode selected');
+                      setChallengeMode('fitness');
+                    }}
+                  >
+                    <Text style={[styles.modeButtonText, challengeMode === 'fitness' ? styles.activeButtonText : styles.inactiveButtonText]}>
+                      FITNESS
+                    </Text>
+                  </View>
+                  
+                  <View 
+                    style={[styles.modeButton, challengeMode === 'mental' ? styles.activeButton : styles.inactiveButton]}
+                    onStartShouldSetResponder={() => true}
+                    onResponderGrant={() => {
+                      console.log('Mental mode selected');
+                      setChallengeMode('mental');
+                    }}
+                  >
+                    <Text style={[styles.modeButtonText, challengeMode === 'mental' ? styles.activeButtonText : styles.inactiveButtonText]}>
+                      MENTAL
+                    </Text>
+                  </View>
+                </View>
+              )}
+              </View>
+          </View>
+          
+          {/* Goals Page */}
+          {/* Goals Page - Light tint of primary green */}
+          <View style={[styles.page, { backgroundColor: '#F8FCF8' }]}>
+            <Text style={[styles.pageLabel, { color: THRIVE_COLORS.black }]}>Goals</Text>
+            <Text style={[styles.pageDescription, { color: THRIVE_COLORS.black }]}>Set and track your wellness goals</Text>
+          </View>
+          
+          {/* Social Page */}
+          {/* Social Page - Light tint of accent blue */}
+          <View style={[styles.page, { backgroundColor: '#F0F7FF' }]}>
+            <Text style={[styles.pageLabel, { color: THRIVE_COLORS.black }]}>Social</Text>
+            <Text style={[styles.pageDescription, { color: THRIVE_COLORS.black }]}>Connect with the community</Text>
+          </View>
         </Animated.View>
       </View>
       
