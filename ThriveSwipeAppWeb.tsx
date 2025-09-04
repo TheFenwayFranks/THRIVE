@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, Animated, PanResponder, TextInput, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, Animated, PanResponder, TextInput, ScrollView, Alert } from 'react-native';
 import CalendarSyncService, { CalendarEvent, SyncStatus } from './CalendarSyncService';
 import CalendarSettings from './CalendarSettings';
 import EventCreationModal, { EventFormData, EVENT_CATEGORIES } from './EventCreationModal';
@@ -264,9 +264,8 @@ const ThriveSwipeAppWeb = () => {
     tags: ['Coaching']
   });
   const [showSearch, setShowSearch] = useState(false);
-  const [showCreatePost, setShowCreatePost] = useState(false);
-  const [showStoryCreator, setShowStoryCreator] = useState(false);
-  const [showLiveStream, setShowLiveStream] = useState(false);
+
+
   const [showAnalytics, setShowAnalytics] = useState(false);
   
   // 🎯 Customizable Routine System State
@@ -2421,14 +2420,15 @@ const ThriveSwipeAppWeb = () => {
         </View>
         
         {/* AI Coach Button */}
-        <TouchableOpacity
-          style={styles.aiCoachButton}
-          onPress={() => setShowAICoach(!showAICoach)}
+        <View
+          style={[styles.aiCoachButton, { cursor: 'pointer' }]}
+          onStartShouldSetResponder={() => true}
+          onResponderGrant={() => setShowAICoach(!showAICoach)}
         >
           <View style={styles.aiCoachAvatar}>
             <Text style={styles.aiCoachAvatarText}>🧠</Text>
           </View>
-        </TouchableOpacity>
+        </View>
 
       </View>
       
@@ -2951,12 +2951,13 @@ const ThriveSwipeAppWeb = () => {
                         ) : (
                           <View style={styles.noSelectedEventsContainer}>
                             <Text style={styles.noSelectedEvents}>No events on this date</Text>
-                            <TouchableOpacity
-                              style={styles.addEventForDateButton}
-                              onPress={() => setShowEventCreation(true)}
+                            <View
+                              style={[styles.addEventForDateButton, { cursor: 'pointer' }]}
+                              onStartShouldSetResponder={() => true}
+                              onResponderGrant={() => setShowEventCreation(true)}
                             >
                               <Text style={styles.addEventForDateButtonText}>+ Add Event</Text>
-                            </TouchableOpacity>
+                            </View>
                           </View>
                         )}
                       </View>
@@ -9552,33 +9553,7 @@ const styles = StyleSheet.create({
   
 
   
-  postActionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E5E5',
-  },
-  
-  postActionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    cursor: 'pointer',
-  },
-  
-  postActionIcon: {
-    fontSize: 20,
-    marginRight: 6,
-  },
-  
-  postActionText: {
-    color: '#65676B',
-    fontWeight: '600',
-    fontSize: 15,
-  },
+
   
 
   
