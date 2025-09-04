@@ -8489,7 +8489,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10, // Reduced top margin
     marginBottom: 5, // Small bottom margin
-    paddingHorizontal: 16,
+    paddingHorizontal: 40, // Increased to match dashboard padding and prevent button cropping
     gap: 10,
   },
   
@@ -8645,12 +8645,12 @@ const styles = StyleSheet.create({
   },
   
   customGoalValue: {
-    fontSize: 28, // Increased for emphasis
+    fontSize: 22, // Reduced from 28 to fit better in smaller cards
     fontWeight: '800', // Slightly reduced for elegance
     textAlign: 'center',
-    marginBottom: 6, // Increased spacing
-    lineHeight: 32, // Added line height
-    letterSpacing: -0.5, // Tighter spacing for numbers
+    marginBottom: 4, // Reduced spacing to accommodate smaller text
+    lineHeight: 26, // Reduced line height proportionally
+    letterSpacing: -0.3, // Adjusted spacing for smaller text
   },
   
   customGoalTarget: {
