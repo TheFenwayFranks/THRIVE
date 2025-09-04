@@ -4251,8 +4251,6 @@ const ThriveSwipeAppWeb = () => {
           {/* Dashboard Page */}
           {/* Dashboard Page - Pure white */}
           <View style={[styles.page, { backgroundColor: THRIVE_COLORS.white }]}>
-            <Text style={styles.pageDescription}>Welcome back, {profileData.name || 'User'}!</Text>
-            
             {/* Dashboard Grid Container - 2x2 Grid */}
             <View style={styles.dashboardContainer}>
               
@@ -8580,8 +8578,8 @@ const styles = StyleSheet.create({
   
   // Custom Goal Cards Styles
   customGoalsContainer: {
-    marginTop: 20, // Increased margin to fill the space
-    marginBottom: 8, // Reduced bottom margin to prevent overflow
+    marginTop: 30, // Further increased margin to fill the space left by removed banner
+    marginBottom: 12, // Slightly increased bottom margin for better spacing
     paddingHorizontal: 20,
   },
   
@@ -8603,9 +8601,9 @@ const styles = StyleSheet.create({
   customGoalCard: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16, // Increased padding for larger cards
-    minHeight: 110, // Increased height to fill more space
+    borderRadius: 16,
+    padding: 24, // Increased padding for much larger cards
+    minHeight: 140, // Significantly increased height for better visibility
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -8618,16 +8616,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   
   customGoalIcon: {
-    fontSize: 18,
-    marginRight: 4,
+    fontSize: 22,
+    marginRight: 6,
   },
   
   customGoalTitle: {
-    fontSize: 11,
+    fontSize: 14,
     fontWeight: '800',
     letterSpacing: 1,
   },
@@ -8638,38 +8636,39 @@ const styles = StyleSheet.create({
   },
   
   customGoalValue: {
-    fontSize: 20,
+    fontSize: 26,
     fontWeight: '900',
     textAlign: 'center',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   
   customGoalTarget: {
-    fontSize: 9,
+    fontSize: 12,
     color: '#666',
     textAlign: 'center',
     fontWeight: '600',
   },
   
   customGoalTimeframe: {
-    fontSize: 8,
+    fontSize: 10,
     color: '#999',
     textAlign: 'center',
     fontWeight: '500',
     fontStyle: 'italic',
-    marginTop: 2,
+    marginTop: 4,
   },
   
   customGoalProgressContainer: {
-    height: 5,
+    height: 8,
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    borderRadius: 2.5,
+    borderRadius: 4,
     overflow: 'hidden',
+    marginTop: 8,
   },
   
   customGoalProgressBar: {
-    height: 4,
-    borderRadius: 2,
+    height: 8,
+    borderRadius: 4,
   },
   
   // Calendar Sync Styles
