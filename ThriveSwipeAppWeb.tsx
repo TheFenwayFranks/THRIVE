@@ -2032,6 +2032,107 @@ const ThriveSwipeAppWeb = () => {
     }
   };
 
+  // 📤 DATA MANAGEMENT: Export all app data to JSON file
+  const handleExportData = () => {
+    try {
+      // Collect all app data
+      const exportData = {
+        version: '1.0',
+        timestamp: new Date().toISOString(),
+        data: {
+          profileData,
+          editableProfileData,
+          notifications,
+          selectedRoutines,
+          userCustomizations,
+          taskProgress,
+          completedTasks,
+          dateRange,
+          calendarView,
+          // Add any other state that should be preserved
+        }
+      };
+
+      // Convert to JSON string
+      const jsonString = JSON.stringify(exportData, null, 2);
+      
+      // Create downloadable file
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `thrive-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+      
+      alert('✅ Data exported successfully! Check your downloads folder.');
+      console.log('📤 Data exported successfully');
+    } catch (error) {
+      console.error('❌ Export failed:', error);
+      alert('❌ Export failed. Please try again.');
+    }
+  };
+
+  // 📥 DATA MANAGEMENT: Import app data from JSON file
+  const handleImportData = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const importData = JSON.parse(e.target.result);
+          
+          // Validate import data structure
+          if (!importData.data || !importData.version) {
+            throw new Error('Invalid backup file format');
+          }
+          
+          // Confirm import
+          const confirmed = window.confirm(
+            `📥 Import Data?\n\nThis will replace all current data with the backup from ${new Date(importData.timestamp).toLocaleDateString()}.\n\n⚠️ Current data will be lost!\n\nProceed with import?`
+          );
+          
+          if (confirmed) {
+            // Restore all data
+            const data = importData.data;
+            
+            if (data.profileData) setProfileData(data.profileData);
+            if (data.editableProfileData) setEditableProfileData(data.editableProfileData);
+            if (data.notifications) setNotifications(data.notifications);
+            if (data.selectedRoutines) setSelectedRoutines(data.selectedRoutines);
+            if (data.userCustomizations) setUserCustomizations(data.userCustomizations);
+            if (data.taskProgress) setTaskProgress(data.taskProgress);
+            if (data.completedTasks) setCompletedTasks(data.completedTasks);
+            if (data.dateRange) setDateRange(data.dateRange);
+            if (data.calendarView) setCalendarView(data.calendarView);
+            
+            alert('✅ Data imported successfully! Your backup has been restored.');
+            console.log('📥 Data imported successfully from:', importData.timestamp);
+          }
+        } catch (error) {
+          console.error('❌ Import failed:', error);
+          alert('❌ Import failed. Please check that you selected a valid THRIVE backup file.');
+        }
+      };
+      
+      reader.readAsText(file);
+    };
+    
+    input.click();
+  };
+
   // Removed camera capture function
 
   // Removed library selection function
@@ -2392,6 +2493,22 @@ const ThriveSwipeAppWeb = () => {
           >
             <Text style={styles.menuItemIcon}>🎭</Text>
             <Text style={styles.menuItemText}>Add Demo Data</Text>
+          </View>
+          <View 
+            style={styles.menuItem}
+            onStartShouldSetResponder={() => true}
+            onResponderGrant={() => { handleExportData(); toggleMenu(); }}
+          >
+            <Text style={styles.menuItemIcon}>📤</Text>
+            <Text style={styles.menuItemText}>Export Data</Text>
+          </View>
+          <View 
+            style={styles.menuItem}
+            onStartShouldSetResponder={() => true}
+            onResponderGrant={() => { handleImportData(); toggleMenu(); }}
+          >
+            <Text style={styles.menuItemIcon}>📥</Text>
+            <Text style={styles.menuItemText}>Import Data</Text>
           </View>
           
           {/* Logout */}
@@ -6288,6 +6405,122 @@ const ThriveSwipeAppWeb = () => {
         </View>
       )}
       
+      {/* Profile Settings Modal */}
+      {showProfileSettings && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.settingsModal}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Settings & Data Management</Text>
+              <View 
+                style={styles.modalCloseButton}
+                onStartShouldSetResponder={() => true}
+                onResponderGrant={() => setShowProfileSettings(false)}
+              >
+                <Text style={styles.modalCloseText}>×</Text>
+              </View>
+            </View>
+            
+            <ScrollView style={styles.settingsContent} showsVerticalScrollIndicator={false}>
+              
+              {/* Data Management Section */}
+              <View style={styles.settingsSection}>
+                <Text style={styles.settingsSectionTitle}>📊 Data Management</Text>
+                <Text style={styles.settingsSectionDescription}>
+                  Manage your app data, create backups, and restore from previous saves.
+                </Text>
+                
+                {/* Export Data */}
+                <View 
+                  style={styles.settingsButton}
+                  onStartShouldSetResponder={() => true}
+                  onResponderGrant={() => {
+                    setShowProfileSettings(false);
+                    handleExportData();
+                  }}
+                >
+                  <View style={styles.settingsButtonLeft}>
+                    <Text style={styles.settingsButtonIcon}>📤</Text>
+                    <View>
+                      <Text style={styles.settingsButtonTitle}>Export Data</Text>
+                      <Text style={styles.settingsButtonSubtitle}>Download backup of all your data</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.settingsButtonArrow}>›</Text>
+                </View>
+                
+                {/* Import Data */}
+                <View 
+                  style={styles.settingsButton}
+                  onStartShouldSetResponder={() => true}
+                  onResponderGrant={() => {
+                    setShowProfileSettings(false);
+                    handleImportData();
+                  }}
+                >
+                  <View style={styles.settingsButtonLeft}>
+                    <Text style={styles.settingsButtonIcon}>📥</Text>
+                    <View>
+                      <Text style={styles.settingsButtonTitle}>Import Data</Text>
+                      <Text style={styles.settingsButtonSubtitle}>Restore from backup file</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.settingsButtonArrow}>›</Text>
+                </View>
+                
+                {/* Add Demo Data */}
+                <View 
+                  style={styles.settingsButton}
+                  onStartShouldSetResponder={() => true}
+                  onResponderGrant={() => {
+                    setShowProfileSettings(false);
+                    handleAddDemoData();
+                  }}
+                >
+                  <View style={styles.settingsButtonLeft}>
+                    <Text style={styles.settingsButtonIcon}>🎭</Text>
+                    <View>
+                      <Text style={styles.settingsButtonTitle}>Add Demo Data</Text>
+                      <Text style={styles.settingsButtonSubtitle}>Populate with example content</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.settingsButtonArrow}>›</Text>
+                </View>
+                
+                {/* Clear All Data */}
+                <View 
+                  style={[styles.settingsButton, styles.settingsButtonDanger]}
+                  onStartShouldSetResponder={() => true}
+                  onResponderGrant={() => {
+                    setShowProfileSettings(false);
+                    handleClearAllData();
+                  }}
+                >
+                  <View style={styles.settingsButtonLeft}>
+                    <Text style={styles.settingsButtonIcon}>🗑️</Text>
+                    <View>
+                      <Text style={[styles.settingsButtonTitle, styles.settingsDangerText]}>Clear All Data</Text>
+                      <Text style={styles.settingsButtonSubtitle}>Remove all content and reset app</Text>
+                    </View>
+                  </View>
+                  <Text style={[styles.settingsButtonArrow, styles.settingsDangerText]}>›</Text>
+                </View>
+              </View>
+              
+              {/* App Information Section */}
+              <View style={styles.settingsSection}>
+                <Text style={styles.settingsSectionTitle}>ℹ️ App Information</Text>
+                <View style={styles.settingsInfoCard}>
+                  <Text style={styles.settingsInfoTitle}>THRIVE Wellness App</Text>
+                  <Text style={styles.settingsInfoSubtitle}>Version 2.0 - Web Edition</Text>
+                  <Text style={styles.settingsInfoDescription}>
+                    Your personal wellness companion for building healthier habits and tracking progress.
+                  </Text>
+                </View>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      )}
 
       
     </View>
@@ -13704,6 +13937,125 @@ const styles = StyleSheet.create({
   
   modernPostButtonTextInactive: {
     color: '#999',
+  },
+  
+  // Settings Modal Styles
+  settingsModal: {
+    backgroundColor: THRIVE_COLORS.white,
+    borderRadius: 16,
+    marginHorizontal: 20,
+    marginVertical: 50,
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  
+  settingsContent: {
+    maxHeight: 600,
+  },
+  
+  settingsSection: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F2F5',
+  },
+  
+  settingsSectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: THRIVE_COLORS.black,
+    marginBottom: 8,
+  },
+  
+  settingsSectionDescription: {
+    fontSize: 14,
+    color: '#65676B',
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  
+  settingsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    marginBottom: 12,
+    cursor: 'pointer',
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  
+  settingsButtonDanger: {
+    backgroundColor: '#FFF5F5',
+    borderColor: '#FFE5E5',
+  },
+  
+  settingsButtonLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  
+  settingsButtonIcon: {
+    fontSize: 24,
+    marginRight: 16,
+  },
+  
+  settingsButtonTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: THRIVE_COLORS.black,
+    marginBottom: 2,
+  },
+  
+  settingsButtonSubtitle: {
+    fontSize: 13,
+    color: '#65676B',
+    lineHeight: 18,
+  },
+  
+  settingsButtonArrow: {
+    fontSize: 20,
+    color: '#BCC0C4',
+    fontWeight: '300',
+  },
+  
+  settingsDangerText: {
+    color: '#E74C3C',
+  },
+  
+  settingsInfoCard: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  
+  settingsInfoTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: THRIVE_COLORS.primary,
+    marginBottom: 4,
+  },
+  
+  settingsInfoSubtitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#65676B',
+    marginBottom: 8,
+  },
+  
+  settingsInfoDescription: {
+    fontSize: 13,
+    color: '#65676B',
+    lineHeight: 18,
   },
 
 
