@@ -44,6 +44,7 @@ const HealthPermissionsModal: React.FC<HealthPermissionsModalProps> = ({
   onSkip,
   showSkipOption = true
 }) => {
+  console.log('📝 Health Modal Props:', { visible, hasOnSkip: !!onSkip, showSkipOption });
   const { 
     syncStatus, 
     requestPermissions, 
@@ -53,6 +54,8 @@ const HealthPermissionsModal: React.FC<HealthPermissionsModalProps> = ({
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isConnecting, setIsConnecting] = useState(false);
+  
+  console.log('🎨 Rendering modal. Current step:', currentStep, 'Show skip:', showSkipOption);
 
   const healthSources: HealthSourceInfo[] = [
     {
@@ -158,29 +161,16 @@ const HealthPermissionsModal: React.FC<HealthPermissionsModalProps> = ({
   };
 
   const handleSkip = () => {
-    console.log('📝 Skip button pressed!');
+    console.log('📝 Skip button pressed! onSkip exists:', !!onSkip);
     
-    Alert.alert(
-      'Skip Health Setup?',
-      'You can track your progress manually and connect health apps later if you change your mind.',
-      [
-        { text: 'Go Back', style: 'cancel' },
-        { 
-          text: 'Skip Setup', 
-          onPress: () => {
-            console.log('🏥 User confirmed skip - closing modal');
-            
-            // Call the onSkip callback if provided
-            if (onSkip) {
-              onSkip();
-            }
-            
-            // Close the modal
-            onClose();
-          }
-        }
-      ]
-    );
+    // Direct skip without confirmation for debugging
+    if (onSkip) {
+      console.log('🏥 Calling onSkip callback');
+      onSkip();
+    }
+    
+    console.log('🚀 Calling onClose');
+    onClose();
   };
 
   const renderIntroContent = () => (
@@ -347,6 +337,27 @@ const HealthPermissionsModal: React.FC<HealthPermissionsModalProps> = ({
           <Text style={styles.title}>{steps[currentStep].title}</Text>
           <Text style={styles.description}>{steps[currentStep].description}</Text>
           
+          {/* Debug Test Button */}
+          <View 
+            style={{
+              backgroundColor: 'red',
+              padding: 10,
+              margin: 10,
+              borderRadius: 5,
+              alignSelf: 'center'
+            }}
+            onStartShouldSetResponder={() => {
+              console.log('🗋 TEST BUTTON - touch started');
+              return true;
+            }}
+            onResponderGrant={() => {
+              console.log('🗋 TEST BUTTON PRESSED!');
+              alert('Test button works!');
+            }}
+          >
+            <Text style={{ color: 'white', fontWeight: 'bold' }}>TEST TOUCH</Text>
+          </View>
+          
           {/* Progress Bar */}
           <View style={styles.progressContainer}>
             <View 
@@ -375,11 +386,15 @@ const HealthPermissionsModal: React.FC<HealthPermissionsModalProps> = ({
             {/* Skip Button */}
             {showSkipOption && (
               <TouchableOpacity 
-                style={styles.skipButton}
-                onPress={handleSkip}
+                style={[styles.skipButton, { backgroundColor: '#ffebee', borderColor: '#f44336' }]}
+                onPress={() => {
+                  console.log('🔴 SKIP BUTTON PRESSED - WORKING!');
+                  Alert.alert('Skip Button Works!', 'The skip button is now functional.');
+                  handleSkip();
+                }}
                 activeOpacity={0.7}
               >
-                <Text style={styles.skipButtonText}>Skip Setup</Text>
+                <Text style={[styles.skipButtonText, { color: '#d32f2f', fontWeight: 'bold' }]}>Skip Setup</Text>
               </TouchableOpacity>
             )}
             
@@ -726,18 +741,21 @@ const styles = StyleSheet.create({
   },
   
   skipButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    backgroundColor: '#f5f5f5',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    backgroundColor: '#f8f9fa',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#dee2e6',
+    minWidth: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   
   skipButtonText: {
     fontSize: 16,
-    color: '#666',
-    fontWeight: '600',
+    color: 'white',
+    fontWeight: '700',
     textAlign: 'center',
   },
   
